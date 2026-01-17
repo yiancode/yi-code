@@ -28,6 +28,8 @@ export const useAppStore = defineStore('app', () => {
   const siteLogo = ref<string>('')
   const siteVersion = ref<string>('')
   const contactInfo = ref<string>('')
+  const contactQRCodeWechat = ref<string>('')
+  const contactQRCodeGroup = ref<string>('')
   const apiBaseUrl = ref<string>('')
   const docUrl = ref<string>('')
   const cachedPublicSettings = ref<PublicSettings | null>(null)
@@ -288,6 +290,8 @@ export const useAppStore = defineStore('app', () => {
     siteLogo.value = config.site_logo || ''
     siteVersion.value = config.version || ''
     contactInfo.value = config.contact_info || ''
+    contactQRCodeWechat.value = config.contact_qrcode_wechat || ''
+    contactQRCodeGroup.value = config.contact_qrcode_group || ''
     apiBaseUrl.value = config.api_base_url || ''
     docUrl.value = config.doc_url || ''
     publicSettingsLoaded.value = true
@@ -319,6 +323,8 @@ export const useAppStore = defineStore('app', () => {
         site_subtitle: '',
         api_base_url: apiBaseUrl.value,
         contact_info: contactInfo.value,
+        contact_qrcode_wechat: contactQRCodeWechat.value,
+        contact_qrcode_group: contactQRCodeGroup.value,
         doc_url: docUrl.value,
         home_content: '',
         linuxdo_oauth_enabled: false,
@@ -380,6 +386,8 @@ export const useAppStore = defineStore('app', () => {
     siteLogo,
     siteVersion,
     contactInfo,
+    contactQRCodeWechat,
+    contactQRCodeGroup,
     apiBaseUrl,
     docUrl,
     cachedPublicSettings,

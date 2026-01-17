@@ -41,6 +41,8 @@ func (h *SettingHandler) GetPublicSettings(c *gin.Context) {
 		SiteSubtitle:        settings.SiteSubtitle,
 		APIBaseURL:          settings.APIBaseURL,
 		ContactInfo:         settings.ContactInfo,
+		ContactQRCodeWechat: settings.ContactQRCodeWechat,
+		ContactQRCodeGroup:  settings.ContactQRCodeGroup,
 		DocURL:              settings.DocURL,
 		HomeContent:         settings.HomeContent,
 		LinuxDoOAuthEnabled: settings.LinuxDoOAuthEnabled,

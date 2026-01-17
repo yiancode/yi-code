@@ -66,6 +66,8 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		SiteSubtitle:                         settings.SiteSubtitle,
 		APIBaseURL:                           settings.APIBaseURL,
 		ContactInfo:                          settings.ContactInfo,
+		ContactQRCodeWechat:                  settings.ContactQRCodeWechat,
+		ContactQRCodeGroup:                   settings.ContactQRCodeGroup,
 		DocURL:                               settings.DocURL,
 		HomeContent:                          settings.HomeContent,
 		DefaultConcurrency:                   settings.DefaultConcurrency,
@@ -111,13 +113,16 @@ type UpdateSettingsRequest struct {
 	LinuxDoConnectRedirectURL  string `json:"linuxdo_connect_redirect_url"`
 
 	// OEM设置
-	SiteName     string `json:"site_name"`
-	SiteLogo     string `json:"site_logo"`
-	SiteSubtitle string `json:"site_subtitle"`
-	APIBaseURL   string `json:"api_base_url"`
-	ContactInfo  string `json:"contact_info"`
-	DocURL       string `json:"doc_url"`
-	HomeContent  string `json:"home_content"`
+
+	SiteName            string `json:"site_name"`
+	SiteLogo            string `json:"site_logo"`
+	SiteSubtitle        string `json:"site_subtitle"`
+	APIBaseURL          string `json:"api_base_url"`
+	ContactInfo         string `json:"contact_info"`
+	ContactQRCodeWechat string `json:"contact_qrcode_wechat"`
+	ContactQRCodeGroup  string `json:"contact_qrcode_group"`
+	DocURL              string `json:"doc_url"`
+	HomeContent         string `json:"home_content"`
 
 	// 默认配置
 	DefaultConcurrency int     `json:"default_concurrency"`
@@ -257,6 +262,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		SiteSubtitle:               req.SiteSubtitle,
 		APIBaseURL:                 req.APIBaseURL,
 		ContactInfo:                req.ContactInfo,
+		ContactQRCodeWechat:        req.ContactQRCodeWechat,
+		ContactQRCodeGroup:         req.ContactQRCodeGroup,
 		DocURL:                     req.DocURL,
 		HomeContent:                req.HomeContent,
 		DefaultConcurrency:         req.DefaultConcurrency,
@@ -330,6 +337,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		SiteSubtitle:                         updatedSettings.SiteSubtitle,
 		APIBaseURL:                           updatedSettings.APIBaseURL,
 		ContactInfo:                          updatedSettings.ContactInfo,
+		ContactQRCodeWechat:                  updatedSettings.ContactQRCodeWechat,
+		ContactQRCodeGroup:                   updatedSettings.ContactQRCodeGroup,
 		DocURL:                               updatedSettings.DocURL,
 		HomeContent:                          updatedSettings.HomeContent,
 		DefaultConcurrency:                   updatedSettings.DefaultConcurrency,

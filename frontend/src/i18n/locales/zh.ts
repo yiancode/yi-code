@@ -170,6 +170,16 @@ export default {
     }
   },
 
+  // Contact
+  contact: {
+    qrcode: {
+      wechat: '微信客服',
+      group: '社群',
+      scanWechat: '扫描二维码添加微信客服',
+      scanGroup: '扫描二维码加入社群'
+    }
+  },
+
   // Navigation
   nav: {
     dashboard: '仪表盘',
@@ -2880,6 +2890,13 @@ export default {
         contactInfo: '客服联系方式',
         contactInfoPlaceholder: '例如：QQ: 123456789',
         contactInfoHint: '填写客服联系方式，将展示在兑换页面、个人资料等位置',
+        contactQRCode: '客服二维码',
+        contactQRCodeHint: '上传微信客服二维码或社群二维码，用户点击"联系客服"时可展示',
+        qrcodeWechat: '微信客服二维码',
+        qrcodeGroup: '社群二维码',
+        qrcodeSizeError: '图片大小超过 500KB 限制（{size}KB）',
+        qrcodeTypeError: '请上传图片文件',
+        qrcodeReadError: '读取图片失败',
         docUrl: '文档链接',
         docUrlHint: '文档网站的链接。留空则隐藏文档链接。',
         docUrlPlaceholder: 'https://docs.example.com',

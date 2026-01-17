@@ -620,6 +620,132 @@
               </p>
             </div>
 
+            <!-- Contact QR Codes -->
+            <div>
+              <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('admin.settings.site.contactQRCode') }}
+              </label>
+              <p class="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                {{ t('admin.settings.site.contactQRCodeHint') }}
+              </p>
+              <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- WeChat QR Code -->
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0">
+                    <div
+                      class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 dark:border-dark-600 dark:bg-dark-800"
+                      :class="{ 'border-solid': form.contact_qrcode_wechat }"
+                    >
+                      <img
+                        v-if="form.contact_qrcode_wechat"
+                        :src="form.contact_qrcode_wechat"
+                        alt="WeChat QR Code"
+                        class="h-full w-full object-contain"
+                      />
+                      <svg
+                        v-else
+                        class="h-8 w-8 text-gray-400 dark:text-dark-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1 space-y-2">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t('admin.settings.site.qrcodeWechat') }}
+                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <label class="btn btn-secondary btn-sm cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          class="hidden"
+                          @change="handleQRCodeUpload($event, 'wechat')"
+                        />
+                        <Icon name="upload" size="sm" class="mr-1.5" :stroke-width="2" />
+                        {{ t('admin.settings.site.uploadImage') }}
+                      </label>
+                      <button
+                        v-if="form.contact_qrcode_wechat"
+                        type="button"
+                        @click="form.contact_qrcode_wechat = ''"
+                        class="btn btn-secondary btn-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <Icon name="trash" size="sm" class="mr-1.5" :stroke-width="2" />
+                        {{ t('admin.settings.site.remove') }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Group QR Code -->
+                <div class="flex items-start gap-4">
+                  <div class="flex-shrink-0">
+                    <div
+                      class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 dark:border-dark-600 dark:bg-dark-800"
+                      :class="{ 'border-solid': form.contact_qrcode_group }"
+                    >
+                      <img
+                        v-if="form.contact_qrcode_group"
+                        :src="form.contact_qrcode_group"
+                        alt="Group QR Code"
+                        class="h-full w-full object-contain"
+                      />
+                      <svg
+                        v-else
+                        class="h-8 w-8 text-gray-400 dark:text-dark-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="1.5"
+                          d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="flex-1 space-y-2">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t('admin.settings.site.qrcodeGroup') }}
+                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <label class="btn btn-secondary btn-sm cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          class="hidden"
+                          @change="handleQRCodeUpload($event, 'group')"
+                        />
+                        <Icon name="upload" size="sm" class="mr-1.5" :stroke-width="2" />
+                        {{ t('admin.settings.site.uploadImage') }}
+                      </label>
+                      <button
+                        v-if="form.contact_qrcode_group"
+                        type="button"
+                        @click="form.contact_qrcode_group = ''"
+                        class="btn btn-secondary btn-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <Icon name="trash" size="sm" class="mr-1.5" :stroke-width="2" />
+                        {{ t('admin.settings.site.remove') }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p v-if="qrcodeError" class="mt-2 text-xs text-red-500">{{ qrcodeError }}</p>
+            </div>
+
             <!-- Doc URL -->
             <div>
               <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -970,6 +1096,7 @@ const testingSmtp = ref(false)
 const sendingTestEmail = ref(false)
 const testEmailAddress = ref('')
 const logoError = ref('')
+const qrcodeError = ref('')
 
 // Admin API Key 状态
 const adminApiKeyLoading = ref(true)
@@ -1005,6 +1132,8 @@ const form = reactive<SettingsForm>({
   site_subtitle: 'Subscription to API Conversion Platform',
   api_base_url: '',
   contact_info: '',
+  contact_qrcode_wechat: '',
+  contact_qrcode_group: '',
   doc_url: '',
   home_content: '',
   smtp_host: '',
@@ -1096,6 +1225,48 @@ function handleLogoUpload(event: Event) {
   input.value = ''
 }
 
+function handleQRCodeUpload(event: Event, type: 'wechat' | 'group') {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  qrcodeError.value = ''
+
+  if (!file) return
+
+  // Check file size (500KB = 512000 bytes)
+  const maxSize = 500 * 1024
+  if (file.size > maxSize) {
+    qrcodeError.value = t('admin.settings.site.qrcodeSizeError', {
+      size: (file.size / 1024).toFixed(1)
+    })
+    input.value = ''
+    return
+  }
+
+  // Check file type
+  if (!file.type.startsWith('image/')) {
+    qrcodeError.value = t('admin.settings.site.qrcodeTypeError')
+    input.value = ''
+    return
+  }
+
+  // Convert to base64
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    if (type === 'wechat') {
+      form.contact_qrcode_wechat = e.target?.result as string
+    } else {
+      form.contact_qrcode_group = e.target?.result as string
+    }
+  }
+  reader.onerror = () => {
+    qrcodeError.value = t('admin.settings.site.qrcodeReadError')
+  }
+  reader.readAsDataURL(file)
+
+  // Reset input
+  input.value = ''
+}
+
 async function loadSettings() {
   loading.value = true
   try {
@@ -1126,6 +1297,8 @@ async function saveSettings() {
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,
+      contact_qrcode_wechat: form.contact_qrcode_wechat,
+      contact_qrcode_group: form.contact_qrcode_group,
       doc_url: form.doc_url,
       home_content: form.home_content,
       smtp_host: form.smtp_host,

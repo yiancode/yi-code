@@ -25,13 +25,15 @@ type SystemSettings struct {
 	LinuxDoConnectClientSecretConfigured bool
 	LinuxDoConnectRedirectURL            string
 
-	SiteName     string
-	SiteLogo     string
-	SiteSubtitle string
-	APIBaseURL   string
-	ContactInfo  string
-	DocURL       string
-	HomeContent  string
+	SiteName            string
+	SiteLogo            string
+	SiteSubtitle        string
+	APIBaseURL          string
+	ContactInfo         string
+	ContactQRCodeWechat string
+	ContactQRCodeGroup  string
+	DocURL              string
+	HomeContent         string
 
 	DefaultConcurrency int
 	DefaultBalance     float64
@@ -64,6 +66,8 @@ type PublicSettings struct {
 	SiteSubtitle        string
 	APIBaseURL          string
 	ContactInfo         string
+	ContactQRCodeWechat string
+	ContactQRCodeGroup  string
 	DocURL              string
 	HomeContent         string
 	LinuxDoOAuthEnabled bool

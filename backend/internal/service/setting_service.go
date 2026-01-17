@@ -67,6 +67,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeySiteSubtitle,
 		SettingKeyAPIBaseURL,
 		SettingKeyContactInfo,
+		SettingKeyContactQRCodeWechat,
+		SettingKeyContactQRCodeGroup,
 		SettingKeyDocURL,
 		SettingKeyHomeContent,
 		SettingKeyLinuxDoConnectEnabled,
@@ -94,6 +96,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SiteSubtitle:        s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
 		APIBaseURL:          settings[SettingKeyAPIBaseURL],
 		ContactInfo:         settings[SettingKeyContactInfo],
+		ContactQRCodeWechat: settings[SettingKeyContactQRCodeWechat],
+		ContactQRCodeGroup:  settings[SettingKeyContactQRCodeGroup],
 		DocURL:              settings[SettingKeyDocURL],
 		HomeContent:         settings[SettingKeyHomeContent],
 		LinuxDoOAuthEnabled: linuxDoEnabled,
@@ -130,6 +134,8 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		SiteSubtitle        string `json:"site_subtitle,omitempty"`
 		APIBaseURL          string `json:"api_base_url,omitempty"`
 		ContactInfo         string `json:"contact_info,omitempty"`
+		ContactQRCodeWechat string `json:"contact_qrcode_wechat,omitempty"`
+		ContactQRCodeGroup  string `json:"contact_qrcode_group,omitempty"`
 		DocURL              string `json:"doc_url,omitempty"`
 		HomeContent         string `json:"home_content,omitempty"`
 		LinuxDoOAuthEnabled bool   `json:"linuxdo_oauth_enabled"`
@@ -144,6 +150,8 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		SiteSubtitle:        settings.SiteSubtitle,
 		APIBaseURL:          settings.APIBaseURL,
 		ContactInfo:         settings.ContactInfo,
+		ContactQRCodeWechat: settings.ContactQRCodeWechat,
+		ContactQRCodeGroup:  settings.ContactQRCodeGroup,
 		DocURL:              settings.DocURL,
 		HomeContent:         settings.HomeContent,
 		LinuxDoOAuthEnabled: settings.LinuxDoOAuthEnabled,
@@ -191,6 +199,8 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	updates[SettingKeySiteSubtitle] = settings.SiteSubtitle
 	updates[SettingKeyAPIBaseURL] = settings.APIBaseURL
 	updates[SettingKeyContactInfo] = settings.ContactInfo
+	updates[SettingKeyContactQRCodeWechat] = settings.ContactQRCodeWechat
+	updates[SettingKeyContactQRCodeGroup] = settings.ContactQRCodeGroup
 	updates[SettingKeyDocURL] = settings.DocURL
 	updates[SettingKeyHomeContent] = settings.HomeContent
 
@@ -337,6 +347,8 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		SiteSubtitle:                 s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
 		APIBaseURL:                   settings[SettingKeyAPIBaseURL],
 		ContactInfo:                  settings[SettingKeyContactInfo],
+		ContactQRCodeWechat:          settings[SettingKeyContactQRCodeWechat],
+		ContactQRCodeGroup:           settings[SettingKeyContactQRCodeGroup],
 		DocURL:                       settings[SettingKeyDocURL],
 		HomeContent:                  settings[SettingKeyHomeContent],
 	}

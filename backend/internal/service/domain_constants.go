@@ -93,13 +93,15 @@ const (
 	SettingKeyLinuxDoConnectRedirectURL  = "linuxdo_connect_redirect_url"
 
 	// OEM设置
-	SettingKeySiteName     = "site_name"     // 网站名称
-	SettingKeySiteLogo     = "site_logo"     // 网站Logo (base64)
-	SettingKeySiteSubtitle = "site_subtitle" // 网站副标题
-	SettingKeyAPIBaseURL   = "api_base_url"  // API端点地址（用于客户端配置和导入）
-	SettingKeyContactInfo  = "contact_info"  // 客服联系方式
-	SettingKeyDocURL       = "doc_url"       // 文档链接
-	SettingKeyHomeContent  = "home_content"  // 首页内容（支持 Markdown/HTML，或 URL 作为 iframe src）
+	SettingKeySiteName            = "site_name"             // 网站名称
+	SettingKeySiteLogo            = "site_logo"             // 网站Logo (base64)
+	SettingKeySiteSubtitle        = "site_subtitle"         // 网站副标题
+	SettingKeyAPIBaseURL          = "api_base_url"          // API端点地址（用于客户端配置和导入）
+	SettingKeyContactInfo         = "contact_info"          // 客服联系方式
+	SettingKeyContactQRCodeWechat = "contact_qrcode_wechat" // 客服微信二维码 (base64)
+	SettingKeyContactQRCodeGroup  = "contact_qrcode_group"  // 客服社群二维码 (base64)
+	SettingKeyDocURL              = "doc_url"               // 文档链接
+	SettingKeyHomeContent         = "home_content"          // 首页内容（支持 Markdown/HTML，或 URL 作为 iframe src）
 
 	// 默认配置
 	SettingKeyDefaultConcurrency = "default_concurrency" // 新用户默认并发量

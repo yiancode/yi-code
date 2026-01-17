@@ -173,6 +173,16 @@ export default {
     }
   },
 
+  // Contact
+  contact: {
+    qrcode: {
+      wechat: 'WeChat Support',
+      group: 'Community',
+      scanWechat: 'Scan to add WeChat support',
+      scanGroup: 'Scan to join the community'
+    }
+  },
+
   // Navigation
   nav: {
     dashboard: 'Dashboard',
@@ -2728,6 +2738,13 @@ export default {
         contactInfo: 'Contact Info',
         contactInfoPlaceholder: 'e.g., QQ: 123456789',
         contactInfoHint: 'Customer support contact info, displayed on redeem page, profile, etc.',
+        contactQRCode: 'Contact QR Codes',
+        contactQRCodeHint: 'Upload WeChat or group QR codes to display when users click "Contact Support"',
+        qrcodeWechat: 'WeChat QR Code',
+        qrcodeGroup: 'Group QR Code',
+        qrcodeSizeError: 'Image size exceeds 500KB limit ({size}KB)',
+        qrcodeTypeError: 'Please upload an image file',
+        qrcodeReadError: 'Failed to read image',
         docUrl: 'Documentation URL',
         docUrlPlaceholder: 'https://docs.example.com',
         docUrlHint: 'Link to your documentation site. Leave empty to hide the documentation link.',

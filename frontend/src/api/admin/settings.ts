@@ -21,6 +21,8 @@ export interface SystemSettings {
   site_subtitle: string
   api_base_url: string
   contact_info: string
+  contact_qrcode_wechat: string
+  contact_qrcode_group: string
   doc_url: string
   home_content: string
   // SMTP settings
@@ -70,6 +72,8 @@ export interface UpdateSettingsRequest {
   site_subtitle?: string
   api_base_url?: string
   contact_info?: string
+  contact_qrcode_wechat?: string
+  contact_qrcode_group?: string
   doc_url?: string
   home_content?: string
   smtp_host?: string

@@ -8,7 +8,7 @@ import { resolve } from 'path'
  * 与生产模式的后端注入行为保持一致，消除闪烁
  */
 function injectPublicSettings(): Plugin {
-  const backendUrl = process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8080'
+  const backendUrl = process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8787'
 
   return {
     name: 'inject-public-settings',
@@ -107,11 +107,11 @@ export default defineConfig({
     port: Number(process.env.VITE_DEV_PORT || 3000),
     proxy: {
       '/api': {
-        target: process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8080',
+        target: process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8787',
         changeOrigin: true
       },
       '/setup': {
-        target: process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8080',
+        target: process.env.VITE_DEV_PROXY_TARGET || 'http://localhost:8787',
         changeOrigin: true
       }
     }

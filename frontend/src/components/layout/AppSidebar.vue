@@ -9,8 +9,11 @@
     <!-- Logo/Brand -->
     <div class="sidebar-header">
       <!-- Custom Logo or Default Logo -->
-      <div class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl shadow-glow">
-        <img :src="siteLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
+      <div
+        class="flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-xl shadow-glow transition-transform hover:scale-105"
+        @click="handleLogoClick"
+      >
+        <img :src="currentLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
       </div>
       <transition name="fade">
         <div v-if="!sidebarCollapsed" class="flex flex-col">
@@ -145,7 +148,7 @@
 
 <script setup lang="ts">
 import { computed, h, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminSettingsStore, useAppStore, useAuthStore, useOnboardingStore } from '@/stores'
 import VersionBadge from '@/components/common/VersionBadge.vue'
@@ -153,6 +156,7 @@ import VersionBadge from '@/components/common/VersionBadge.vue'
 const { t } = useI18n()
 
 const route = useRoute()
+const router = useRouter()
 const appStore = useAppStore()
 const authStore = useAuthStore()
 const onboardingStore = useOnboardingStore()
@@ -166,7 +170,35 @@ const isDark = ref(document.documentElement.classList.contains('dark'))
 // Site settings from appStore (cached, no flicker)
 const siteName = computed(() => appStore.siteName)
 const siteLogo = computed(() => appStore.siteLogo)
+const siteLogoDark = computed(() => appStore.siteLogoDark)
 const siteVersion = computed(() => appStore.siteVersion)
+
+// Current logo based on theme
+const currentLogo = computed(() => {
+  if (isDark.value && siteLogoDark.value) {
+    return siteLogoDark.value
+  }
+  return siteLogo.value
+})
+
+// Audio for horn sound
+const busHornSound = ref<HTMLAudioElement | null>(null)
+
+function playHorn() {
+  if (!busHornSound.value) {
+    busHornSound.value = new Audio('/audio/bus-horn.MP3')
+    busHornSound.value.volume = 0.6
+  }
+  busHornSound.value.currentTime = 0
+  busHornSound.value.play().catch(() => {
+    // Ignore autoplay errors
+  })
+}
+
+function handleLogoClick() {
+  playHorn()
+  router.push('/')
+}
 
 // SVG Icon Components
 const DashboardIcon = {

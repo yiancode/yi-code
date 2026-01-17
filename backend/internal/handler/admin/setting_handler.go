@@ -63,6 +63,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		LinuxDoConnectRedirectURL:            settings.LinuxDoConnectRedirectURL,
 		SiteName:                             settings.SiteName,
 		SiteLogo:                             settings.SiteLogo,
+		SiteLogoDark:                         settings.SiteLogoDark,
 		SiteSubtitle:                         settings.SiteSubtitle,
 		APIBaseURL:                           settings.APIBaseURL,
 		ContactInfo:                          settings.ContactInfo,
@@ -116,6 +117,7 @@ type UpdateSettingsRequest struct {
 
 	SiteName            string `json:"site_name"`
 	SiteLogo            string `json:"site_logo"`
+	SiteLogoDark        string `json:"site_logo_dark"`
 	SiteSubtitle        string `json:"site_subtitle"`
 	APIBaseURL          string `json:"api_base_url"`
 	ContactInfo         string `json:"contact_info"`
@@ -259,6 +261,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		LinuxDoConnectRedirectURL:  req.LinuxDoConnectRedirectURL,
 		SiteName:                   req.SiteName,
 		SiteLogo:                   req.SiteLogo,
+		SiteLogoDark:               req.SiteLogoDark,
 		SiteSubtitle:               req.SiteSubtitle,
 		APIBaseURL:                 req.APIBaseURL,
 		ContactInfo:                req.ContactInfo,
@@ -432,6 +435,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.SiteLogo != after.SiteLogo {
 		changed = append(changed, "site_logo")
+	}
+	if before.SiteLogoDark != after.SiteLogoDark {
+		changed = append(changed, "site_logo_dark")
 	}
 	if before.SiteSubtitle != after.SiteSubtitle {
 		changed = append(changed, "site_subtitle")

@@ -189,6 +189,20 @@ const linuxdoOAuthEnabled = ref<boolean>(false)
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
 const turnstileToken = ref<string>('')
 
+// Audio for horn sound
+const busHornSound = ref<HTMLAudioElement | null>(null)
+
+function playHorn() {
+  if (!busHornSound.value) {
+    busHornSound.value = new Audio('/audio/bus-horn.MP3')
+    busHornSound.value.volume = 0.6
+  }
+  busHornSound.value.currentTime = 0
+  busHornSound.value.play().catch(() => {
+    // Ignore autoplay errors
+  })
+}
+
 const formData = reactive({
   email: '',
   password: ''
@@ -298,6 +312,9 @@ async function handleLogin(): Promise<void> {
 
     // Show success toast
     appStore.showSuccess(t('auth.loginSuccess'))
+
+    // Play horn sound on successful login
+    playHorn()
 
     // Redirect to dashboard or intended route
     const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'

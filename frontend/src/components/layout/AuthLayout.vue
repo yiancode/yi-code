@@ -30,9 +30,10 @@
       <div class="mb-8 text-center">
         <!-- Custom Logo or Default Logo -->
         <div
-          class="mb-4 inline-flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-primary-500/30"
+          class="mb-4 inline-flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-primary-500/30 transition-transform hover:scale-105"
+          @click="handleLogoClick"
         >
-          <img :src="siteLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
+          <img :src="currentLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
         </div>
         <h1 class="text-gradient mb-2 text-3xl font-bold">
           {{ siteName }}
@@ -61,21 +62,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getPublicSettings } from '@/api/auth'
 import { sanitizeUrl } from '@/utils/url'
 
-const siteName = ref('Sub2API')
+const router = useRouter()
+
+const siteName = ref('Code80')
 const siteLogo = ref('')
+const siteLogoDark = ref('')
 const siteSubtitle = ref('Subscription to API Conversion Platform')
+const isDark = ref(document.documentElement.classList.contains('dark'))
+
+// Watch for theme changes via MutationObserver
+let themeObserver: MutationObserver | null = null
+
+function setupThemeObserver() {
+  themeObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.attributeName === 'class') {
+        isDark.value = document.documentElement.classList.contains('dark')
+      }
+    }
+  })
+  themeObserver.observe(document.documentElement, { attributes: true })
+}
+
+onUnmounted(() => {
+  if (themeObserver) {
+    themeObserver.disconnect()
+    themeObserver = null
+  }
+})
+
+// Current logo based on theme
+const currentLogo = computed(() => {
+  if (isDark.value && siteLogoDark.value) {
+    return siteLogoDark.value
+  }
+  return siteLogo.value
+})
 
 const currentYear = computed(() => new Date().getFullYear())
 
+// Audio for horn sound
+const busHornSound = ref<HTMLAudioElement | null>(null)
+
+function playHorn() {
+  if (!busHornSound.value) {
+    busHornSound.value = new Audio('/audio/bus-horn.MP3')
+    busHornSound.value.volume = 0.6
+  }
+  busHornSound.value.currentTime = 0
+  busHornSound.value.play().catch(() => {
+    // Ignore autoplay errors
+  })
+}
+
+function handleLogoClick() {
+  playHorn()
+  router.push('/')
+}
+
 onMounted(async () => {
+  setupThemeObserver()
   try {
     const settings = await getPublicSettings()
-    siteName.value = settings.site_name || 'Sub2API'
+    siteName.value = settings.site_name || 'Code80'
     siteLogo.value = sanitizeUrl(settings.site_logo || '', { allowRelative: true })
+    siteLogoDark.value = sanitizeUrl(settings.site_logo_dark || '', { allowRelative: true })
     siteSubtitle.value = settings.site_subtitle || 'Subscription to API Conversion Platform'
   } catch (error) {
     console.error('Failed to load public settings:', error)

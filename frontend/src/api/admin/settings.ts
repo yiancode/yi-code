@@ -18,6 +18,7 @@ export interface SystemSettings {
   // OEM settings
   site_name: string
   site_logo: string
+  site_logo_dark: string
   site_subtitle: string
   api_base_url: string
   contact_info: string
@@ -69,6 +70,7 @@ export interface UpdateSettingsRequest {
   default_concurrency?: number
   site_name?: string
   site_logo?: string
+  site_logo_dark?: string
   site_subtitle?: string
   api_base_url?: string
   contact_info?: string

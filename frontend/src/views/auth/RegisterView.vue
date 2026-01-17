@@ -262,7 +262,7 @@ const registrationEnabled = ref<boolean>(true)
 const emailVerifyEnabled = ref<boolean>(false)
 const turnstileEnabled = ref<boolean>(false)
 const turnstileSiteKey = ref<string>('')
-const siteName = ref<string>('Sub2API')
+const siteName = ref<string>('Code80')
 const linuxdoOAuthEnabled = ref<boolean>(false)
 
 // Turnstile
@@ -308,7 +308,7 @@ onMounted(async () => {
     emailVerifyEnabled.value = settings.email_verify_enabled
     turnstileEnabled.value = settings.turnstile_enabled
     turnstileSiteKey.value = settings.turnstile_site_key || ''
-    siteName.value = settings.site_name || 'Sub2API'
+    siteName.value = settings.site_name || 'Code80'
     linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
   } catch (error) {
     console.error('Failed to load public settings:', error)

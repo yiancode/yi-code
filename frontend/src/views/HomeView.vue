@@ -1,4 +1,30 @@
 <template>
+  <!-- Opening Animation Overlay -->
+  <div
+    v-if="showAnimation"
+    class="fixed inset-0 z-50 overflow-hidden pointer-events-none"
+    :class="isDark ? 'bg-dark-950/50' : 'bg-gray-50/50'"
+  >
+    <!-- Car (clickable for horn sound) -->
+    <img
+      ref="carRef"
+      src="/car.png"
+      alt="car"
+      class="car-animation absolute h-20 w-auto cursor-pointer pointer-events-auto"
+      :style="carStyle"
+      @click="playHorn"
+    />
+    <!-- Falling Logos -->
+    <img
+      v-for="(logo, index) in fallingLogos"
+      :key="index"
+      :src="logo.src"
+      :alt="logo.name"
+      class="absolute h-10 w-10 object-contain rounded-lg shadow-lg"
+      :style="logo.style"
+    />
+  </div>
+
   <!-- Custom Home Content: Full Page Mode -->
   <div v-if="homeContent" class="min-h-screen">
     <!-- iframe mode -->
@@ -39,10 +65,15 @@
     <!-- Header -->
     <header class="relative z-20 px-6 py-4">
       <nav class="mx-auto flex max-w-6xl items-center justify-between">
-        <!-- Logo -->
+        <!-- Logo (hidden during animation, clickable for horn sound) -->
         <div class="flex items-center">
-          <div class="h-10 w-10 overflow-hidden rounded-xl shadow-md">
-            <img :src="siteLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
+          <div
+            ref="siteLogoRef"
+            class="h-10 w-10 overflow-hidden rounded-xl shadow-md transition-all duration-500 cursor-pointer"
+            :class="showSiteLogo ? 'opacity-100 scale-100' : 'opacity-0 scale-75'"
+            @click="playHorn"
+          >
+            <img :src="currentLogo || '/logo.png'" alt="Logo" class="h-full w-full object-contain" />
           </div>
         </div>
 
@@ -115,8 +146,11 @@
       <div class="mx-auto max-w-6xl">
         <!-- Hero Section - Left/Right Layout -->
         <div class="mb-12 flex flex-col items-center justify-between gap-12 lg:flex-row lg:gap-16">
-          <!-- Left: Text Content -->
-          <div class="flex-1 text-center lg:text-left">
+          <!-- Left: Text Content (Hidden during animation) -->
+          <div
+            class="flex-1 text-center lg:text-left transition-all duration-700"
+            :class="showHeroContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
+          >
             <h1
               class="mb-4 text-4xl font-bold text-gray-900 dark:text-white md:text-5xl lg:text-6xl"
             >
@@ -295,13 +329,10 @@
         <div class="mb-16 flex flex-wrap items-center justify-center gap-4">
           <!-- Claude - Supported -->
           <div
+            ref="providerClaudeRef"
             class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
           >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-400 to-orange-500"
-            >
-              <span class="text-xs font-bold text-white">C</span>
-            </div>
+            <img src="/llmLogo/Claude.png" alt="Claude" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.claude') }}</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
@@ -310,13 +341,10 @@
           </div>
           <!-- GPT - Supported -->
           <div
+            ref="providerGPTRef"
             class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
           >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500 to-green-600"
-            >
-              <span class="text-xs font-bold text-white">G</span>
-            </div>
+            <img src="/llmLogo/ChatGPT.png" alt="ChatGPT" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">GPT</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
@@ -325,13 +353,10 @@
           </div>
           <!-- Gemini - Supported -->
           <div
+            ref="providerGeminiRef"
             class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
           >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600"
-            >
-              <span class="text-xs font-bold text-white">G</span>
-            </div>
+            <img src="/llmLogo/Gemini.jpg" alt="Gemini" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.gemini') }}</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
@@ -340,13 +365,10 @@
           </div>
           <!-- Antigravity - Supported -->
           <div
+            ref="providerAntigravityRef"
             class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
           >
-            <div
-              class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-rose-500 to-pink-600"
-            >
-              <span class="text-xs font-bold text-white">A</span>
-            </div>
+            <img src="/llmLogo/Antigravity.jpg" alt="Antigravity" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.antigravity') }}</span>
             <span
               class="rounded bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-600 dark:bg-primary-900/30 dark:text-primary-400"
@@ -395,7 +417,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore, useAppStore } from '@/stores'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
@@ -407,8 +429,9 @@ const authStore = useAuthStore()
 const appStore = useAppStore()
 
 // Site settings - directly from appStore (already initialized from injected config)
-const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Sub2API')
+const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Code80')
 const siteLogo = computed(() => appStore.cachedPublicSettings?.site_logo || appStore.siteLogo || '')
+const siteLogoDark = computed(() => appStore.cachedPublicSettings?.site_logo_dark || appStore.siteLogoDark || '')
 const siteSubtitle = computed(() => appStore.cachedPublicSettings?.site_subtitle || 'AI API Gateway Platform')
 const docUrl = computed(() => appStore.cachedPublicSettings?.doc_url || appStore.docUrl || '')
 const homeContent = computed(() => appStore.cachedPublicSettings?.home_content || '')
@@ -421,6 +444,35 @@ const isHomeContentUrl = computed(() => {
 
 // Theme
 const isDark = ref(document.documentElement.classList.contains('dark'))
+
+// Watch for theme changes via MutationObserver (for external theme changes)
+let themeObserver: MutationObserver | null = null
+
+function setupThemeObserver() {
+  themeObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.attributeName === 'class') {
+        isDark.value = document.documentElement.classList.contains('dark')
+      }
+    }
+  })
+  themeObserver.observe(document.documentElement, { attributes: true })
+}
+
+onUnmounted(() => {
+  if (themeObserver) {
+    themeObserver.disconnect()
+    themeObserver = null
+  }
+})
+
+// Current logo based on theme
+const currentLogo = computed(() => {
+  if (isDark.value && siteLogoDark.value) {
+    return siteLogoDark.value
+  }
+  return siteLogo.value
+})
 
 // Auth state
 const isAuthenticated = computed(() => authStore.isAuthenticated)
@@ -454,8 +506,249 @@ function initTheme() {
   }
 }
 
+// ==================== Opening Animation ====================
+const showAnimation = ref(true)
+const showHeroContent = ref(false)
+const showSiteLogo = ref(false)
+const carRef = ref<HTMLImageElement | null>(null)
+const siteLogoRef = ref<HTMLElement | null>(null)
+
+// Provider refs for target positions
+const providerClaudeRef = ref<HTMLElement | null>(null)
+const providerGPTRef = ref<HTMLElement | null>(null)
+const providerGeminiRef = ref<HTMLElement | null>(null)
+const providerAntigravityRef = ref<HTMLElement | null>(null)
+
+// LLM Logo list - mapped to providers
+const llmLogos = [
+  { name: 'Claude', src: '/llmLogo/Claude.png', providerRef: () => providerClaudeRef.value },
+  { name: 'ChatGPT', src: '/llmLogo/ChatGPT.png', providerRef: () => providerGPTRef.value },
+  { name: 'Gemini', src: '/llmLogo/Gemini.jpg', providerRef: () => providerGeminiRef.value },
+  { name: 'Antigravity', src: '/llmLogo/Antigravity.jpg', providerRef: () => providerAntigravityRef.value }
+]
+
+// Car position state
+const carPosition = reactive({
+  x: -150,
+  y: 0,
+  scale: 1,
+  opacity: 1
+})
+
+const carStyle = computed(() => ({
+  transform: `translateX(${carPosition.x}px) scale(${carPosition.scale})`,
+  opacity: carPosition.opacity,
+  top: `${carPosition.y}px`,
+  left: '0'
+}))
+
+// Falling logos state
+interface FallingLogo {
+  name: string
+  src: string
+  style: {
+    transform: string
+    opacity: number
+    left: string
+    top: string
+    transition: string
+  }
+}
+
+const fallingLogos = ref<FallingLogo[]>([])
+
+// Audio for car animation
+const busDrivingSound = ref<HTMLAudioElement | null>(null)
+const busHornSound = ref<HTMLAudioElement | null>(null)
+
+// Initialize audio elements
+function initAudio() {
+  busDrivingSound.value = new Audio('/audio/bus-driving.MP3')
+  busDrivingSound.value.volume = 0.5
+  busHornSound.value = new Audio('/audio/bus-horn.MP3')
+  busHornSound.value.volume = 0.6
+}
+
+// Play horn sound when car is clicked
+function playHorn() {
+  // Initialize audio if not already done
+  if (!busHornSound.value) {
+    busHornSound.value = new Audio('/audio/bus-horn.MP3')
+    busHornSound.value.volume = 0.6
+  }
+  busHornSound.value.currentTime = 0
+  busHornSound.value.play().catch(() => {
+    // Ignore autoplay errors
+  })
+}
+
+// Animation controller
+function startAnimation() {
+  const screenWidth = window.innerWidth
+
+  // Initialize and play driving sound
+  initAudio()
+  if (busDrivingSound.value) {
+    busDrivingSound.value.play().catch(() => {
+      // Ignore autoplay errors (browser may block without user interaction)
+    })
+  }
+
+  // Get site logo position for car path and target
+  let headerY = 16 // Default fallback
+  let logoTargetX = 24
+  let logoTargetY = 16
+
+  if (siteLogoRef.value) {
+    const rect = siteLogoRef.value.getBoundingClientRect()
+    // Position car at same level as logo top, with minimum of 8px from top
+    headerY = Math.max(8, rect.top)
+    logoTargetX = rect.left
+    logoTargetY = rect.top
+  }
+
+  // Car path: Same horizontal level as site logo in header
+  const startX = -150
+  const midX = screenWidth * 0.55 // Stop point before going to logo
+
+  carPosition.x = startX
+  carPosition.y = headerY
+
+  // Phase 1: Car drives from left to right along header
+  const phase1Duration = 4500
+  const phase1Start = Date.now()
+
+  // Track when to drop each logo
+  const dropPositions = [0.2, 0.35, 0.5, 0.65, 0.8]
+  let droppedCount = 0
+
+  function animatePhase1() {
+    const elapsed = Date.now() - phase1Start
+    const progress = Math.min(elapsed / phase1Duration, 1)
+    const eased = 1 - Math.pow(1 - progress, 2)
+
+    carPosition.x = startX + (midX - startX) * eased
+    carPosition.y = headerY + Math.sin(progress * Math.PI * 6) * 2
+
+    // Drop logos at specific positions
+    while (droppedCount < dropPositions.length && progress >= dropPositions[droppedCount]) {
+      dropSingleLogo(droppedCount)
+      droppedCount++
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animatePhase1)
+    } else {
+      // Phase 2: Move car to site logo position
+      setTimeout(() => {
+        // Get actual logo position
+        if (siteLogoRef.value) {
+          const rect = siteLogoRef.value.getBoundingClientRect()
+          logoTargetX = rect.left
+          logoTargetY = rect.top
+        }
+        moveCarToLogo(logoTargetX, logoTargetY)
+      }, 400)
+    }
+  }
+
+  animatePhase1()
+
+  // Drop a single logo - falls downward to provider
+  function dropSingleLogo(index: number) {
+    const logo = llmLogos[index]
+    if (!logo) return
+
+    const logoStartX = carPosition.x + 50
+    const logoStartY = carPosition.y + 50
+
+    // Get target provider position
+    const providerEl = logo.providerRef()
+    let targetLogoX = logoStartX
+    let targetLogoY = window.innerHeight - 150
+
+    if (providerEl) {
+      const rect = providerEl.getBoundingClientRect()
+      targetLogoX = rect.left + 20
+      targetLogoY = rect.top + 20
+    }
+
+    const fallingLogo: FallingLogo = {
+      name: logo.name,
+      src: logo.src,
+      style: {
+        transform: `translate(0px, 0px) scale(1) rotate(0deg)`,
+        opacity: 1,
+        left: `${logoStartX}px`,
+        top: `${logoStartY}px`,
+        transition: 'none'
+      }
+    }
+
+    fallingLogos.value.push(fallingLogo)
+    const logoIndex = fallingLogos.value.length - 1  // Capture index immediately after push
+
+    // Animate falling downward to provider
+    nextTick(() => {
+      const deltaX = targetLogoX - logoStartX
+      const deltaY = targetLogoY - logoStartY
+      const flyDuration = 1200
+      const rotation = (Math.random() - 0.5) * 360
+
+      setTimeout(() => {
+        if (fallingLogos.value[logoIndex]) {
+          fallingLogos.value[logoIndex].style = {
+            ...fallingLogos.value[logoIndex].style,
+            transform: `translate(${deltaX}px, ${deltaY}px) scale(0.6) rotate(${rotation}deg)`,
+            opacity: 0,
+            transition: `transform ${flyDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity ${flyDuration * 0.6}ms ease-out ${flyDuration * 0.4}ms`
+          }
+        }
+      }, 50)
+    })
+  }
+
+  // Phase 2: Move car to site logo and show logo
+  function moveCarToLogo(targetX: number, targetY: number) {
+    const phase2Duration = 1200
+    const phase2Start = Date.now()
+    const carStartX = carPosition.x
+    const carStartY = carPosition.y
+
+    function animatePhase2() {
+      const elapsed = Date.now() - phase2Start
+      const progress = Math.min(elapsed / phase2Duration, 1)
+      const eased = progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
+      carPosition.x = carStartX + (targetX - carStartX) * eased
+      carPosition.y = carStartY + (targetY - carStartY) * eased
+      carPosition.scale = 1 - eased * 0.6
+      carPosition.opacity = 1 - eased
+
+      if (progress < 1) {
+        requestAnimationFrame(animatePhase2)
+      } else {
+        // Car disappeared, show site logo
+        showSiteLogo.value = true
+
+        // Play horn sound when animation ends
+        playHorn()
+
+        // End animation and show hero content
+        setTimeout(() => {
+          showAnimation.value = false
+          showHeroContent.value = true
+        }, 400)
+      }
+    }
+
+    animatePhase2()
+  }
+}
+
 onMounted(() => {
   initTheme()
+  setupThemeObserver()
 
   // Check auth state
   authStore.checkAuth()
@@ -464,10 +757,21 @@ onMounted(() => {
   if (!appStore.publicSettingsLoaded) {
     appStore.fetchPublicSettings()
   }
+
+  // Start opening animation after a short delay
+  setTimeout(() => {
+    startAnimation()
+  }, 300)
 })
 </script>
 
 <style scoped>
+/* Car Animation */
+.car-animation {
+  will-change: transform, opacity;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+}
+
 /* Terminal Container */
 .terminal-container {
   position: relative;

@@ -24,8 +24,9 @@ export const useAppStore = defineStore('app', () => {
   // Public settings cache state
   const publicSettingsLoaded = ref<boolean>(false)
   const publicSettingsLoading = ref<boolean>(false)
-  const siteName = ref<string>('Sub2API')
+  const siteName = ref<string>('Code80')
   const siteLogo = ref<string>('')
+  const siteLogoDark = ref<string>('')
   const siteVersion = ref<string>('')
   const contactInfo = ref<string>('')
   const contactQRCodeWechat = ref<string>('')
@@ -286,8 +287,9 @@ export const useAppStore = defineStore('app', () => {
    */
   function applySettings(config: PublicSettings): void {
     cachedPublicSettings.value = config
-    siteName.value = config.site_name || 'Sub2API'
+    siteName.value = config.site_name || 'Code80'
     siteLogo.value = config.site_logo || ''
+    siteLogoDark.value = config.site_logo_dark || ''
     siteVersion.value = config.version || ''
     contactInfo.value = config.contact_info || ''
     contactQRCodeWechat.value = config.contact_qrcode_wechat || ''
@@ -320,6 +322,7 @@ export const useAppStore = defineStore('app', () => {
         turnstile_site_key: '',
         site_name: siteName.value,
         site_logo: siteLogo.value,
+        site_logo_dark: siteLogoDark.value,
         site_subtitle: '',
         api_base_url: apiBaseUrl.value,
         contact_info: contactInfo.value,
@@ -384,6 +387,7 @@ export const useAppStore = defineStore('app', () => {
     publicSettingsLoaded,
     siteName,
     siteLogo,
+    siteLogoDark,
     siteVersion,
     contactInfo,
     contactQRCodeWechat,

@@ -804,7 +804,7 @@
                         type="file"
                         accept="image/*"
                         class="hidden"
-                        @change="handleLogoUpload"
+                        @change="(e) => handleLogoUpload(e, 'light')"
                       />
                       <Icon name="upload" size="sm" class="mr-1.5" :stroke-width="2" />
                       {{ t('admin.settings.site.uploadImage') }}
@@ -823,6 +823,71 @@
                     {{ t('admin.settings.site.logoHint') }}
                   </p>
                   <p v-if="logoError" class="text-xs text-red-500">{{ logoError }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Site Logo Dark Upload -->
+            <div>
+              <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('admin.settings.site.siteLogoDark') }}
+              </label>
+              <div class="flex items-start gap-6">
+                <!-- Logo Preview -->
+                <div class="flex-shrink-0">
+                  <div
+                    class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-600 bg-gray-900"
+                    :class="{ 'border-solid': form.site_logo_dark }"
+                  >
+                    <img
+                      v-if="form.site_logo_dark"
+                      :src="form.site_logo_dark"
+                      alt="Site Logo Dark"
+                      class="h-full w-full object-contain"
+                    />
+                    <svg
+                      v-else
+                      class="h-8 w-8 text-gray-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <!-- Upload Controls -->
+                <div class="flex-1 space-y-3">
+                  <div class="flex items-center gap-3">
+                    <label class="btn btn-secondary btn-sm cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        class="hidden"
+                        @change="(e) => handleLogoUpload(e, 'dark')"
+                      />
+                      <Icon name="upload" size="sm" class="mr-1.5" :stroke-width="2" />
+                      {{ t('admin.settings.site.uploadImage') }}
+                    </label>
+                    <button
+                      v-if="form.site_logo_dark"
+                      type="button"
+                      @click="form.site_logo_dark = ''"
+                      class="btn btn-secondary btn-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                    >
+                      <Icon name="trash" size="sm" class="mr-1.5" :stroke-width="2" />
+                      {{ t('admin.settings.site.remove') }}
+                    </button>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('admin.settings.site.logoDarkHint') }}
+                  </p>
+                  <p v-if="logoDarkError" class="text-xs text-red-500">{{ logoDarkError }}</p>
                 </div>
               </div>
             </div>
@@ -1096,6 +1161,7 @@ const testingSmtp = ref(false)
 const sendingTestEmail = ref(false)
 const testEmailAddress = ref('')
 const logoError = ref('')
+const logoDarkError = ref('')
 const qrcodeError = ref('')
 
 // Admin API Key 状态
@@ -1127,8 +1193,9 @@ const form = reactive<SettingsForm>({
   email_verify_enabled: false,
   default_balance: 0,
   default_concurrency: 1,
-  site_name: 'Sub2API',
+  site_name: 'Code80',
   site_logo: '',
+  site_logo_dark: '',
   site_subtitle: 'Subscription to API Conversion Platform',
   api_base_url: '',
   contact_info: '',
@@ -1187,17 +1254,18 @@ async function setAndCopyLinuxdoRedirectUrl() {
   await copyToClipboard(url, t('admin.settings.linuxdo.redirectUrlSetAndCopied'))
 }
 
-function handleLogoUpload(event: Event) {
+function handleLogoUpload(event: Event, type: 'light' | 'dark' = 'light') {
   const input = event.target as HTMLInputElement
   const file = input.files?.[0]
-  logoError.value = ''
+  const errorRef = type === 'light' ? logoError : logoDarkError
+  errorRef.value = ''
 
   if (!file) return
 
   // Check file size (300KB = 307200 bytes)
   const maxSize = 300 * 1024
   if (file.size > maxSize) {
-    logoError.value = t('admin.settings.site.logoSizeError', {
+    errorRef.value = t('admin.settings.site.logoSizeError', {
       size: (file.size / 1024).toFixed(1)
     })
     input.value = ''
@@ -1206,7 +1274,7 @@ function handleLogoUpload(event: Event) {
 
   // Check file type
   if (!file.type.startsWith('image/')) {
-    logoError.value = t('admin.settings.site.logoTypeError')
+    errorRef.value = t('admin.settings.site.logoTypeError')
     input.value = ''
     return
   }
@@ -1214,10 +1282,14 @@ function handleLogoUpload(event: Event) {
   // Convert to base64
   const reader = new FileReader()
   reader.onload = (e) => {
-    form.site_logo = e.target?.result as string
+    if (type === 'light') {
+      form.site_logo = e.target?.result as string
+    } else {
+      form.site_logo_dark = e.target?.result as string
+    }
   }
   reader.onerror = () => {
-    logoError.value = t('admin.settings.site.logoReadError')
+    errorRef.value = t('admin.settings.site.logoReadError')
   }
   reader.readAsDataURL(file)
 
@@ -1294,6 +1366,7 @@ async function saveSettings() {
       default_concurrency: form.default_concurrency,
       site_name: form.site_name,
       site_logo: form.site_logo,
+      site_logo_dark: form.site_logo_dark,
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,

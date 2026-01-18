@@ -62,39 +62,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPublicSettings } from '@/api/auth'
 import { sanitizeUrl } from '@/utils/url'
+import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
+const { isDark } = useTheme()
 
 const siteName = ref('Code80')
 const siteLogo = ref('')
 const siteLogoDark = ref('')
 const siteSubtitle = ref('Subscription to API Conversion Platform')
-const isDark = ref(document.documentElement.classList.contains('dark'))
-
-// Watch for theme changes via MutationObserver
-let themeObserver: MutationObserver | null = null
-
-function setupThemeObserver() {
-  themeObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.attributeName === 'class') {
-        isDark.value = document.documentElement.classList.contains('dark')
-      }
-    }
-  })
-  themeObserver.observe(document.documentElement, { attributes: true })
-}
-
-onUnmounted(() => {
-  if (themeObserver) {
-    themeObserver.disconnect()
-    themeObserver = null
-  }
-})
 
 // Current logo based on theme
 const currentLogo = computed(() => {
@@ -126,7 +106,6 @@ function handleLogoClick() {
 }
 
 onMounted(async () => {
-  setupThemeObserver()
   try {
     const settings = await getPublicSettings()
     siteName.value = settings.site_name || 'Code80'

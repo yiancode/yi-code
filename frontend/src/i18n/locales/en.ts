@@ -4,6 +4,7 @@ export default {
     viewOnGithub: 'View on GitHub',
     viewDocs: 'View Documentation',
     docs: 'Docs',
+    installGuide: 'Install Guide',
     switchToLight: 'Switch to Light Mode',
     switchToDark: 'Switch to Dark Mode',
     dashboard: 'Dashboard',
@@ -202,6 +203,7 @@ export default {
     myAccount: 'My Account',
     lightMode: 'Light Mode',
     darkMode: 'Dark Mode',
+    autoMode: 'Auto (Time-based)',
     collapse: 'Collapse',
     expand: 'Expand',
     logout: 'Logout',
@@ -3078,5 +3080,40 @@ export default {
         description: '<div style="line-height: 1.7;"><p style="margin-bottom: 12px;">Click to confirm and create your API key.</p><div style="padding: 8px 12px; background: #fee2e2; border-left: 3px solid #ef4444; border-radius: 4px; font-size: 13px; margin-bottom: 12px;"><b>⚠️ Important:</b><ul style="margin: 8px 0 0 16px;"><li>Copy the key (sk-xxx) immediately after creation</li><li>Key is only shown once, need to regenerate if lost</li></ul></div><p style="padding: 8px 12px; background: #f0fdf4; border-left: 3px solid #10b981; border-radius: 4px; font-size: 13px;"><b>🚀 How to Use:</b><br/>Configure the key in any OpenAI-compatible client (like ChatBox, OpenCat, etc.) and start using!</p><p style="margin-top: 12px; color: #10b981; font-weight: 600;">👉 Click "Create" button</p></div>'
       }
     }
+  },
+
+  // Install Guide
+  installGuide: {
+    title: 'AI CLI Installation Guide',
+    subtitle: 'Quick setup for Claude Code, Codex CLI, and Gemini CLI AI coding assistants',
+    officialDocs: 'Official Docs',
+    prerequisites: 'Prerequisites',
+    installCommand: 'Install Command',
+    configApiKey: 'Configure API Key',
+    verifyInstall: 'Verify Installation',
+    recommended: 'recommended',
+    or: 'or',
+    claudeCode: {
+      description: "Anthropic's official AI coding assistant CLI tool"
+    },
+    codex: {
+      description: "OpenAI's official AI coding assistant CLI tool",
+      linuxSandbox: 'Sandbox execution requires bubblewrap'
+    },
+    gemini: {
+      description: "Google's official AI coding assistant CLI tool"
+    },
+    tips: {
+      title: 'Configuration Tips',
+      tip1: 'After setting environment variables, restart your terminal or run source command to apply changes',
+      tip2: 'Store your API Key in a secure location to prevent leaks',
+      tip3: 'If you encounter network issues, consider configuring a proxy or using regional mirrors'
+    }
+  },
+
+  // Code Block
+  codeBlock: {
+    copy: 'Copy',
+    copied: 'Copied'
   }
 }

@@ -4,6 +4,7 @@ export default {
     viewOnGithub: '在 GitHub 上查看',
     viewDocs: '查看文档',
     docs: '文档',
+    installGuide: '安装教程',
     switchToLight: '切换到浅色模式',
     switchToDark: '切换到深色模式',
     dashboard: '控制台',
@@ -199,6 +200,7 @@ export default {
     myAccount: '我的账户',
     lightMode: '浅色模式',
     darkMode: '深色模式',
+    autoMode: '自动 (按时间)',
     collapse: '收起',
     expand: '展开',
     logout: '退出登录',
@@ -3228,5 +3230,40 @@ export default {
         description: '<div style="line-height: 1.7;"><p style="margin-bottom: 12px;">点击确认创建您的 API 密钥。</p><div style="padding: 8px 12px; background: #fee2e2; border-left: 3px solid #ef4444; border-radius: 4px; font-size: 13px; margin-bottom: 12px;"><b>⚠️ 重要：</b><ul style="margin: 8px 0 0 16px;"><li>创建后请立即复制密钥（sk-xxx）</li><li>密钥只显示一次，丢失需重新生成</li></ul></div><p style="padding: 8px 12px; background: #f0fdf4; border-left: 3px solid #10b981; border-radius: 4px; font-size: 13px;"><b>🚀 如何使用：</b><br/>将密钥配置到支持 OpenAI 接口的任何客户端（如 ChatBox、OpenCat 等），即可开始使用！</p><p style="margin-top: 12px; color: #10b981; font-weight: 600;">👉 点击"创建"按钮</p></div>'
       }
     }
+  },
+
+  // Install Guide
+  installGuide: {
+    title: 'AI CLI 工具安装教程',
+    subtitle: '快速配置 Claude Code、Codex CLI 和 Gemini CLI 等 AI 编程助手',
+    officialDocs: '官方文档',
+    prerequisites: '环境要求',
+    installCommand: '安装命令',
+    configApiKey: '配置 API Key',
+    verifyInstall: '验证安装',
+    recommended: '推荐',
+    or: '或',
+    claudeCode: {
+      description: 'Anthropic 官方 AI 编程助手命令行工具'
+    },
+    codex: {
+      description: 'OpenAI 官方 AI 编程助手命令行工具',
+      linuxSandbox: '沙箱运行需要 bubblewrap'
+    },
+    gemini: {
+      description: 'Google 官方 AI 编程助手命令行工具'
+    },
+    tips: {
+      title: '配置提示',
+      tip1: '环境变量设置后需要重新打开终端或执行 source 命令才能生效',
+      tip2: '建议将 API Key 保存在安全的地方，避免泄露',
+      tip3: '如遇网络问题，可配置代理或使用国内镜像源'
+    }
+  },
+
+  // Code Block
+  codeBlock: {
+    copy: '复制',
+    copied: '已复制'
   }
 }

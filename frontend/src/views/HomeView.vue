@@ -82,6 +82,15 @@
           <!-- Language Switcher -->
           <LocaleSwitcher />
 
+          <!-- Install Guide Link -->
+          <router-link
+            to="/install-guide"
+            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
+            :title="t('home.installGuide')"
+          >
+            <Icon name="terminal" size="md" />
+          </router-link>
+
           <!-- Doc Link -->
           <a
             v-if="docUrl"
@@ -98,10 +107,11 @@
           <button
             @click="toggleTheme"
             class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
-            :title="isDark ? t('home.switchToLight') : t('home.switchToDark')"
+            :title="t(`nav.${themeMode === 'light' ? 'darkMode' : themeMode === 'dark' ? 'autoMode' : 'lightMode'}`)"
           >
-            <Icon v-if="isDark" name="sun" size="md" />
-            <Icon v-else name="moon" size="md" />
+            <Icon v-if="themeMode === 'light'" name="sun" size="md" class="text-amber-500" />
+            <Icon v-else-if="themeMode === 'dark'" name="moon" size="md" class="text-indigo-400" />
+            <Icon v-else name="clock" size="md" class="text-emerald-500" />
           </button>
 
           <!-- Login / Dashboard Button -->
@@ -330,7 +340,8 @@
           <!-- Claude - Supported -->
           <div
             ref="providerClaudeRef"
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
+            @click="goToInstallGuide('claude-code')"
+            class="flex cursor-pointer items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-lg dark:border-primary-800 dark:bg-dark-800/60"
           >
             <img src="/llmLogo/Claude.png" alt="Claude" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.claude') }}</span>
@@ -342,7 +353,8 @@
           <!-- GPT - Supported -->
           <div
             ref="providerGPTRef"
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
+            @click="goToInstallGuide('codex')"
+            class="flex cursor-pointer items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-lg dark:border-primary-800 dark:bg-dark-800/60"
           >
             <img src="/llmLogo/ChatGPT.png" alt="ChatGPT" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">GPT</span>
@@ -354,7 +366,8 @@
           <!-- Gemini - Supported -->
           <div
             ref="providerGeminiRef"
-            class="flex items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm dark:border-primary-800 dark:bg-dark-800/60"
+            @click="goToInstallGuide('gemini')"
+            class="flex cursor-pointer items-center gap-2 rounded-xl border border-primary-200 bg-white/60 px-5 py-3 ring-1 ring-primary-500/20 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-lg dark:border-primary-800 dark:bg-dark-800/60"
           >
             <img src="/llmLogo/Gemini.jpg" alt="Gemini" class="h-8 w-8 rounded-lg object-contain" />
             <span class="text-sm font-medium text-gray-700 dark:text-dark-200">{{ t('home.providers.gemini') }}</span>
@@ -417,16 +430,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
+import { ref, computed, onMounted, reactive, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useAuthStore, useAppStore } from '@/stores'
+import { useTheme } from '@/composables/useTheme'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
+const { isDark, themeMode, toggleTheme } = useTheme()
+
+// Navigate to install guide with anchor
+function goToInstallGuide(anchor: string) {
+  router.push(`/install-guide#${anchor}`)
+}
 
 // Site settings - directly from appStore (already initialized from injected config)
 const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Code80')
@@ -440,30 +462,6 @@ const homeContent = computed(() => appStore.cachedPublicSettings?.home_content |
 const isHomeContentUrl = computed(() => {
   const content = homeContent.value.trim()
   return content.startsWith('http://') || content.startsWith('https://')
-})
-
-// Theme
-const isDark = ref(document.documentElement.classList.contains('dark'))
-
-// Watch for theme changes via MutationObserver (for external theme changes)
-let themeObserver: MutationObserver | null = null
-
-function setupThemeObserver() {
-  themeObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.attributeName === 'class') {
-        isDark.value = document.documentElement.classList.contains('dark')
-      }
-    }
-  })
-  themeObserver.observe(document.documentElement, { attributes: true })
-}
-
-onUnmounted(() => {
-  if (themeObserver) {
-    themeObserver.disconnect()
-    themeObserver = null
-  }
 })
 
 // Current logo based on theme
@@ -486,25 +484,6 @@ const userInitial = computed(() => {
 
 // Current year for footer
 const currentYear = computed(() => new Date().getFullYear())
-
-// Toggle theme
-function toggleTheme() {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('dark', isDark.value)
-  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
-}
-
-// Initialize theme
-function initTheme() {
-  const savedTheme = localStorage.getItem('theme')
-  if (
-    savedTheme === 'dark' ||
-    (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  ) {
-    isDark.value = true
-    document.documentElement.classList.add('dark')
-  }
-}
 
 // ==================== Opening Animation ====================
 const showAnimation = ref(true)
@@ -747,9 +726,6 @@ function startAnimation() {
 }
 
 onMounted(() => {
-  initTheme()
-  setupThemeObserver()
-
   // Check auth state
   authStore.checkAuth()
 

@@ -35,6 +35,15 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/install-guide',
+    name: 'InstallGuide',
+    component: () => import('@/views/InstallGuideView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Install Guide'
+    }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/auth/LoginView.vue'),
@@ -307,16 +316,27 @@ const routes: RouteRecordRaw[] = [
   }
 ]
 
+// Header offset for anchor scrolling (matches scroll-mt-24 = 6rem = 96px)
+const HEADER_SCROLL_OFFSET = 96
+
 /**
  * Create router instance
  */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(_to, _from, savedPosition) {
+  scrollBehavior(to, _from, savedPosition) {
     // Scroll to saved position when using browser back/forward
     if (savedPosition) {
       return savedPosition
+    }
+    // Handle hash anchor scrolling
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+        top: HEADER_SCROLL_OFFSET
+      }
     }
     // Scroll to top for new routes
     return { top: 0 }

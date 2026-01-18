@@ -331,6 +331,8 @@ export const useAppStore = defineStore('app', () => {
         doc_url: docUrl.value,
         home_content: '',
         linuxdo_oauth_enabled: false,
+        wechat_auth_enabled: false,
+        wechat_account_qrcode_url: '',
         version: siteVersion.value
       }
     }

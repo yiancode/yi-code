@@ -33,6 +33,10 @@ func RegisterAuthRoutes(
 		}), h.Auth.ValidatePromoCode)
 		auth.GET("/oauth/linuxdo/start", h.Auth.LinuxDoOAuthStart)
 		auth.GET("/oauth/linuxdo/callback", h.Auth.LinuxDoOAuthCallback)
+		// 微信公众号验证码登录
+		auth.GET("/oauth/wechat", rateLimiter.LimitWithOptions("wechat-auth", 20, 20*time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.WeChatAuth)
 	}
 
 	// 公开设置（无需认证）
@@ -46,5 +50,9 @@ func RegisterAuthRoutes(
 	authenticated.Use(gin.HandlerFunc(jwtAuth))
 	{
 		authenticated.GET("/auth/me", h.Auth.GetCurrentUser)
+		// 微信账号绑定（需要登录）
+		authenticated.GET("/auth/oauth/wechat/bind", rateLimiter.LimitWithOptions("wechat-bind", 20, 20*time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.WeChatBind)
 	}
 }

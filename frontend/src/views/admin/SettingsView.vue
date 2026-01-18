@@ -499,6 +499,105 @@
           </div>
         </div>
 
+        <!-- 微信公众号验证码登录 -->
+        <div class="card">
+          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ t('admin.settings.wechat.title') }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {{ t('admin.settings.wechat.description') }}
+            </p>
+          </div>
+          <div class="space-y-5 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="font-medium text-gray-900 dark:text-white">{{
+                  t('admin.settings.wechat.enable')
+                }}</label>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.wechat.enableHint') }}
+                </p>
+              </div>
+              <Toggle v-model="form.wechat_auth_enabled" />
+            </div>
+
+            <div
+              v-if="form.wechat_auth_enabled"
+              class="border-t border-gray-100 pt-4 dark:border-dark-700"
+            >
+              <div class="grid grid-cols-1 gap-6">
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.wechat.serverAddress') }}
+                  </label>
+                  <input
+                    v-model="form.wechat_server_address"
+                    type="url"
+                    class="input font-mono text-sm"
+                    :placeholder="t('admin.settings.wechat.serverAddressPlaceholder')"
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('admin.settings.wechat.serverAddressHint') }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.wechat.serverToken') }}
+                  </label>
+                  <input
+                    v-model="form.wechat_server_token"
+                    type="password"
+                    class="input font-mono text-sm"
+                    :placeholder="
+                      form.wechat_server_token_configured
+                        ? t('admin.settings.wechat.serverTokenConfiguredPlaceholder')
+                        : t('admin.settings.wechat.serverTokenPlaceholder')
+                    "
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{
+                      form.wechat_server_token_configured
+                        ? t('admin.settings.wechat.serverTokenConfiguredHint')
+                        : t('admin.settings.wechat.serverTokenHint')
+                    }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.wechat.qrcodeUrl') }}
+                  </label>
+                  <input
+                    v-model="form.wechat_account_qrcode_url"
+                    type="url"
+                    class="input font-mono text-sm"
+                    :placeholder="t('admin.settings.wechat.qrcodeUrlPlaceholder')"
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('admin.settings.wechat.qrcodeUrlHint') }}
+                  </p>
+                  <!-- QR Code Preview -->
+                  <div v-if="form.wechat_account_qrcode_url" class="mt-4">
+                    <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t('admin.settings.wechat.qrcodePreview') }}
+                    </p>
+                    <div class="inline-block rounded-lg border border-gray-200 bg-white p-2 dark:border-dark-600 dark:bg-dark-800">
+                      <img
+                        :src="form.wechat_account_qrcode_url"
+                        :alt="t('admin.settings.wechat.qrcodePreviewAlt')"
+                        class="h-32 w-32 object-contain"
+                        @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Default Settings -->
         <div class="card">
           <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
@@ -1186,6 +1285,7 @@ type SettingsForm = SystemSettings & {
   smtp_password: string
   turnstile_secret_key: string
   linuxdo_connect_client_secret: string
+  wechat_server_token: string
 }
 
 const form = reactive<SettingsForm>({
@@ -1222,6 +1322,12 @@ const form = reactive<SettingsForm>({
   linuxdo_connect_client_secret: '',
   linuxdo_connect_client_secret_configured: false,
   linuxdo_connect_redirect_url: '',
+  // 微信公众号验证码登录
+  wechat_auth_enabled: false,
+  wechat_server_address: '',
+  wechat_server_token: '',
+  wechat_server_token_configured: false,
+  wechat_account_qrcode_url: '',
   // Model fallback
   enable_model_fallback: false,
   fallback_model_anthropic: 'claude-3-5-sonnet-20241022',

@@ -79,6 +79,8 @@ export interface PublicSettings {
   doc_url: string
   home_content: string
   linuxdo_oauth_enabled: boolean
+  wechat_auth_enabled: boolean
+  wechat_account_qrcode_url: string
   version: string
 }
 

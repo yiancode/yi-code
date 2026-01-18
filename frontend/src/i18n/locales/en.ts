@@ -272,6 +272,20 @@ export default {
       callbackMissingToken: 'Missing login token, please try again.',
       backToLogin: 'Back to Login'
     },
+    wechat: {
+      signIn: 'Continue with WeChat',
+      orContinue: 'or continue with email',
+      modalTitle: 'WeChat QR Code Login',
+      qrCodeAlt: 'WeChat Public Account QR Code',
+      noQrCode: 'QR code not configured',
+      scanTip: 'Scan the QR code above with WeChat, follow the public account and send any message to get the verification code',
+      codeLabel: 'Verification Code',
+      codePlaceholder: 'Enter verification code',
+      codeRequired: 'Please enter the verification code',
+      verify: 'Sign In',
+      verifying: 'Verifying...',
+      verifyFailed: 'Verification failed, please check the code'
+    },
     oauth: {
       code: 'Code',
       state: 'State',
@@ -2715,6 +2729,25 @@ export default {
           'Must match the redirect URL configured in Connect.Linux.Do (must be an absolute http(s) URL)',
         quickSetCopy: 'Generate & Copy (current site)',
         redirectUrlSetAndCopied: 'Redirect URL generated and copied to clipboard'
+      },
+      wechat: {
+        title: 'WeChat Public Account Login',
+        description: 'Configure WeChat public account verification code login for Sub2API users',
+        enable: 'Enable WeChat Login',
+        enableHint: 'Show WeChat login on login/register pages',
+        serverAddress: 'Verification Server Address',
+        serverAddressPlaceholder: 'https://wechat-auth.example.com',
+        serverAddressHint: 'API address of the WeChat verification code service',
+        serverToken: 'Token',
+        serverTokenPlaceholder: 'Enter Token',
+        serverTokenConfiguredPlaceholder: '********',
+        serverTokenHint: 'Token for backend to call the verification service (keep it secret)',
+        serverTokenConfiguredHint: 'Token configured. Leave empty to keep the current value.',
+        qrcodeUrl: 'Public Account QR Code',
+        qrcodeUrlPlaceholder: 'https://example.com/wechat-qrcode.png',
+        qrcodeUrlHint: 'WeChat public account QR code image URL, displayed on login page',
+        qrcodePreview: 'QR Code Preview',
+        qrcodePreviewAlt: 'Public Account QR Code'
       },
       defaults: {
         title: 'Default User Settings',

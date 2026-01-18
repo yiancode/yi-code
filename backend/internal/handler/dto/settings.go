@@ -22,6 +22,12 @@ type SystemSettings struct {
 	LinuxDoConnectClientSecretConfigured bool   `json:"linuxdo_connect_client_secret_configured"`
 	LinuxDoConnectRedirectURL            string `json:"linuxdo_connect_redirect_url"`
 
+	// 微信公众号验证码登录
+	WeChatAuthEnabled           bool   `json:"wechat_auth_enabled"`
+	WeChatServerAddress         string `json:"wechat_server_address"`
+	WeChatServerTokenConfigured bool   `json:"wechat_server_token_configured"`
+	WeChatAccountQRCodeURL      string `json:"wechat_account_qrcode_url"`
+
 	SiteName            string `json:"site_name"`
 	SiteLogo            string `json:"site_logo"`
 	SiteLogoDark        string `json:"site_logo_dark"`
@@ -55,22 +61,24 @@ type SystemSettings struct {
 }
 
 type PublicSettings struct {
-	RegistrationEnabled bool   `json:"registration_enabled"`
-	EmailVerifyEnabled  bool   `json:"email_verify_enabled"`
-	TurnstileEnabled    bool   `json:"turnstile_enabled"`
-	TurnstileSiteKey    string `json:"turnstile_site_key"`
-	SiteName            string `json:"site_name"`
-	SiteLogo            string `json:"site_logo"`
-	SiteLogoDark        string `json:"site_logo_dark"`
-	SiteSubtitle        string `json:"site_subtitle"`
-	APIBaseURL          string `json:"api_base_url"`
-	ContactInfo         string `json:"contact_info"`
-	ContactQRCodeWechat string `json:"contact_qrcode_wechat"`
-	ContactQRCodeGroup  string `json:"contact_qrcode_group"`
-	DocURL              string `json:"doc_url"`
-	HomeContent         string `json:"home_content"`
-	LinuxDoOAuthEnabled bool   `json:"linuxdo_oauth_enabled"`
-	Version             string `json:"version"`
+	RegistrationEnabled    bool   `json:"registration_enabled"`
+	EmailVerifyEnabled     bool   `json:"email_verify_enabled"`
+	TurnstileEnabled       bool   `json:"turnstile_enabled"`
+	TurnstileSiteKey       string `json:"turnstile_site_key"`
+	SiteName               string `json:"site_name"`
+	SiteLogo               string `json:"site_logo"`
+	SiteLogoDark           string `json:"site_logo_dark"`
+	SiteSubtitle           string `json:"site_subtitle"`
+	APIBaseURL             string `json:"api_base_url"`
+	ContactInfo            string `json:"contact_info"`
+	ContactQRCodeWechat    string `json:"contact_qrcode_wechat"`
+	ContactQRCodeGroup     string `json:"contact_qrcode_group"`
+	DocURL                 string `json:"doc_url"`
+	HomeContent            string `json:"home_content"`
+	LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
+	WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
+	WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url"`
+	Version                string `json:"version"`
 }
 
 // StreamTimeoutSettings 流超时处理配置 DTO

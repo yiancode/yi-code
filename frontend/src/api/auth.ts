@@ -133,6 +133,23 @@ export async function validatePromoCode(code: string): Promise<ValidatePromoCode
   return data
 }
 
+/**
+ * WeChat public account verification code login
+ * @param code - Verification code from WeChat public account
+ * @returns Authentication response with token and user data
+ */
+export async function wechatAuth(code: string): Promise<AuthResponse> {
+  const { data } = await apiClient.get<AuthResponse>('/auth/oauth/wechat', {
+    params: { code }
+  })
+
+  // Store token and user data
+  setAuthToken(data.access_token)
+  localStorage.setItem('auth_user', JSON.stringify(data.user))
+
+  return data
+}
+
 export const authAPI = {
   login,
   register,
@@ -144,7 +161,8 @@ export const authAPI = {
   clearAuthToken,
   getPublicSettings,
   sendVerifyCode,
-  validatePromoCode
+  validatePromoCode,
+  wechatAuth
 }
 
 export default authAPI

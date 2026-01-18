@@ -269,6 +269,20 @@ export default {
       callbackMissingToken: '登录信息缺失，请返回重试。',
       backToLogin: '返回登录'
     },
+    wechat: {
+      signIn: '使用微信登录',
+      orContinue: '或使用邮箱密码继续',
+      modalTitle: '微信扫码登录',
+      qrCodeAlt: '微信公众号二维码',
+      noQrCode: '二维码未配置',
+      scanTip: '使用微信扫描上方二维码，关注公众号并发送任意消息获取验证码',
+      codeLabel: '验证码',
+      codePlaceholder: '请输入验证码',
+      codeRequired: '请输入验证码',
+      verify: '登录',
+      verifying: '验证中...',
+      verifyFailed: '验证失败，请检查验证码'
+    },
     oauth: {
       code: '授权码',
       state: '状态',
@@ -2868,6 +2882,25 @@ export default {
         redirectUrlHint: '需与 Connect.Linux.Do 中配置的回调地址一致（必须是 http(s) 完整 URL）',
         quickSetCopy: '使用当前站点生成并复制',
         redirectUrlSetAndCopied: '已使用当前站点生成回调地址并复制到剪贴板'
+      },
+      wechat: {
+        title: '微信公众号登录',
+        description: '配置微信公众号验证码登录，用于 Sub2API 用户登录',
+        enable: '启用微信登录',
+        enableHint: '在登录/注册页面显示微信公众号登录入口',
+        serverAddress: '验证服务地址',
+        serverAddressPlaceholder: 'https://wechat-auth.example.com',
+        serverAddressHint: '微信公众号验证码服务的 API 地址',
+        serverToken: 'Token',
+        serverTokenPlaceholder: '请输入 Token',
+        serverTokenConfiguredPlaceholder: '********',
+        serverTokenHint: '用于后端调用验证服务的密钥（请保密）',
+        serverTokenConfiguredHint: 'Token 已配置，留空以保留当前值。',
+        qrcodeUrl: '公众号二维码',
+        qrcodeUrlPlaceholder: 'https://example.com/wechat-qrcode.png',
+        qrcodeUrlHint: '微信公众号二维码图片 URL，用于登录页展示',
+        qrcodePreview: '二维码预览',
+        qrcodePreviewAlt: '公众号二维码'
       },
       defaults: {
         title: '用户默认设置',

@@ -61,6 +61,10 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		LinuxDoConnectClientID:               settings.LinuxDoConnectClientID,
 		LinuxDoConnectClientSecretConfigured: settings.LinuxDoConnectClientSecretConfigured,
 		LinuxDoConnectRedirectURL:            settings.LinuxDoConnectRedirectURL,
+		WeChatAuthEnabled:                    settings.WeChatAuthEnabled,
+		WeChatServerAddress:                  settings.WeChatServerAddress,
+		WeChatServerTokenConfigured:          settings.WeChatServerTokenConfigured,
+		WeChatAccountQRCodeURL:               settings.WeChatAccountQRCodeURL,
 		SiteName:                             settings.SiteName,
 		SiteLogo:                             settings.SiteLogo,
 		SiteLogoDark:                         settings.SiteLogoDark,
@@ -112,6 +116,12 @@ type UpdateSettingsRequest struct {
 	LinuxDoConnectClientID     string `json:"linuxdo_connect_client_id"`
 	LinuxDoConnectClientSecret string `json:"linuxdo_connect_client_secret"`
 	LinuxDoConnectRedirectURL  string `json:"linuxdo_connect_redirect_url"`
+
+	// 微信公众号验证码登录
+	WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
+	WeChatServerAddress    string `json:"wechat_server_address"`
+	WeChatServerToken      string `json:"wechat_server_token"`
+	WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url"`
 
 	// OEM设置
 
@@ -230,6 +240,30 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		}
 	}
 
+	// 微信公众号验证码登录参数验证
+	if req.WeChatAuthEnabled {
+		req.WeChatServerAddress = strings.TrimSpace(req.WeChatServerAddress)
+		req.WeChatServerToken = strings.TrimSpace(req.WeChatServerToken)
+
+		if req.WeChatServerAddress == "" {
+			response.BadRequest(c, "WeChat Server Address is required when enabled")
+			return
+		}
+		if err := config.ValidateAbsoluteHTTPURL(req.WeChatServerAddress); err != nil {
+			response.BadRequest(c, "WeChat Server Address must be an absolute http(s) URL")
+			return
+		}
+
+		// 如果未提供 server_token，则保留现有值（如有）。
+		if req.WeChatServerToken == "" {
+			if previousSettings.WeChatServerToken == "" {
+				response.BadRequest(c, "WeChat Server Token is required when enabled")
+				return
+			}
+			req.WeChatServerToken = previousSettings.WeChatServerToken
+		}
+	}
+
 	// Ops metrics collector interval validation (seconds).
 	if req.OpsMetricsIntervalSeconds != nil {
 		v := *req.OpsMetricsIntervalSeconds
@@ -259,6 +293,10 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		LinuxDoConnectClientID:     req.LinuxDoConnectClientID,
 		LinuxDoConnectClientSecret: req.LinuxDoConnectClientSecret,
 		LinuxDoConnectRedirectURL:  req.LinuxDoConnectRedirectURL,
+		WeChatAuthEnabled:          req.WeChatAuthEnabled,
+		WeChatServerAddress:        req.WeChatServerAddress,
+		WeChatServerToken:          req.WeChatServerToken,
+		WeChatAccountQRCodeURL:     req.WeChatAccountQRCodeURL,
 		SiteName:                   req.SiteName,
 		SiteLogo:                   req.SiteLogo,
 		SiteLogoDark:               req.SiteLogoDark,
@@ -335,6 +373,10 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		LinuxDoConnectClientID:               updatedSettings.LinuxDoConnectClientID,
 		LinuxDoConnectClientSecretConfigured: updatedSettings.LinuxDoConnectClientSecretConfigured,
 		LinuxDoConnectRedirectURL:            updatedSettings.LinuxDoConnectRedirectURL,
+		WeChatAuthEnabled:                    updatedSettings.WeChatAuthEnabled,
+		WeChatServerAddress:                  updatedSettings.WeChatServerAddress,
+		WeChatServerTokenConfigured:          updatedSettings.WeChatServerTokenConfigured,
+		WeChatAccountQRCodeURL:               updatedSettings.WeChatAccountQRCodeURL,
 		SiteName:                             updatedSettings.SiteName,
 		SiteLogo:                             updatedSettings.SiteLogo,
 		SiteSubtitle:                         updatedSettings.SiteSubtitle,
@@ -429,6 +471,18 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.LinuxDoConnectRedirectURL != after.LinuxDoConnectRedirectURL {
 		changed = append(changed, "linuxdo_connect_redirect_url")
+	}
+	if before.WeChatAuthEnabled != after.WeChatAuthEnabled {
+		changed = append(changed, "wechat_auth_enabled")
+	}
+	if before.WeChatServerAddress != after.WeChatServerAddress {
+		changed = append(changed, "wechat_server_address")
+	}
+	if req.WeChatServerToken != "" {
+		changed = append(changed, "wechat_server_token")
+	}
+	if before.WeChatAccountQRCodeURL != after.WeChatAccountQRCodeURL {
+		changed = append(changed, "wechat_account_qrcode_url")
 	}
 	if before.SiteName != after.SiteName {
 		changed = append(changed, "site_name")

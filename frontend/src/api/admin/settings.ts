@@ -45,6 +45,12 @@ export interface SystemSettings {
   linuxdo_connect_client_secret_configured: boolean
   linuxdo_connect_redirect_url: string
 
+  // WeChat public account verification code login settings
+  wechat_auth_enabled: boolean
+  wechat_server_address: string
+  wechat_server_token_configured: boolean
+  wechat_account_qrcode_url: string
+
   // Model fallback configuration
   enable_model_fallback: boolean
   fallback_model_anthropic: string
@@ -92,6 +98,10 @@ export interface UpdateSettingsRequest {
   linuxdo_connect_client_id?: string
   linuxdo_connect_client_secret?: string
   linuxdo_connect_redirect_url?: string
+  wechat_auth_enabled?: boolean
+  wechat_server_address?: string
+  wechat_server_token?: string
+  wechat_account_qrcode_url?: string
   enable_model_fallback?: boolean
   fallback_model_anthropic?: string
   fallback_model_openai?: string

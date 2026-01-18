@@ -92,6 +92,12 @@ const (
 	SettingKeyLinuxDoConnectClientSecret = "linuxdo_connect_client_secret"
 	SettingKeyLinuxDoConnectRedirectURL  = "linuxdo_connect_redirect_url"
 
+	// 微信公众号验证码登录设置
+	SettingKeyWeChatAuthEnabled      = "wechat_auth_enabled"       // 是否启用微信登录
+	SettingKeyWeChatServerAddress    = "wechat_server_address"     // 微信服务器地址
+	SettingKeyWeChatServerToken      = "wechat_server_token"       // 微信服务器认证令牌
+	SettingKeyWeChatAccountQRCodeURL = "wechat_account_qrcode_url" // 微信公众号二维码URL
+
 	// OEM设置
 	SettingKeySiteName            = "site_name"             // 网站名称
 	SettingKeySiteLogo            = "site_logo"             // 网站Logo (base64)

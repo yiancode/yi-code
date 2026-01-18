@@ -221,3 +221,8 @@ func (s *UserService) Delete(ctx context.Context, userID int64) error {
 	}
 	return nil
 }
+
+// ExistsByEmail 检查邮箱是否已被使用
+func (s *UserService) ExistsByEmail(ctx context.Context, email string) (bool, error) {
+	return s.userRepo.ExistsByEmail(ctx, email)
+}

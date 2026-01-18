@@ -73,6 +73,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyDocURL,
 		SettingKeyHomeContent,
 		SettingKeyLinuxDoConnectEnabled,
+		SettingKeyWeChatAuthEnabled,
+		SettingKeyWeChatAccountQRCodeURL,
 	}
 
 	settings, err := s.settingRepo.GetMultiple(ctx, keys)
@@ -88,21 +90,23 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 	}
 
 	return &PublicSettings{
-		RegistrationEnabled: settings[SettingKeyRegistrationEnabled] == "true",
-		EmailVerifyEnabled:  settings[SettingKeyEmailVerifyEnabled] == "true",
-		TurnstileEnabled:    settings[SettingKeyTurnstileEnabled] == "true",
-		TurnstileSiteKey:    settings[SettingKeyTurnstileSiteKey],
-		SiteName:            s.getStringOrDefault(settings, SettingKeySiteName, "Sub2API"),
-		SiteLogo:            settings[SettingKeySiteLogo],
-		SiteLogoDark:        settings[SettingKeySiteLogoDark],
-		SiteSubtitle:        s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
-		APIBaseURL:          settings[SettingKeyAPIBaseURL],
-		ContactInfo:         settings[SettingKeyContactInfo],
-		ContactQRCodeWechat: settings[SettingKeyContactQRCodeWechat],
-		ContactQRCodeGroup:  settings[SettingKeyContactQRCodeGroup],
-		DocURL:              settings[SettingKeyDocURL],
-		HomeContent:         settings[SettingKeyHomeContent],
-		LinuxDoOAuthEnabled: linuxDoEnabled,
+		RegistrationEnabled:    settings[SettingKeyRegistrationEnabled] == "true",
+		EmailVerifyEnabled:     settings[SettingKeyEmailVerifyEnabled] == "true",
+		TurnstileEnabled:       settings[SettingKeyTurnstileEnabled] == "true",
+		TurnstileSiteKey:       settings[SettingKeyTurnstileSiteKey],
+		SiteName:               s.getStringOrDefault(settings, SettingKeySiteName, "Sub2API"),
+		SiteLogo:               settings[SettingKeySiteLogo],
+		SiteLogoDark:           settings[SettingKeySiteLogoDark],
+		SiteSubtitle:           s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
+		APIBaseURL:             settings[SettingKeyAPIBaseURL],
+		ContactInfo:            settings[SettingKeyContactInfo],
+		ContactQRCodeWechat:    settings[SettingKeyContactQRCodeWechat],
+		ContactQRCodeGroup:     settings[SettingKeyContactQRCodeGroup],
+		DocURL:                 settings[SettingKeyDocURL],
+		HomeContent:            settings[SettingKeyHomeContent],
+		LinuxDoOAuthEnabled:    linuxDoEnabled,
+		WeChatAuthEnabled:      settings[SettingKeyWeChatAuthEnabled] == "true",
+		WeChatAccountQRCodeURL: settings[SettingKeyWeChatAccountQRCodeURL],
 	}, nil
 }
 
@@ -127,39 +131,43 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 
 	// Return a struct that matches the frontend's expected format
 	return &struct {
-		RegistrationEnabled bool   `json:"registration_enabled"`
-		EmailVerifyEnabled  bool   `json:"email_verify_enabled"`
-		TurnstileEnabled    bool   `json:"turnstile_enabled"`
-		TurnstileSiteKey    string `json:"turnstile_site_key,omitempty"`
-		SiteName            string `json:"site_name"`
-		SiteLogo            string `json:"site_logo,omitempty"`
-		SiteLogoDark        string `json:"site_logo_dark,omitempty"`
-		SiteSubtitle        string `json:"site_subtitle,omitempty"`
-		APIBaseURL          string `json:"api_base_url,omitempty"`
-		ContactInfo         string `json:"contact_info,omitempty"`
-		ContactQRCodeWechat string `json:"contact_qrcode_wechat,omitempty"`
-		ContactQRCodeGroup  string `json:"contact_qrcode_group,omitempty"`
-		DocURL              string `json:"doc_url,omitempty"`
-		HomeContent         string `json:"home_content,omitempty"`
-		LinuxDoOAuthEnabled bool   `json:"linuxdo_oauth_enabled"`
-		Version             string `json:"version,omitempty"`
+		RegistrationEnabled    bool   `json:"registration_enabled"`
+		EmailVerifyEnabled     bool   `json:"email_verify_enabled"`
+		TurnstileEnabled       bool   `json:"turnstile_enabled"`
+		TurnstileSiteKey       string `json:"turnstile_site_key,omitempty"`
+		SiteName               string `json:"site_name"`
+		SiteLogo               string `json:"site_logo,omitempty"`
+		SiteLogoDark           string `json:"site_logo_dark,omitempty"`
+		SiteSubtitle           string `json:"site_subtitle,omitempty"`
+		APIBaseURL             string `json:"api_base_url,omitempty"`
+		ContactInfo            string `json:"contact_info,omitempty"`
+		ContactQRCodeWechat    string `json:"contact_qrcode_wechat,omitempty"`
+		ContactQRCodeGroup     string `json:"contact_qrcode_group,omitempty"`
+		DocURL                 string `json:"doc_url,omitempty"`
+		HomeContent            string `json:"home_content,omitempty"`
+		LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
+		WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
+		WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url,omitempty"`
+		Version                string `json:"version,omitempty"`
 	}{
-		RegistrationEnabled: settings.RegistrationEnabled,
-		EmailVerifyEnabled:  settings.EmailVerifyEnabled,
-		TurnstileEnabled:    settings.TurnstileEnabled,
-		TurnstileSiteKey:    settings.TurnstileSiteKey,
-		SiteName:            settings.SiteName,
-		SiteLogo:            settings.SiteLogo,
-		SiteLogoDark:        settings.SiteLogoDark,
-		SiteSubtitle:        settings.SiteSubtitle,
-		APIBaseURL:          settings.APIBaseURL,
-		ContactInfo:         settings.ContactInfo,
-		ContactQRCodeWechat: settings.ContactQRCodeWechat,
-		ContactQRCodeGroup:  settings.ContactQRCodeGroup,
-		DocURL:              settings.DocURL,
-		HomeContent:         settings.HomeContent,
-		LinuxDoOAuthEnabled: settings.LinuxDoOAuthEnabled,
-		Version:             s.version,
+		RegistrationEnabled:    settings.RegistrationEnabled,
+		EmailVerifyEnabled:     settings.EmailVerifyEnabled,
+		TurnstileEnabled:       settings.TurnstileEnabled,
+		TurnstileSiteKey:       settings.TurnstileSiteKey,
+		SiteName:               settings.SiteName,
+		SiteLogo:               settings.SiteLogo,
+		SiteLogoDark:           settings.SiteLogoDark,
+		SiteSubtitle:           settings.SiteSubtitle,
+		APIBaseURL:             settings.APIBaseURL,
+		ContactInfo:            settings.ContactInfo,
+		ContactQRCodeWechat:    settings.ContactQRCodeWechat,
+		ContactQRCodeGroup:     settings.ContactQRCodeGroup,
+		DocURL:                 settings.DocURL,
+		HomeContent:            settings.HomeContent,
+		LinuxDoOAuthEnabled:    settings.LinuxDoOAuthEnabled,
+		WeChatAuthEnabled:      settings.WeChatAuthEnabled,
+		WeChatAccountQRCodeURL: settings.WeChatAccountQRCodeURL,
+		Version:                s.version,
 	}, nil
 }
 
@@ -196,6 +204,14 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	if settings.LinuxDoConnectClientSecret != "" {
 		updates[SettingKeyLinuxDoConnectClientSecret] = settings.LinuxDoConnectClientSecret
 	}
+
+	// 微信公众号验证码登录
+	updates[SettingKeyWeChatAuthEnabled] = strconv.FormatBool(settings.WeChatAuthEnabled)
+	updates[SettingKeyWeChatServerAddress] = settings.WeChatServerAddress
+	if settings.WeChatServerToken != "" {
+		updates[SettingKeyWeChatServerToken] = settings.WeChatServerToken
+	}
+	updates[SettingKeyWeChatAccountQRCodeURL] = settings.WeChatAccountQRCodeURL
 
 	// OEM设置
 	updates[SettingKeySiteName] = settings.SiteName
@@ -414,6 +430,13 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		result.LinuxDoConnectClientSecret = strings.TrimSpace(linuxDoBase.ClientSecret)
 	}
 	result.LinuxDoConnectClientSecretConfigured = result.LinuxDoConnectClientSecret != ""
+
+	// 微信公众号验证码登录设置
+	result.WeChatAuthEnabled = settings[SettingKeyWeChatAuthEnabled] == "true"
+	result.WeChatServerAddress = strings.TrimSpace(settings[SettingKeyWeChatServerAddress])
+	result.WeChatServerToken = strings.TrimSpace(settings[SettingKeyWeChatServerToken])
+	result.WeChatServerTokenConfigured = result.WeChatServerToken != ""
+	result.WeChatAccountQRCodeURL = strings.TrimSpace(settings[SettingKeyWeChatAccountQRCodeURL])
 
 	// Model fallback settings
 	result.EnableModelFallback = settings[SettingKeyEnableModelFallback] == "true"
@@ -774,4 +797,40 @@ func (s *SettingService) SetStreamTimeoutSettings(ctx context.Context, settings 
 	}
 
 	return s.settingRepo.Set(ctx, SettingKeyStreamTimeoutSettings, string(data))
+}
+
+// WeChatConfig 微信登录配置
+type WeChatConfig struct {
+	Enabled       bool
+	ServerAddress string
+	ServerToken   string
+}
+
+// GetWeChatConfig 获取微信登录配置
+func (s *SettingService) GetWeChatConfig(ctx context.Context) (*WeChatConfig, error) {
+	keys := []string{
+		SettingKeyWeChatAuthEnabled,
+		SettingKeyWeChatServerAddress,
+		SettingKeyWeChatServerToken,
+	}
+
+	settings, err := s.settingRepo.GetMultiple(ctx, keys)
+	if err != nil {
+		return nil, fmt.Errorf("get wechat config: %w", err)
+	}
+
+	return &WeChatConfig{
+		Enabled:       settings[SettingKeyWeChatAuthEnabled] == "true",
+		ServerAddress: strings.TrimSpace(settings[SettingKeyWeChatServerAddress]),
+		ServerToken:   strings.TrimSpace(settings[SettingKeyWeChatServerToken]),
+	}, nil
+}
+
+// IsWeChatAuthEnabled 检查是否启用微信登录
+func (s *SettingService) IsWeChatAuthEnabled(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyWeChatAuthEnabled)
+	if err != nil {
+		return false
+	}
+	return value == "true"
 }

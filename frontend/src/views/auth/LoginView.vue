@@ -14,6 +14,13 @@
       <!-- LinuxDo Connect OAuth 登录 -->
       <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled" :disabled="isLoading" />
 
+      <!-- 微信公众号验证码登录 -->
+      <WeChatAuthSection
+        v-if="wechatAuthEnabled"
+        :disabled="isLoading"
+        :qr-code-url="wechatAccountQRCodeURL"
+      />
+
       <!-- Login Form -->
       <form @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email Input -->
@@ -161,6 +168,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
+import WeChatAuthSection from '@/components/auth/WeChatAuthSection.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
 import { useAuthStore, useAppStore } from '@/stores'
@@ -184,6 +192,8 @@ const showPassword = ref<boolean>(false)
 const turnstileEnabled = ref<boolean>(false)
 const turnstileSiteKey = ref<string>('')
 const linuxdoOAuthEnabled = ref<boolean>(false)
+const wechatAuthEnabled = ref<boolean>(false)
+const wechatAccountQRCodeURL = ref<string>('')
 
 // Turnstile
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
@@ -230,6 +240,8 @@ onMounted(async () => {
     turnstileEnabled.value = settings.turnstile_enabled
     turnstileSiteKey.value = settings.turnstile_site_key || ''
     linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
+    wechatAuthEnabled.value = settings.wechat_auth_enabled
+    wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_url || ''
   } catch (error) {
     console.error('Failed to load public settings:', error)
   }

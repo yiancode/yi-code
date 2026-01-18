@@ -25,6 +25,13 @@ type SystemSettings struct {
 	LinuxDoConnectClientSecretConfigured bool
 	LinuxDoConnectRedirectURL            string
 
+	// 微信公众号验证码登录
+	WeChatAuthEnabled            bool
+	WeChatServerAddress          string
+	WeChatServerToken            string
+	WeChatServerTokenConfigured  bool
+	WeChatAccountQRCodeURL       string
+
 	SiteName            string
 	SiteLogo            string
 	SiteLogoDark        string
@@ -73,7 +80,10 @@ type PublicSettings struct {
 	DocURL              string
 	HomeContent         string
 	LinuxDoOAuthEnabled bool
-	Version             string
+	// 微信登录
+	WeChatAuthEnabled      bool
+	WeChatAccountQRCodeURL string
+	Version                string
 }
 
 // StreamTimeoutSettings 流超时处理配置（仅控制超时后的处理方式，超时判定由网关配置控制）

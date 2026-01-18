@@ -553,20 +553,20 @@ source ~/.bashrc`
 // Gemini Commands
 const geminiInstallCommands: Record<string, string> = {
   macos: `# 使用 npm 全局安装
-npm install -g @google-gemini/cli
+npm install -g @google/gemini-cli
 
 # 或使用 npx 直接运行 (无需安装)
-npx @google-gemini/cli`,
+npx @google/gemini-cli`,
   windows: `# 使用 npm 全局安装
-npm install -g @google-gemini/cli
+npm install -g @google/gemini-cli
 
 # 或使用 npx 直接运行
-npx @google-gemini/cli`,
+npx @google/gemini-cli`,
   linux: `# 使用 npm 全局安装
-npm install -g @google-gemini/cli
+npm install -g @google/gemini-cli
 
 # 或使用 npx 直接运行
-npx @google-gemini/cli`
+npx @google/gemini-cli`
 }
 
 const geminiConfigCommands: Record<string, string> = {

@@ -95,7 +95,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		EmailVerifyEnabled:     settings[SettingKeyEmailVerifyEnabled] == "true",
 		TurnstileEnabled:       settings[SettingKeyTurnstileEnabled] == "true",
 		TurnstileSiteKey:       settings[SettingKeyTurnstileSiteKey],
-		SiteName:               s.getStringOrDefault(settings, SettingKeySiteName, "Sub2API"),
+		SiteName:               s.getStringOrDefault(settings, SettingKeySiteName, "Code80"),
 		SiteLogo:               settings[SettingKeySiteLogo],
 		SiteLogoDark:           settings[SettingKeySiteLogoDark],
 		SiteSubtitle:           s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
@@ -287,7 +287,7 @@ func (s *SettingService) IsEmailVerifyEnabled(ctx context.Context) bool {
 func (s *SettingService) GetSiteName(ctx context.Context) string {
 	value, err := s.settingRepo.GetValue(ctx, SettingKeySiteName)
 	if err != nil || value == "" {
-		return "Sub2API"
+		return "Code80"
 	}
 	return value
 }
@@ -332,7 +332,7 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 	defaults := map[string]string{
 		SettingKeyRegistrationEnabled: "true",
 		SettingKeyEmailVerifyEnabled:  "false",
-		SettingKeySiteName:            "Sub2API",
+		SettingKeySiteName:            "Code80",
 		SettingKeySiteLogo:            "",
 		SettingKeyDefaultConcurrency:  strconv.Itoa(s.cfg.Default.UserConcurrency),
 		SettingKeyDefaultBalance:      strconv.FormatFloat(s.cfg.Default.UserBalance, 'f', 8, 64),
@@ -372,7 +372,7 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		TurnstileEnabled:             settings[SettingKeyTurnstileEnabled] == "true",
 		TurnstileSiteKey:             settings[SettingKeyTurnstileSiteKey],
 		TurnstileSecretKeyConfigured: settings[SettingKeyTurnstileSecretKey] != "",
-		SiteName:                     s.getStringOrDefault(settings, SettingKeySiteName, "Sub2API"),
+		SiteName:                     s.getStringOrDefault(settings, SettingKeySiteName, "Code80"),
 		SiteLogo:                     settings[SettingKeySiteLogo],
 		SiteLogoDark:                 settings[SettingKeySiteLogoDark],
 		SiteSubtitle:                 s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),

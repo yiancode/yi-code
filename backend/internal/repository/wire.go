@@ -94,6 +94,7 @@ var ProviderSet = wire.NewSet(
 	NewOpenAIOAuthClient,
 	NewGeminiOAuthClient,
 	NewGeminiCliCodeAssistClient,
+	NewWeChatAPIClient,
 
 	ProvideEnt,
 	ProvideSQLDB,

@@ -26,11 +26,14 @@ type SystemSettings struct {
 	LinuxDoConnectRedirectURL            string
 
 	// 微信公众号验证码登录
-	WeChatAuthEnabled            bool
-	WeChatServerAddress          string
-	WeChatServerToken            string
-	WeChatServerTokenConfigured  bool
-	WeChatAccountQRCodeURL       string
+	WeChatAuthEnabled           bool
+	WeChatServerAddress         string
+	WeChatServerToken           string
+	WeChatServerTokenConfigured bool
+	WeChatAccountQRCodeURL      string
+	WeChatAppID                 string
+	WeChatAppSecret             string
+	WeChatAppSecretConfigured   bool
 
 	SiteName            string
 	SiteLogo            string

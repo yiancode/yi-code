@@ -50,6 +50,8 @@ export interface SystemSettings {
   wechat_server_address: string
   wechat_server_token_configured: boolean
   wechat_account_qrcode_url: string
+  wechat_app_id: string
+  wechat_app_secret_configured: boolean
 
   // Model fallback configuration
   enable_model_fallback: boolean
@@ -102,6 +104,8 @@ export interface UpdateSettingsRequest {
   wechat_server_address?: string
   wechat_server_token?: string
   wechat_account_qrcode_url?: string
+  wechat_app_id?: string
+  wechat_app_secret?: string
   enable_model_fallback?: boolean
   fallback_model_anthropic?: string
   fallback_model_openai?: string
@@ -252,6 +256,38 @@ export async function updateStreamTimeoutSettings(
   return data
 }
 
+/**
+ * Generate WeChat QR code request
+ */
+export interface GenerateWeChatQRCodeRequest {
+  app_id?: string
+  app_secret?: string
+  scene_str?: string
+}
+
+/**
+ * Generate WeChat QR code response
+ */
+export interface GenerateWeChatQRCodeResponse {
+  qrcode_url: string
+  ticket: string
+}
+
+/**
+ * Generate WeChat permanent QR code
+ * @param request - AppID, AppSecret and scene string
+ * @returns QR code URL and ticket
+ */
+export async function generateWeChatQRCode(
+  request: GenerateWeChatQRCodeRequest
+): Promise<GenerateWeChatQRCodeResponse> {
+  const { data } = await apiClient.post<GenerateWeChatQRCodeResponse>(
+    '/admin/settings/wechat/generate-qrcode',
+    request
+  )
+  return data
+}
+
 export const settingsAPI = {
   getSettings,
   updateSettings,
@@ -261,7 +297,8 @@ export const settingsAPI = {
   regenerateAdminApiKey,
   deleteAdminApiKey,
   getStreamTimeoutSettings,
-  updateStreamTimeoutSettings
+  updateStreamTimeoutSettings,
+  generateWeChatQRCode
 }
 
 export default settingsAPI

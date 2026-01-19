@@ -27,6 +27,8 @@ type SystemSettings struct {
 	WeChatServerAddress         string `json:"wechat_server_address"`
 	WeChatServerTokenConfigured bool   `json:"wechat_server_token_configured"`
 	WeChatAccountQRCodeURL      string `json:"wechat_account_qrcode_url"`
+	WeChatAppID                 string `json:"wechat_app_id"`
+	WeChatAppSecretConfigured   bool   `json:"wechat_app_secret_configured"`
 
 	SiteName            string `json:"site_name"`
 	SiteLogo            string `json:"site_logo"`

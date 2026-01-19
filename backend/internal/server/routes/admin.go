@@ -314,6 +314,8 @@ func registerSettingsRoutes(admin *gin.RouterGroup, h *handler.Handlers) {
 		// 流超时处理配置
 		adminSettings.GET("/stream-timeout", h.Admin.Setting.GetStreamTimeoutSettings)
 		adminSettings.PUT("/stream-timeout", h.Admin.Setting.UpdateStreamTimeoutSettings)
+		// 微信二维码生成
+		adminSettings.POST("/wechat/generate-qrcode", h.Admin.Setting.GenerateWeChatQRCode)
 	}
 }
 

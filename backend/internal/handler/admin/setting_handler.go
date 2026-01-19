@@ -16,19 +16,21 @@ import (
 
 // SettingHandler 系统设置处理器
 type SettingHandler struct {
-	settingService   *service.SettingService
-	emailService     *service.EmailService
-	turnstileService *service.TurnstileService
-	opsService       *service.OpsService
+	settingService       *service.SettingService
+	emailService         *service.EmailService
+	turnstileService     *service.TurnstileService
+	opsService           *service.OpsService
+	wechatQRCodeService  *service.WeChatQRCodeService
 }
 
 // NewSettingHandler 创建系统设置处理器
-func NewSettingHandler(settingService *service.SettingService, emailService *service.EmailService, turnstileService *service.TurnstileService, opsService *service.OpsService) *SettingHandler {
+func NewSettingHandler(settingService *service.SettingService, emailService *service.EmailService, turnstileService *service.TurnstileService, opsService *service.OpsService, wechatQRCodeService *service.WeChatQRCodeService) *SettingHandler {
 	return &SettingHandler{
-		settingService:   settingService,
-		emailService:     emailService,
-		turnstileService: turnstileService,
-		opsService:       opsService,
+		settingService:       settingService,
+		emailService:         emailService,
+		turnstileService:     turnstileService,
+		opsService:           opsService,
+		wechatQRCodeService:  wechatQRCodeService,
 	}
 }
 
@@ -65,6 +67,8 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		WeChatServerAddress:                  settings.WeChatServerAddress,
 		WeChatServerTokenConfigured:          settings.WeChatServerTokenConfigured,
 		WeChatAccountQRCodeURL:               settings.WeChatAccountQRCodeURL,
+		WeChatAppID:                          settings.WeChatAppID,
+		WeChatAppSecretConfigured:            settings.WeChatAppSecretConfigured,
 		SiteName:                             settings.SiteName,
 		SiteLogo:                             settings.SiteLogo,
 		SiteLogoDark:                         settings.SiteLogoDark,
@@ -122,6 +126,8 @@ type UpdateSettingsRequest struct {
 	WeChatServerAddress    string `json:"wechat_server_address"`
 	WeChatServerToken      string `json:"wechat_server_token"`
 	WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url"`
+	WeChatAppID            string `json:"wechat_app_id"`
+	WeChatAppSecret        string `json:"wechat_app_secret"`
 
 	// OEM设置
 
@@ -297,6 +303,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		WeChatServerAddress:        req.WeChatServerAddress,
 		WeChatServerToken:          req.WeChatServerToken,
 		WeChatAccountQRCodeURL:     req.WeChatAccountQRCodeURL,
+		WeChatAppID:                req.WeChatAppID,
+		WeChatAppSecret:            req.WeChatAppSecret,
 		SiteName:                   req.SiteName,
 		SiteLogo:                   req.SiteLogo,
 		SiteLogoDark:               req.SiteLogoDark,
@@ -377,6 +385,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		WeChatServerAddress:                  updatedSettings.WeChatServerAddress,
 		WeChatServerTokenConfigured:          updatedSettings.WeChatServerTokenConfigured,
 		WeChatAccountQRCodeURL:               updatedSettings.WeChatAccountQRCodeURL,
+		WeChatAppID:                          updatedSettings.WeChatAppID,
+		WeChatAppSecretConfigured:            updatedSettings.WeChatAppSecretConfigured,
 		SiteName:                             updatedSettings.SiteName,
 		SiteLogo:                             updatedSettings.SiteLogo,
 		SiteSubtitle:                         updatedSettings.SiteSubtitle,
@@ -483,6 +493,12 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.WeChatAccountQRCodeURL != after.WeChatAccountQRCodeURL {
 		changed = append(changed, "wechat_account_qrcode_url")
+	}
+	if before.WeChatAppID != after.WeChatAppID {
+		changed = append(changed, "wechat_app_id")
+	}
+	if req.WeChatAppSecret != "" {
+		changed = append(changed, "wechat_app_secret")
 	}
 	if before.SiteName != after.SiteName {
 		changed = append(changed, "site_name")
@@ -786,5 +802,80 @@ func (h *SettingHandler) UpdateStreamTimeoutSettings(c *gin.Context) {
 		TempUnschedMinutes:     updatedSettings.TempUnschedMinutes,
 		ThresholdCount:         updatedSettings.ThresholdCount,
 		ThresholdWindowMinutes: updatedSettings.ThresholdWindowMinutes,
+	})
+}
+
+// GenerateWeChatQRCodeRequest 生成微信二维码请求
+type GenerateWeChatQRCodeRequest struct {
+	AppID     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
+	SceneStr  string `json:"scene_str"` // 场景值，默认 "login"
+}
+
+// GenerateWeChatQRCodeResponse 生成微信二维码响应
+type GenerateWeChatQRCodeResponse struct {
+	QRCodeURL string `json:"qrcode_url"` // 二维码图片 URL
+	Ticket    string `json:"ticket"`     // 二维码 ticket
+}
+
+// GenerateWeChatQRCode 生成微信公众号永久二维码
+// POST /api/v1/admin/settings/wechat/generate-qrcode
+func (h *SettingHandler) GenerateWeChatQRCode(c *gin.Context) {
+	var req GenerateWeChatQRCodeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request: "+err.Error())
+		return
+	}
+
+	// 处理 AppID 和 AppSecret
+	appID := strings.TrimSpace(req.AppID)
+	appSecret := strings.TrimSpace(req.AppSecret)
+
+	// 如果请求中未提供，从已保存的设置中获取
+	if appID == "" || appSecret == "" {
+		savedAppID, savedAppSecret, err := h.settingService.GetWeChatAppCredentials(c.Request.Context())
+		if err != nil {
+			response.ErrorFrom(c, err)
+			return
+		}
+		if appID == "" {
+			appID = savedAppID
+		}
+		if appSecret == "" {
+			appSecret = savedAppSecret
+		}
+	}
+
+	if appID == "" {
+		response.BadRequest(c, "微信 AppID 未配置")
+		return
+	}
+	if appSecret == "" {
+		response.BadRequest(c, "微信 AppSecret 未配置")
+		return
+	}
+
+	// 场景值默认为 "login"
+	sceneStr := strings.TrimSpace(req.SceneStr)
+	if sceneStr == "" {
+		sceneStr = "login"
+	}
+
+	// 调用微信 API 生成二维码
+	result, err := h.wechatQRCodeService.GeneratePermanentQRCode(c.Request.Context(), appID, appSecret, sceneStr)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+
+	// 自动保存生成的二维码 URL 到设置中
+	if err := h.settingService.SetWeChatQRCodeURL(c.Request.Context(), result.ImageURL); err != nil {
+		log.Printf("[WeChat QRCode] Warning: failed to save qrcode url: %v", err)
+		// 不阻止返回，二维码已生成成功
+	}
+
+	response.Success(c, GenerateWeChatQRCodeResponse{
+		QRCodeURL: result.ImageURL,
+		Ticket:    result.Ticket,
 	})
 }

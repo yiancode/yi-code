@@ -248,6 +248,7 @@ var ProviderSet = wire.NewSet(
 	NewEmailService,
 	ProvideEmailQueueService,
 	NewTurnstileService,
+	NewWeChatQRCodeService,
 	NewSubscriptionService,
 	ProvideConcurrencyService,
 	ProvideSchedulerSnapshotService,

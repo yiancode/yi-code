@@ -567,6 +567,44 @@
 
                 <div>
                   <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.wechat.appId') }}
+                  </label>
+                  <input
+                    v-model="form.wechat_app_id"
+                    type="text"
+                    class="input font-mono text-sm"
+                    :placeholder="t('admin.settings.wechat.appIdPlaceholder')"
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{ t('admin.settings.wechat.appIdHint') }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {{ t('admin.settings.wechat.appSecret') }}
+                  </label>
+                  <input
+                    v-model="form.wechat_app_secret"
+                    type="password"
+                    class="input font-mono text-sm"
+                    :placeholder="
+                      form.wechat_app_secret_configured
+                        ? t('admin.settings.wechat.appSecretConfiguredPlaceholder')
+                        : t('admin.settings.wechat.appSecretPlaceholder')
+                    "
+                  />
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    {{
+                      form.wechat_app_secret_configured
+                        ? t('admin.settings.wechat.appSecretConfiguredHint')
+                        : t('admin.settings.wechat.appSecretHint')
+                    }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {{ t('admin.settings.wechat.qrcodeUrl') }}
                   </label>
                   <input
@@ -578,6 +616,26 @@
                   <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                     {{ t('admin.settings.wechat.qrcodeUrlHint') }}
                   </p>
+                  <!-- Generate QR Code Button -->
+                  <div class="mt-3">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      :disabled="generatingQRCode || !form.wechat_app_id || (!form.wechat_app_secret && !form.wechat_app_secret_configured)"
+                      @click="generateWeChatQRCode"
+                    >
+                      <span v-if="generatingQRCode" class="mr-2">
+                        <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" />
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                      </span>
+                      {{ t('admin.settings.wechat.generateQRCode') }}
+                    </button>
+                    <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                      {{ t('admin.settings.wechat.generateQRCodeHint') }}
+                    </p>
+                  </div>
                   <!-- QR Code Preview -->
                   <div v-if="form.wechat_account_qrcode_url" class="mt-4">
                     <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -1257,6 +1315,7 @@ const { copyToClipboard } = useClipboard()
 const loading = ref(true)
 const saving = ref(false)
 const testingSmtp = ref(false)
+const generatingQRCode = ref(false)
 const sendingTestEmail = ref(false)
 const testEmailAddress = ref('')
 const logoError = ref('')
@@ -1286,6 +1345,7 @@ type SettingsForm = SystemSettings & {
   turnstile_secret_key: string
   linuxdo_connect_client_secret: string
   wechat_server_token: string
+  wechat_app_secret: string
 }
 
 const form = reactive<SettingsForm>({
@@ -1328,6 +1388,9 @@ const form = reactive<SettingsForm>({
   wechat_server_token: '',
   wechat_server_token_configured: false,
   wechat_account_qrcode_url: '',
+  wechat_app_id: '',
+  wechat_app_secret: '',
+  wechat_app_secret_configured: false,
   // Model fallback
   enable_model_fallback: false,
   fallback_model_anthropic: 'claude-3-5-sonnet-20241022',
@@ -1566,6 +1629,26 @@ async function sendTestEmail() {
     )
   } finally {
     sendingTestEmail.value = false
+  }
+}
+
+// 微信公众号二维码生成
+async function generateWeChatQRCode() {
+  generatingQRCode.value = true
+  try {
+    const result = await adminAPI.settings.generateWeChatQRCode({
+      app_id: form.wechat_app_id,
+      app_secret: form.wechat_app_secret
+    })
+    // 自动填充生成的二维码 URL
+    form.wechat_account_qrcode_url = result.qrcode_url
+    appStore.showSuccess(t('admin.settings.wechat.generateQRCodeSuccess'))
+  } catch (error: any) {
+    appStore.showError(
+      t('admin.settings.wechat.generateQRCodeFailed') + ': ' + (error.message || t('common.unknownError'))
+    )
+  } finally {
+    generatingQRCode.value = false
   }
 }
 

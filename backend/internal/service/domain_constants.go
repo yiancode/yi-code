@@ -97,6 +97,8 @@ const (
 	SettingKeyWeChatServerAddress    = "wechat_server_address"     // 微信服务器地址
 	SettingKeyWeChatServerToken      = "wechat_server_token"       // 微信服务器认证令牌
 	SettingKeyWeChatAccountQRCodeURL = "wechat_account_qrcode_url" // 微信公众号二维码URL
+	SettingKeyWeChatAppID            = "wechat_app_id"             // 微信公众号 AppID
+	SettingKeyWeChatAppSecret        = "wechat_app_secret"         // 微信公众号 AppSecret
 
 	// OEM设置
 	SettingKeySiteName            = "site_name"             // 网站名称

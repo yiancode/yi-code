@@ -2797,7 +2797,21 @@ export default {
         qrcodeUrlPlaceholder: 'https://example.com/wechat-qrcode.png',
         qrcodeUrlHint: 'WeChat public account QR code image URL, displayed on login page',
         qrcodePreview: 'QR Code Preview',
-        qrcodePreviewAlt: 'Public Account QR Code'
+        qrcodePreviewAlt: 'Public Account QR Code',
+        appId: 'AppID',
+        appIdPlaceholder: 'Enter WeChat AppID',
+        appIdHint: 'WeChat public account AppID, used to generate permanent QR code via WeChat API',
+        appSecret: 'AppSecret',
+        appSecretPlaceholder: 'Enter WeChat AppSecret',
+        appSecretConfiguredPlaceholder: '********',
+        appSecretHint: 'WeChat public account AppSecret (keep it secret)',
+        appSecretConfiguredHint: 'AppSecret configured. Leave empty to keep the current value',
+        generateQRCode: 'Generate QR Code',
+        generatingQRCode: 'Generating...',
+        generateQRCodeSuccess: 'QR code generated successfully and auto-filled',
+        generateQRCodeFailed: 'Failed to generate QR code',
+        generateQRCodeHint: 'Fill in AppID and AppSecret, then click to generate permanent QR code',
+        orManualInput: 'or enter QR code URL manually'
       },
       defaults: {
         title: 'Default User Settings',

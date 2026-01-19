@@ -212,6 +212,10 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 		updates[SettingKeyWeChatServerToken] = settings.WeChatServerToken
 	}
 	updates[SettingKeyWeChatAccountQRCodeURL] = settings.WeChatAccountQRCodeURL
+	updates[SettingKeyWeChatAppID] = settings.WeChatAppID
+	if settings.WeChatAppSecret != "" {
+		updates[SettingKeyWeChatAppSecret] = settings.WeChatAppSecret
+	}
 
 	// OEM设置
 	updates[SettingKeySiteName] = settings.SiteName
@@ -437,6 +441,9 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 	result.WeChatServerToken = strings.TrimSpace(settings[SettingKeyWeChatServerToken])
 	result.WeChatServerTokenConfigured = result.WeChatServerToken != ""
 	result.WeChatAccountQRCodeURL = strings.TrimSpace(settings[SettingKeyWeChatAccountQRCodeURL])
+	result.WeChatAppID = strings.TrimSpace(settings[SettingKeyWeChatAppID])
+	result.WeChatAppSecret = strings.TrimSpace(settings[SettingKeyWeChatAppSecret])
+	result.WeChatAppSecretConfigured = result.WeChatAppSecret != ""
 
 	// Model fallback settings
 	result.EnableModelFallback = settings[SettingKeyEnableModelFallback] == "true"
@@ -833,4 +840,26 @@ func (s *SettingService) IsWeChatAuthEnabled(ctx context.Context) bool {
 		return false
 	}
 	return value == "true"
+}
+
+// GetWeChatAppCredentials 获取微信 AppID 和 AppSecret
+func (s *SettingService) GetWeChatAppCredentials(ctx context.Context) (appID, appSecret string, err error) {
+	keys := []string{
+		SettingKeyWeChatAppID,
+		SettingKeyWeChatAppSecret,
+	}
+
+	settings, err := s.settingRepo.GetMultiple(ctx, keys)
+	if err != nil {
+		return "", "", fmt.Errorf("get wechat app credentials: %w", err)
+	}
+
+	return strings.TrimSpace(settings[SettingKeyWeChatAppID]),
+		strings.TrimSpace(settings[SettingKeyWeChatAppSecret]),
+		nil
+}
+
+// SetWeChatQRCodeURL 设置微信公众号二维码 URL
+func (s *SettingService) SetWeChatQRCodeURL(ctx context.Context, qrcodeURL string) error {
+	return s.settingRepo.Set(ctx, SettingKeyWeChatAccountQRCodeURL, qrcodeURL)
 }

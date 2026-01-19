@@ -2949,7 +2949,21 @@ export default {
         qrcodeUrlPlaceholder: 'https://example.com/wechat-qrcode.png',
         qrcodeUrlHint: '微信公众号二维码图片 URL，用于登录页展示',
         qrcodePreview: '二维码预览',
-        qrcodePreviewAlt: '公众号二维码'
+        qrcodePreviewAlt: '公众号二维码',
+        appId: 'AppID',
+        appIdPlaceholder: '请输入微信公众号 AppID',
+        appIdHint: '微信公众号的 AppID，用于调用微信 API 生成永久二维码',
+        appSecret: 'AppSecret',
+        appSecretPlaceholder: '请输入微信公众号 AppSecret',
+        appSecretConfiguredPlaceholder: '********',
+        appSecretHint: '微信公众号的 AppSecret（请保密）',
+        appSecretConfiguredHint: 'AppSecret 已配置，留空以保留当前值',
+        generateQRCode: '生成二维码',
+        generatingQRCode: '生成中...',
+        generateQRCodeSuccess: '二维码生成成功，已自动填充到公众号二维码字段',
+        generateQRCodeFailed: '生成二维码失败',
+        generateQRCodeHint: '填写 AppID 和 AppSecret 后点击此按钮，自动生成永久二维码',
+        orManualInput: '或手动输入二维码 URL'
       },
       defaults: {
         title: '用户默认设置',

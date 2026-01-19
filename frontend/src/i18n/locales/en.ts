@@ -208,7 +208,8 @@ export default {
     expand: 'Expand',
     logout: 'Logout',
     github: 'GitHub',
-    mySubscriptions: 'My Subscriptions'
+    mySubscriptions: 'My Subscriptions',
+    docs: 'Docs'
   },
 
   // Auth
@@ -598,7 +599,10 @@ export default {
     previous: 'Previous',
     next: 'Next',
     perPage: 'Per page',
-    goToPage: 'Go to page {page}'
+    goToPage: 'Go to page {page}',
+    jumpTo: 'Jump to',
+    jumpPlaceholder: 'Page',
+    jumpAction: 'Go'
   },
 
   // Errors
@@ -699,6 +703,7 @@ export default {
       updating: 'Updating...',
       columns: {
         user: 'User',
+        email: 'Email',
         username: 'Username',
         notes: 'Notes',
         role: 'Role',
@@ -1119,6 +1124,7 @@ export default {
         todayStats: 'Today Stats',
         groups: 'Groups',
         usageWindows: 'Usage Windows',
+        proxy: 'Proxy',
         lastUsed: 'Last Used',
         expiresAt: 'Expires At',
         actions: 'Actions'
@@ -1309,6 +1315,14 @@ export default {
           idleTimeout: 'Idle Timeout',
           idleTimeoutPlaceholder: '5',
           idleTimeoutHint: 'Sessions will be released after idle timeout'
+        },
+        tlsFingerprint: {
+          label: 'TLS Fingerprint Simulation',
+          hint: 'Simulate Node.js/Claude Code client TLS fingerprint'
+        },
+        sessionIdMasking: {
+          label: 'Session ID Masking',
+          hint: 'When enabled, fixes the session ID in metadata.user_id for 15 minutes, making upstream think requests come from the same session'
         }
       },
       expired: 'Expired',
@@ -1957,7 +1971,43 @@ export default {
       cacheCreationTokens: 'Cache Creation Tokens',
       cacheReadTokens: 'Cache Read Tokens',
       failedToLoad: 'Failed to load usage records',
-      ipAddress: 'IP'
+      billingType: 'Billing Type',
+      allBillingTypes: 'All Billing Types',
+      billingTypeBalance: 'Balance',
+      billingTypeSubscription: 'Subscription',
+      ipAddress: 'IP',
+      cleanup: {
+        button: 'Cleanup',
+        title: 'Cleanup Usage Records',
+        warning: 'Cleanup is irreversible and will affect historical stats.',
+        submit: 'Submit Cleanup',
+        submitting: 'Submitting...',
+        confirmTitle: 'Confirm Cleanup',
+        confirmMessage: 'Are you sure you want to submit this cleanup task? This action cannot be undone.',
+        confirmSubmit: 'Confirm Cleanup',
+        cancel: 'Cancel',
+        cancelConfirmTitle: 'Confirm Cancel',
+        cancelConfirmMessage: 'Are you sure you want to cancel this cleanup task?',
+        cancelConfirm: 'Confirm Cancel',
+        cancelSuccess: 'Cleanup task canceled',
+        cancelFailed: 'Failed to cancel cleanup task',
+        recentTasks: 'Recent Cleanup Tasks',
+        loadingTasks: 'Loading tasks...',
+        noTasks: 'No cleanup tasks yet',
+        range: 'Range',
+        deletedRows: 'Deleted',
+        missingRange: 'Please select a date range',
+        submitSuccess: 'Cleanup task created',
+        submitFailed: 'Failed to create cleanup task',
+        loadFailed: 'Failed to load cleanup tasks',
+        status: {
+          pending: 'Pending',
+          running: 'Running',
+          succeeded: 'Succeeded',
+          failed: 'Failed',
+          canceled: 'Canceled'
+        }
+      }
     },
 
     // Ops Monitoring

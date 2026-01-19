@@ -211,12 +211,8 @@ func (h *AccountHandler) List(c *gin.Context) {
 			}
 			accCopy := acc // 闭包捕获
 			g.Go(func() error {
-				var startTime time.Time
-				if accCopy.SessionWindowStart != nil {
-					startTime = *accCopy.SessionWindowStart
-				} else {
-					startTime = time.Now().Add(-5 * time.Hour)
-				}
+				// 使用统一的窗口开始时间计算逻辑（考虑窗口过期情况）
+				startTime := accCopy.GetCurrentWindowStartTime()
 				stats, err := h.accountUsageService.GetAccountWindowStats(gctx, accCopy.ID, startTime)
 				if err == nil && stats != nil {
 					mu.Lock()
@@ -543,6 +539,36 @@ func (h *AccountHandler) Refresh(c *gin.Context) {
 		for k, v := range account.Credentials {
 			if _, exists := newCredentials[k]; !exists {
 				newCredentials[k] = v
+			}
+		}
+
+		// 如果 project_id 获取失败，先更新凭证，再标记账户为 error
+		if tokenInfo.ProjectIDMissing {
+			// 先更新凭证
+			_, updateErr := h.adminService.UpdateAccount(c.Request.Context(), accountID, &service.UpdateAccountInput{
+				Credentials: newCredentials,
+			})
+			if updateErr != nil {
+				response.InternalError(c, "Failed to update credentials: "+updateErr.Error())
+				return
+			}
+			// 标记账户为 error
+			if setErr := h.adminService.SetAccountError(c.Request.Context(), accountID, "missing_project_id: 账户缺少project id，可能无法使用Antigravity"); setErr != nil {
+				response.InternalError(c, "Failed to set account error: "+setErr.Error())
+				return
+			}
+			response.Success(c, gin.H{
+				"message": "Token refreshed but project_id is missing, account marked as error",
+				"warning": "missing_project_id",
+			})
+			return
+		}
+
+		// 成功获取到 project_id，如果之前是 missing_project_id 错误则清除
+		if account.Status == service.StatusError && strings.Contains(account.ErrorMessage, "missing_project_id:") {
+			if _, clearErr := h.adminService.ClearAccountError(c.Request.Context(), accountID); clearErr != nil {
+				response.InternalError(c, "Failed to clear account error: "+clearErr.Error())
+				return
 			}
 		}
 	} else {

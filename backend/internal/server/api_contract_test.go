@@ -618,6 +618,14 @@ func (stubApiKeyCache) DeleteAuthCache(ctx context.Context, key string) error {
 	return nil
 }
 
+func (stubApiKeyCache) PublishAuthCacheInvalidation(ctx context.Context, cacheKey string) error {
+	return nil
+}
+
+func (stubApiKeyCache) SubscribeAuthCacheInvalidation(ctx context.Context, handler func(cacheKey string)) error {
+	return nil
+}
+
 type stubGroupRepo struct{}
 
 func (stubGroupRepo) Create(ctx context.Context, group *service.Group) error {
@@ -733,6 +741,10 @@ func (s *stubAccountRepo) BatchUpdateLastUsed(ctx context.Context, updates map[i
 }
 
 func (s *stubAccountRepo) SetError(ctx context.Context, id int64, errorMsg string) error {
+	return errors.New("not implemented")
+}
+
+func (s *stubAccountRepo) ClearError(ctx context.Context, id int64) error {
 	return errors.New("not implemented")
 }
 
@@ -1242,11 +1254,11 @@ func (r *stubUsageLogRepo) GetDashboardStats(ctx context.Context) (*usagestats.D
 	return nil, errors.New("not implemented")
 }
 
-func (r *stubUsageLogRepo) GetUsageTrendWithFilters(ctx context.Context, startTime, endTime time.Time, granularity string, userID, apiKeyID, accountID, groupID int64, model string, stream *bool) ([]usagestats.TrendDataPoint, error) {
+func (r *stubUsageLogRepo) GetUsageTrendWithFilters(ctx context.Context, startTime, endTime time.Time, granularity string, userID, apiKeyID, accountID, groupID int64, model string, stream *bool, billingType *int8) ([]usagestats.TrendDataPoint, error) {
 	return nil, errors.New("not implemented")
 }
 
-func (r *stubUsageLogRepo) GetModelStatsWithFilters(ctx context.Context, startTime, endTime time.Time, userID, apiKeyID, accountID, groupID int64, stream *bool) ([]usagestats.ModelStat, error) {
+func (r *stubUsageLogRepo) GetModelStatsWithFilters(ctx context.Context, startTime, endTime time.Time, userID, apiKeyID, accountID, groupID int64, stream *bool, billingType *int8) ([]usagestats.ModelStat, error) {
 	return nil, errors.New("not implemented")
 }
 

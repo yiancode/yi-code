@@ -161,6 +161,16 @@ func AccountFromServiceShallow(a *service.Account) *Account {
 		if idleTimeout := a.GetSessionIdleTimeoutMinutes(); idleTimeout > 0 {
 			out.SessionIdleTimeoutMin = &idleTimeout
 		}
+		// TLS指纹伪装开关
+		if a.IsTLSFingerprintEnabled() {
+			enabled := true
+			out.EnableTLSFingerprint = &enabled
+		}
+		// 会话ID伪装开关
+		if a.IsSessionIDMaskingEnabled() {
+			enabled := true
+			out.EnableSessionIDMasking = &enabled
+		}
 	}
 
 	return out
@@ -356,6 +366,36 @@ func UsageLogFromServiceAdmin(l *service.UsageLog) *UsageLog {
 		return nil
 	}
 	return usageLogFromServiceBase(l, AccountSummaryFromService(l.Account), true)
+}
+
+func UsageCleanupTaskFromService(task *service.UsageCleanupTask) *UsageCleanupTask {
+	if task == nil {
+		return nil
+	}
+	return &UsageCleanupTask{
+		ID:     task.ID,
+		Status: task.Status,
+		Filters: UsageCleanupFilters{
+			StartTime:   task.Filters.StartTime,
+			EndTime:     task.Filters.EndTime,
+			UserID:      task.Filters.UserID,
+			APIKeyID:    task.Filters.APIKeyID,
+			AccountID:   task.Filters.AccountID,
+			GroupID:     task.Filters.GroupID,
+			Model:       task.Filters.Model,
+			Stream:      task.Filters.Stream,
+			BillingType: task.Filters.BillingType,
+		},
+		CreatedBy:    task.CreatedBy,
+		DeletedRows:  task.DeletedRows,
+		ErrorMessage: task.ErrorMsg,
+		CanceledBy:   task.CanceledBy,
+		CanceledAt:   task.CanceledAt,
+		StartedAt:    task.StartedAt,
+		FinishedAt:   task.FinishedAt,
+		CreatedAt:    task.CreatedAt,
+		UpdatedAt:    task.UpdatedAt,
+	}
 }
 
 func SettingFromService(s *service.Setting) *Setting {

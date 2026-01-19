@@ -205,7 +205,8 @@ export default {
     expand: '展开',
     logout: '退出登录',
     github: 'GitHub',
-    mySubscriptions: '我的订阅'
+    mySubscriptions: '我的订阅',
+    docs: '文档'
   },
 
   // Auth
@@ -594,7 +595,10 @@ export default {
     previous: '上一页',
     next: '下一页',
     perPage: '每页',
-    goToPage: '跳转到第 {page} 页'
+    goToPage: '跳转到第 {page} 页',
+    jumpTo: '跳转页',
+    jumpPlaceholder: '页码',
+    jumpAction: '跳转'
   },
 
   // Errors
@@ -1168,6 +1172,7 @@ export default {
         todayStats: '今日统计',
         groups: '分组',
         usageWindows: '用量窗口',
+        proxy: '代理',
         lastUsed: '最近使用',
         expiresAt: '过期时间',
         actions: '操作'
@@ -1442,6 +1447,14 @@ export default {
           idleTimeout: '空闲超时',
           idleTimeoutPlaceholder: '5',
           idleTimeoutHint: '会话空闲超时后自动释放'
+        },
+        tlsFingerprint: {
+          label: 'TLS 指纹模拟',
+          hint: '模拟 Node.js/Claude Code 客户端的 TLS 指纹'
+        },
+        sessionIdMasking: {
+          label: '会话 ID 伪装',
+          hint: '启用后将在 15 分钟内固定 metadata.user_id 中的 session ID，使上游认为请求来自同一会话'
         }
       },
       expired: '已过期',
@@ -2105,7 +2118,43 @@ export default {
       cacheCreationTokens: '缓存创建 Token',
       cacheReadTokens: '缓存读取 Token',
       failedToLoad: '加载使用记录失败',
-      ipAddress: 'IP'
+      billingType: '计费类型',
+      allBillingTypes: '全部计费类型',
+      billingTypeBalance: '钱包余额',
+      billingTypeSubscription: '订阅套餐',
+      ipAddress: 'IP',
+      cleanup: {
+        button: '清理',
+        title: '清理使用记录',
+        warning: '清理不可恢复，且会影响历史统计回看。',
+        submit: '提交清理',
+        submitting: '提交中...',
+        confirmTitle: '确认清理',
+        confirmMessage: '确定要提交清理任务吗？清理不可恢复。',
+        confirmSubmit: '确认清理',
+        cancel: '取消任务',
+        cancelConfirmTitle: '确认取消',
+        cancelConfirmMessage: '确定要取消该清理任务吗？',
+        cancelConfirm: '确认取消',
+        cancelSuccess: '清理任务已取消',
+        cancelFailed: '取消清理任务失败',
+        recentTasks: '最近清理任务',
+        loadingTasks: '正在加载任务...',
+        noTasks: '暂无清理任务',
+        range: '时间范围',
+        deletedRows: '删除数量',
+        missingRange: '请选择时间范围',
+        submitSuccess: '清理任务已创建',
+        submitFailed: '创建清理任务失败',
+        loadFailed: '加载清理任务失败',
+        status: {
+          pending: '待执行',
+          running: '执行中',
+          succeeded: '已完成',
+          failed: '失败',
+          canceled: '已取消'
+        }
+      }
     },
 
     // Ops Monitoring

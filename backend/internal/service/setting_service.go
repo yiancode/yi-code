@@ -72,6 +72,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyContactQRCodeGroup,
 		SettingKeyDocURL,
 		SettingKeyHomeContent,
+		SettingKeyHideCcsImportButton,
 		SettingKeyLinuxDoConnectEnabled,
 		SettingKeyWeChatAuthEnabled,
 		SettingKeyWeChatAccountQRCodeURL,
@@ -104,6 +105,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		ContactQRCodeGroup:     settings[SettingKeyContactQRCodeGroup],
 		DocURL:                 settings[SettingKeyDocURL],
 		HomeContent:            settings[SettingKeyHomeContent],
+		HideCcsImportButton:    settings[SettingKeyHideCcsImportButton] == "true",
 		LinuxDoOAuthEnabled:    linuxDoEnabled,
 		WeChatAuthEnabled:      settings[SettingKeyWeChatAuthEnabled] == "true",
 		WeChatAccountQRCodeURL: settings[SettingKeyWeChatAccountQRCodeURL],
@@ -145,6 +147,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		ContactQRCodeGroup     string `json:"contact_qrcode_group,omitempty"`
 		DocURL                 string `json:"doc_url,omitempty"`
 		HomeContent            string `json:"home_content,omitempty"`
+		HideCcsImportButton    bool   `json:"hide_ccs_import_button"`
 		LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
 		WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
 		WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url,omitempty"`
@@ -164,6 +167,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		ContactQRCodeGroup:     settings.ContactQRCodeGroup,
 		DocURL:                 settings.DocURL,
 		HomeContent:            settings.HomeContent,
+		HideCcsImportButton:    settings.HideCcsImportButton,
 		LinuxDoOAuthEnabled:    settings.LinuxDoOAuthEnabled,
 		WeChatAuthEnabled:      settings.WeChatAuthEnabled,
 		WeChatAccountQRCodeURL: settings.WeChatAccountQRCodeURL,
@@ -228,6 +232,7 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	updates[SettingKeyContactQRCodeGroup] = settings.ContactQRCodeGroup
 	updates[SettingKeyDocURL] = settings.DocURL
 	updates[SettingKeyHomeContent] = settings.HomeContent
+	updates[SettingKeyHideCcsImportButton] = strconv.FormatBool(settings.HideCcsImportButton)
 
 	// 默认配置
 	updates[SettingKeyDefaultConcurrency] = strconv.Itoa(settings.DefaultConcurrency)
@@ -377,6 +382,7 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		ContactQRCodeGroup:           settings[SettingKeyContactQRCodeGroup],
 		DocURL:                       settings[SettingKeyDocURL],
 		HomeContent:                  settings[SettingKeyHomeContent],
+		HideCcsImportButton:          settings[SettingKeyHideCcsImportButton] == "true",
 	}
 
 	// 解析整数类型

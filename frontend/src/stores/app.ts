@@ -330,6 +330,7 @@ export const useAppStore = defineStore('app', () => {
         contact_qrcode_group: contactQRCodeGroup.value,
         doc_url: docUrl.value,
         home_content: '',
+        hide_ccs_import_button: false,
         linuxdo_oauth_enabled: false,
         wechat_auth_enabled: false,
         wechat_account_qrcode_url: '',

@@ -40,6 +40,7 @@ type SystemSettings struct {
 	ContactQRCodeGroup  string `json:"contact_qrcode_group"`
 	DocURL              string `json:"doc_url"`
 	HomeContent         string `json:"home_content"`
+	HideCcsImportButton bool   `json:"hide_ccs_import_button"`
 
 	DefaultConcurrency int     `json:"default_concurrency"`
 	DefaultBalance     float64 `json:"default_balance"`
@@ -77,6 +78,7 @@ type PublicSettings struct {
 	ContactQRCodeGroup     string `json:"contact_qrcode_group"`
 	DocURL                 string `json:"doc_url"`
 	HomeContent            string `json:"home_content"`
+	HideCcsImportButton    bool   `json:"hide_ccs_import_button"`
 	LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
 	WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
 	WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url"`

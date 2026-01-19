@@ -45,6 +45,7 @@ type AccountHandler struct {
 	concurrencyService      *service.ConcurrencyService
 	crsSyncService          *service.CRSSyncService
 	sessionLimitCache       service.SessionLimitCache
+	tokenCacheInvalidator   service.TokenCacheInvalidator
 }
 
 // NewAccountHandler creates a new admin account handler
@@ -60,6 +61,7 @@ func NewAccountHandler(
 	concurrencyService *service.ConcurrencyService,
 	crsSyncService *service.CRSSyncService,
 	sessionLimitCache service.SessionLimitCache,
+	tokenCacheInvalidator service.TokenCacheInvalidator,
 ) *AccountHandler {
 	return &AccountHandler{
 		adminService:            adminService,
@@ -73,6 +75,7 @@ func NewAccountHandler(
 		concurrencyService:      concurrencyService,
 		crsSyncService:          crsSyncService,
 		sessionLimitCache:       sessionLimitCache,
+		tokenCacheInvalidator:   tokenCacheInvalidator,
 	}
 }
 
@@ -173,6 +176,7 @@ func (h *AccountHandler) List(c *gin.Context) {
 	// 识别需要查询窗口费用和会话数的账号（Anthropic OAuth/SetupToken 且启用了相应功能）
 	windowCostAccountIDs := make([]int64, 0)
 	sessionLimitAccountIDs := make([]int64, 0)
+	sessionIdleTimeouts := make(map[int64]time.Duration) // 各账号的会话空闲超时配置
 	for i := range accounts {
 		acc := &accounts[i]
 		if acc.IsAnthropicOAuthOrSetupToken() {
@@ -181,6 +185,7 @@ func (h *AccountHandler) List(c *gin.Context) {
 			}
 			if acc.GetMaxSessions() > 0 {
 				sessionLimitAccountIDs = append(sessionLimitAccountIDs, acc.ID)
+				sessionIdleTimeouts[acc.ID] = time.Duration(acc.GetSessionIdleTimeoutMinutes()) * time.Minute
 			}
 		}
 	}
@@ -189,9 +194,9 @@ func (h *AccountHandler) List(c *gin.Context) {
 	var windowCosts map[int64]float64
 	var activeSessions map[int64]int
 
-	// 获取活跃会话数（批量查询）
+	// 获取活跃会话数（批量查询，传入各账号的 idleTimeout 配置）
 	if len(sessionLimitAccountIDs) > 0 && h.sessionLimitCache != nil {
-		activeSessions, _ = h.sessionLimitCache.GetActiveSessionCountBatch(c.Request.Context(), sessionLimitAccountIDs)
+		activeSessions, _ = h.sessionLimitCache.GetActiveSessionCountBatch(c.Request.Context(), sessionLimitAccountIDs, sessionIdleTimeouts)
 		if activeSessions == nil {
 			activeSessions = make(map[int64]int)
 		}
@@ -604,6 +609,14 @@ func (h *AccountHandler) Refresh(c *gin.Context) {
 	if err != nil {
 		response.ErrorFrom(c, err)
 		return
+	}
+
+	// 刷新成功后，清除 token 缓存，确保下次请求使用新 token
+	if h.tokenCacheInvalidator != nil {
+		if invalidateErr := h.tokenCacheInvalidator.InvalidateToken(c.Request.Context(), updatedAccount); invalidateErr != nil {
+			// 缓存失效失败只记录日志，不影响主流程
+			_ = c.Error(invalidateErr)
+		}
 	}
 
 	response.Success(c, dto.AccountFromService(updatedAccount))

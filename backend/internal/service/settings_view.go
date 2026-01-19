@@ -45,6 +45,7 @@ type SystemSettings struct {
 	ContactQRCodeGroup  string
 	DocURL              string
 	HomeContent         string
+	HideCcsImportButton bool
 
 	DefaultConcurrency int
 	DefaultBalance     float64
@@ -82,6 +83,7 @@ type PublicSettings struct {
 	ContactQRCodeGroup  string
 	DocURL              string
 	HomeContent         string
+	HideCcsImportButton bool
 	LinuxDoOAuthEnabled bool
 	// 微信登录
 	WeChatAuthEnabled      bool

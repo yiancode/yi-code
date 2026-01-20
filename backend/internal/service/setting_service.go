@@ -77,6 +77,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyLinuxDoConnectEnabled,
 		SettingKeyWeChatAuthEnabled,
 		SettingKeyWeChatAccountQRCodeURL,
+		SettingKeyWeChatAccountQRCodeData,
 	}
 
 	settings, err := s.settingRepo.GetMultiple(ctx, keys)
@@ -108,9 +109,10 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		DocURL:                 settings[SettingKeyDocURL],
 		HomeContent:            settings[SettingKeyHomeContent],
 		HideCcsImportButton:    settings[SettingKeyHideCcsImportButton] == "true",
-		LinuxDoOAuthEnabled:    linuxDoEnabled,
-		WeChatAuthEnabled:      settings[SettingKeyWeChatAuthEnabled] == "true",
-		WeChatAccountQRCodeURL: settings[SettingKeyWeChatAccountQRCodeURL],
+		LinuxDoOAuthEnabled:     linuxDoEnabled,
+		WeChatAuthEnabled:       settings[SettingKeyWeChatAuthEnabled] == "true",
+		WeChatAccountQRCodeURL:  settings[SettingKeyWeChatAccountQRCodeURL],
+		WeChatAccountQRCodeData: settings[SettingKeyWeChatAccountQRCodeData],
 	}, nil
 }
 
@@ -154,6 +156,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
 		WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
 		WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url,omitempty"`
+		WeChatAccountQRCodeData string `json:"wechat_account_qrcode_data,omitempty"`
 		Version                string `json:"version,omitempty"`
 	}{
 		RegistrationEnabled:    settings.RegistrationEnabled,
@@ -171,11 +174,12 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		ContactQRCodeGroup:     settings.ContactQRCodeGroup,
 		DocURL:                 settings.DocURL,
 		HomeContent:            settings.HomeContent,
-		HideCcsImportButton:    settings.HideCcsImportButton,
-		LinuxDoOAuthEnabled:    settings.LinuxDoOAuthEnabled,
-		WeChatAuthEnabled:      settings.WeChatAuthEnabled,
-		WeChatAccountQRCodeURL: settings.WeChatAccountQRCodeURL,
-		Version:                s.version,
+		HideCcsImportButton:     settings.HideCcsImportButton,
+		LinuxDoOAuthEnabled:     settings.LinuxDoOAuthEnabled,
+		WeChatAuthEnabled:       settings.WeChatAuthEnabled,
+		WeChatAccountQRCodeURL:  settings.WeChatAccountQRCodeURL,
+		WeChatAccountQRCodeData: settings.WeChatAccountQRCodeData,
+		Version:                 s.version,
 	}, nil
 }
 
@@ -221,6 +225,7 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 		updates[SettingKeyWeChatServerToken] = settings.WeChatServerToken
 	}
 	updates[SettingKeyWeChatAccountQRCodeURL] = settings.WeChatAccountQRCodeURL
+	updates[SettingKeyWeChatAccountQRCodeData] = settings.WeChatAccountQRCodeData
 	updates[SettingKeyWeChatAppID] = settings.WeChatAppID
 	if settings.WeChatAppSecret != "" {
 		updates[SettingKeyWeChatAppSecret] = settings.WeChatAppSecret
@@ -463,6 +468,7 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 	result.WeChatServerToken = strings.TrimSpace(settings[SettingKeyWeChatServerToken])
 	result.WeChatServerTokenConfigured = result.WeChatServerToken != ""
 	result.WeChatAccountQRCodeURL = strings.TrimSpace(settings[SettingKeyWeChatAccountQRCodeURL])
+	result.WeChatAccountQRCodeData = settings[SettingKeyWeChatAccountQRCodeData]
 	result.WeChatAppID = strings.TrimSpace(settings[SettingKeyWeChatAppID])
 	result.WeChatAppSecret = strings.TrimSpace(settings[SettingKeyWeChatAppSecret])
 	result.WeChatAppSecretConfigured = result.WeChatAppSecret != ""

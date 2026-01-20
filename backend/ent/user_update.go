@@ -187,6 +187,20 @@ func (_u *UserUpdate) SetNillableNotes(v *string) *UserUpdate {
 	return _u
 }
 
+// SetWechatOpenid sets the "wechat_openid" field.
+func (_u *UserUpdate) SetWechatOpenid(v string) *UserUpdate {
+	_u.mutation.SetWechatOpenid(v)
+	return _u
+}
+
+// SetNillableWechatOpenid sets the "wechat_openid" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableWechatOpenid(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetWechatOpenid(*v)
+	}
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdate) AddAPIKeyIDs(ids ...int64) *UserUpdate {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -549,6 +563,11 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.WechatOpenid(); ok {
+		if err := user.WechatOpenidValidator(v); err != nil {
+			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -602,6 +621,9 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Notes(); ok {
 		_spec.SetField(user.FieldNotes, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.WechatOpenid(); ok {
+		_spec.SetField(user.FieldWechatOpenid, field.TypeString, value)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1147,6 +1169,20 @@ func (_u *UserUpdateOne) SetNillableNotes(v *string) *UserUpdateOne {
 	return _u
 }
 
+// SetWechatOpenid sets the "wechat_openid" field.
+func (_u *UserUpdateOne) SetWechatOpenid(v string) *UserUpdateOne {
+	_u.mutation.SetWechatOpenid(v)
+	return _u
+}
+
+// SetNillableWechatOpenid sets the "wechat_openid" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableWechatOpenid(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetWechatOpenid(*v)
+	}
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdateOne) AddAPIKeyIDs(ids ...int64) *UserUpdateOne {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -1522,6 +1558,11 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.WechatOpenid(); ok {
+		if err := user.WechatOpenidValidator(v); err != nil {
+			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1592,6 +1633,9 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.Notes(); ok {
 		_spec.SetField(user.FieldNotes, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.WechatOpenid(); ok {
+		_spec.SetField(user.FieldWechatOpenid, field.TypeString, value)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -570,7 +570,20 @@ export default {
     passwordsNotMatch: '两次输入的密码不一致',
     passwordTooShort: '密码至少需要 8 个字符',
     passwordChangeSuccess: '密码修改成功',
-    passwordChangeFailed: '密码修改失败'
+    passwordChangeFailed: '密码修改失败',
+    // WeChat Bind
+    wechatBind: {
+      title: '微信绑定',
+      wechatAccount: '微信公众号',
+      description: '绑定微信公众号后可使用微信扫码登录',
+      bindButton: '绑定微信',
+      modalTitle: '绑定微信公众号',
+      binding: '绑定中...',
+      bindSuccess: '微信绑定成功',
+      bindFailed: '微信绑定失败',
+      bound: '已绑定',
+      boundStatus: '已绑定微信账号，可使用微信扫码登录'
+    }
   },
 
   // Empty States
@@ -2970,7 +2983,21 @@ export default {
         generateQRCodeSuccess: '二维码生成成功，已自动填充到公众号二维码字段',
         generateQRCodeFailed: '生成二维码失败',
         generateQRCodeHint: '填写 AppID 和 AppSecret 后点击此按钮，自动生成永久二维码',
-        orManualInput: '或手动输入二维码 URL'
+        orManualInput: '或手动输入二维码 URL',
+        configTip: '配置说明',
+        configTipService: '认证服务号: 填写 AppID 和 AppSecret，点击"生成二维码"自动创建永久二维码',
+        configTipSubscription: '订阅号/未认证公众号: 无法调用 API 生成永久二维码，请手动上传二维码图片',
+        orManualUpload: '或手动上传',
+        uploadQRCode: '上传二维码图片',
+        uploadQRCodeHint: '适用于订阅号或未认证的公众号，图片大小限制 500KB',
+        qrcodeSizeError: '图片大小 ({size}KB) 超过 500KB 限制',
+        qrcodeTypeError: '请上传图片文件',
+        qrcodeReadError: '图片读取失败',
+        removeQRCode: '移除图片',
+        finalPreview: '最终效果预览',
+        source: '来源',
+        sourceUpload: '已上传',
+        sourceGenerated: 'API生成'
       },
       defaults: {
         title: '用户默认设置',

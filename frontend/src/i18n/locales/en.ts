@@ -574,7 +574,20 @@ export default {
     passwordsNotMatch: 'New passwords do not match',
     passwordTooShort: 'Password must be at least 8 characters long',
     passwordChangeSuccess: 'Password changed successfully',
-    passwordChangeFailed: 'Failed to change password'
+    passwordChangeFailed: 'Failed to change password',
+    // WeChat Bind
+    wechatBind: {
+      title: 'WeChat Binding',
+      wechatAccount: 'WeChat Official Account',
+      description: 'Link your WeChat account to enable QR code login',
+      bindButton: 'Bind WeChat',
+      modalTitle: 'Bind WeChat Account',
+      binding: 'Binding...',
+      bindSuccess: 'WeChat account bound successfully',
+      bindFailed: 'Failed to bind WeChat account',
+      bound: 'Bound',
+      boundStatus: 'WeChat account linked, you can use QR code to login'
+    }
   },
 
   // Empty States
@@ -2818,7 +2831,21 @@ export default {
         generateQRCodeSuccess: 'QR code generated successfully and auto-filled',
         generateQRCodeFailed: 'Failed to generate QR code',
         generateQRCodeHint: 'Fill in AppID and AppSecret, then click to generate permanent QR code',
-        orManualInput: 'or enter QR code URL manually'
+        orManualInput: 'or enter QR code URL manually',
+        configTip: 'Configuration Guide',
+        configTipService: 'Verified Service Account: Fill in AppID and AppSecret, click "Generate QR Code" to create permanent QR code',
+        configTipSubscription: 'Subscription/Unverified Account: Cannot generate QR code via API, please upload QR code image manually',
+        orManualUpload: 'or upload manually',
+        uploadQRCode: 'Upload QR Code Image',
+        uploadQRCodeHint: 'For subscription or unverified accounts, max size 500KB',
+        qrcodeSizeError: 'Image size ({size}KB) exceeds 500KB limit',
+        qrcodeTypeError: 'Please upload an image file',
+        qrcodeReadError: 'Failed to read image',
+        removeQRCode: 'Remove Image',
+        finalPreview: 'Final Preview',
+        source: 'Source',
+        sourceUpload: 'Uploaded',
+        sourceGenerated: 'API Generated'
       },
       defaults: {
         title: 'Default User Settings',

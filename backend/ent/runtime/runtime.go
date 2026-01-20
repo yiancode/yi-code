@@ -736,6 +736,12 @@ func init() {
 	userDescNotes := userFields[7].Descriptor()
 	// user.DefaultNotes holds the default value on creation for the notes field.
 	user.DefaultNotes = userDescNotes.Default.(string)
+	// userDescWechatOpenid is the schema descriptor for wechat_openid field.
+	userDescWechatOpenid := userFields[8].Descriptor()
+	// user.DefaultWechatOpenid holds the default value on creation for the wechat_openid field.
+	user.DefaultWechatOpenid = userDescWechatOpenid.Default.(string)
+	// user.WechatOpenidValidator is a validator for the "wechat_openid" field. It is called by the builders before save.
+	user.WechatOpenidValidator = userDescWechatOpenid.Validators[0].(func(string) error)
 	userallowedgroupFields := schema.UserAllowedGroup{}.Fields()
 	_ = userallowedgroupFields
 	// userallowedgroupDescCreatedAt is the schema descriptor for created_at field.

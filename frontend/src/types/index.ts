@@ -33,6 +33,7 @@ export interface User {
   concurrency: number // Allowed concurrent requests
   status: 'active' | 'disabled' // Account status
   allowed_groups: number[] | null // Allowed group IDs (null = all non-exclusive groups)
+  wechat_openid: string // WeChat OpenID for account binding
   subscriptions?: UserSubscription[] // User's active subscriptions
   created_at: string
   updated_at: string
@@ -87,6 +88,7 @@ export interface PublicSettings {
   linuxdo_oauth_enabled: boolean
   wechat_auth_enabled: boolean
   wechat_account_qrcode_url: string
+  wechat_account_qrcode_data: string
   version: string
 }
 

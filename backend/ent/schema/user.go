@@ -61,6 +61,10 @@ func (User) Fields() []ent.Field {
 		field.String("notes").
 			SchemaType(map[string]string{dialect.Postgres: "text"}).
 			Default(""),
+		// WeChat OpenID for account binding (see migration 044)
+		field.String("wechat_openid").
+			MaxLen(64).
+			Default(""),
 	}
 }
 

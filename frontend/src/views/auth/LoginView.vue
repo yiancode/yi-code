@@ -241,7 +241,8 @@ onMounted(async () => {
     turnstileSiteKey.value = settings.turnstile_site_key || ''
     linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
     wechatAuthEnabled.value = settings.wechat_auth_enabled
-    wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_url || ''
+    // 上传的图片 (Base64) 优先于 API 生成的 URL
+    wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_data || settings.wechat_account_qrcode_url || ''
   } catch (error) {
     console.error('Failed to load public settings:', error)
   }

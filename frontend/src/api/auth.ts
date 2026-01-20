@@ -150,6 +150,18 @@ export async function wechatAuth(code: string): Promise<AuthResponse> {
   return data
 }
 
+/**
+ * WeChat account binding for logged-in users
+ * @param code - Verification code from WeChat public account
+ * @returns Binding result with wechat_id
+ */
+export async function wechatBind(code: string): Promise<{ wechat_id: string; message: string }> {
+  const { data } = await apiClient.get<{ wechat_id: string; message: string }>('/auth/oauth/wechat/bind', {
+    params: { code }
+  })
+  return data
+}
+
 export const authAPI = {
   login,
   register,
@@ -162,7 +174,8 @@ export const authAPI = {
   getPublicSettings,
   sendVerifyCode,
   validatePromoCode,
-  wechatAuth
+  wechatAuth,
+  wechatBind
 }
 
 export default authAPI

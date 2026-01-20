@@ -13,6 +13,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/internal/handler/dto"
 	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
+	middleware2 "github.com/Wei-Shaw/sub2api/internal/server/middleware"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -59,9 +60,27 @@ func (h *AuthHandler) WeChatAuth(c *gin.Context) {
 		return
 	}
 
-	// 使用合成邮箱作为唯一标识
+	// 优先检查是否有用户已绑定该 WeChat OpenID（邮箱注册后绑定的用户）
+	boundUser, err := h.userService.GetByWeChatOpenID(c.Request.Context(), wechatID)
+	if err == nil && boundUser != nil {
+		// 找到已绑定用户，直接登录
+		token, err := h.authService.GenerateToken(boundUser)
+		if err != nil {
+			log.Printf("[WeChat Auth] Failed to generate token for bound user: %v", err)
+			response.ErrorFrom(c, err)
+			return
+		}
+		response.Success(c, AuthResponse{
+			AccessToken: token,
+			TokenType:   "Bearer",
+			User:        dto.UserFromService(boundUser),
+		})
+		return
+	}
+
+	// 未找到绑定用户，使用合成邮箱作为唯一标识进行登录或注册
 	email := wechatSyntheticEmail(wechatID)
-	username := "wechat_" + wechatID
+	username := wechatShortUsername(wechatID)
 
 	// 登录或注册
 	token, user, err := h.authService.LoginOrRegisterOAuth(c.Request.Context(), email, username)
@@ -87,6 +106,13 @@ func (h *AuthHandler) WeChatBind(c *gin.Context) {
 		return
 	}
 
+	// 获取当前登录用户
+	subject, ok := middleware2.GetAuthSubjectFromContext(c)
+	if !ok {
+		response.Unauthorized(c, "用户未登录")
+		return
+	}
+
 	// 检查微信登录是否启用
 	cfg, err := h.getWeChatConfig(c.Request.Context())
 	if err != nil {
@@ -102,11 +128,10 @@ func (h *AuthHandler) WeChatBind(c *gin.Context) {
 		return
 	}
 
-	// 检查该 WeChat ID 是否已被绑定
-	email := wechatSyntheticEmail(wechatID)
-	exists, err := h.userService.ExistsByEmail(c.Request.Context(), email)
+	// 检查该 WeChat OpenID 是否已被其他用户绑定
+	exists, err := h.userService.ExistsByWeChatOpenID(c.Request.Context(), wechatID)
 	if err != nil {
-		log.Printf("[WeChat Bind] Failed to check email exists: %v", err)
+		log.Printf("[WeChat Bind] Failed to check wechat openid exists: %v", err)
 		response.ErrorFrom(c, infraerrors.InternalServer("INTERNAL_ERROR", "检查绑定状态失败"))
 		return
 	}
@@ -115,10 +140,17 @@ func (h *AuthHandler) WeChatBind(c *gin.Context) {
 		return
 	}
 
-	// 绑定成功返回微信 ID（前端可用于显示绑定状态）
+	// 保存绑定关系
+	if err := h.userService.BindWeChatOpenID(c.Request.Context(), subject.UserID, wechatID); err != nil {
+		log.Printf("[WeChat Bind] Failed to bind wechat openid: %v", err)
+		response.ErrorFrom(c, infraerrors.InternalServer("BIND_FAILED", "绑定失败"))
+		return
+	}
+
+	// 绑定成功返回微信 ID
 	response.Success(c, gin.H{
-		"wechat_id": wechatID,
-		"message":   "绑定成功",
+		"wechat_openid": wechatID,
+		"message":       "绑定成功",
 	})
 }
 
@@ -206,4 +238,20 @@ func wechatSyntheticEmail(wechatID string) string {
 		return ""
 	}
 	return "wechat-" + wechatID + WeChatSyntheticEmailDomain
+}
+
+// wechatShortUsername 生成简短的微信用户名
+// 将 OpenID (如 o_isI6pVkFSb7KBs-ODhwmXduzLU) 转换为 wx_isI6pVkF
+func wechatShortUsername(wechatID string) string {
+	wechatID = strings.TrimSpace(wechatID)
+	if wechatID == "" {
+		return "wx_user"
+	}
+	// 去掉 o_ 前缀（如果有）
+	id := strings.TrimPrefix(wechatID, "o_")
+	// 取前 8 个字符
+	if len(id) > 8 {
+		id = id[:8]
+	}
+	return "wx_" + id
 }

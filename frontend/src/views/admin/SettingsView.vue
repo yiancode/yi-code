@@ -525,6 +525,26 @@
             </p>
           </div>
           <div class="space-y-5 p-6">
+            <!-- 配置说明提示框 -->
+            <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+              <div class="flex">
+                <svg class="h-5 w-5 flex-shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    {{ t('admin.settings.wechat.configTip') }}
+                  </h3>
+                  <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                    <ul class="list-inside list-disc space-y-1">
+                      <li>{{ t('admin.settings.wechat.configTipService') }}</li>
+                      <li>{{ t('admin.settings.wechat.configTipSubscription') }}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="flex items-center justify-between">
               <div>
                 <label class="font-medium text-gray-900 dark:text-white">{{
@@ -651,18 +671,98 @@
                       {{ t('admin.settings.wechat.generateQRCodeHint') }}
                     </p>
                   </div>
-                  <!-- QR Code Preview -->
-                  <div v-if="form.wechat_account_qrcode_url" class="mt-4">
-                    <p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {{ t('admin.settings.wechat.qrcodePreview') }}
-                    </p>
-                    <div class="inline-block rounded-lg border border-gray-200 bg-white p-2 dark:border-dark-600 dark:bg-dark-800">
-                      <img
-                        :src="form.wechat_account_qrcode_url"
-                        :alt="t('admin.settings.wechat.qrcodePreviewAlt')"
-                        class="h-32 w-32 object-contain"
-                        @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
-                      />
+
+                  <!-- 手动上传分隔线 -->
+                  <div class="relative mt-6">
+                    <div class="absolute inset-0 flex items-center">
+                      <div class="w-full border-t border-gray-200 dark:border-dark-600"></div>
+                    </div>
+                    <div class="relative flex justify-center">
+                      <span class="bg-white px-3 text-sm text-gray-500 dark:bg-dark-800 dark:text-gray-400">
+                        {{ t('admin.settings.wechat.orManualUpload') }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- 手动上传二维码 -->
+                  <div class="mt-6">
+                    <div class="flex items-start gap-6">
+                      <!-- 上传预览 -->
+                      <div class="flex-shrink-0">
+                        <div
+                          class="flex h-24 w-24 items-center justify-center overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:border-dark-600 dark:bg-dark-700"
+                          :class="{ 'border-solid border-green-500': form.wechat_account_qrcode_data }"
+                        >
+                          <img
+                            v-if="form.wechat_account_qrcode_data"
+                            :src="form.wechat_account_qrcode_data"
+                            alt="Uploaded QR Code"
+                            class="h-full w-full object-contain"
+                          />
+                          <svg
+                            v-else
+                            class="h-8 w-8 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <!-- 上传控件 -->
+                      <div class="flex-1 space-y-3">
+                        <div class="flex items-center gap-3">
+                          <label class="btn btn-secondary btn-sm cursor-pointer">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              class="hidden"
+                              @change="handleWeChatAccountQRCodeUpload"
+                            />
+                            <Icon name="upload" size="sm" class="mr-1.5" :stroke-width="2" />
+                            {{ t('admin.settings.wechat.uploadQRCode') }}
+                          </label>
+                          <button
+                            v-if="form.wechat_account_qrcode_data"
+                            type="button"
+                            @click="form.wechat_account_qrcode_data = ''"
+                            class="btn btn-secondary btn-sm text-red-600 hover:text-red-700 dark:text-red-400"
+                          >
+                            <Icon name="trash" size="sm" class="mr-1.5" :stroke-width="2" />
+                            {{ t('admin.settings.site.remove') }}
+                          </button>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ t('admin.settings.wechat.uploadQRCodeHint') }}
+                        </p>
+                        <p v-if="wechatAccountQRCodeError" class="text-xs text-red-500">{{ wechatAccountQRCodeError }}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 最终效果预览 -->
+                  <div v-if="effectiveWeChatQRCode" class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-dark-600 dark:bg-dark-700">
+                    <div class="flex items-start gap-4">
+                      <div class="rounded-lg border border-gray-200 bg-white p-2 dark:border-dark-600 dark:bg-dark-800">
+                        <img
+                          :src="effectiveWeChatQRCode"
+                          :alt="t('admin.settings.wechat.qrcodePreviewAlt')"
+                          class="h-32 w-32 object-contain"
+                          @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
+                        />
+                      </div>
+                      <div>
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {{ t('admin.settings.wechat.finalPreview') }}
+                        </p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                          {{ t('admin.settings.wechat.source') }}:
+                          <span class="ml-1 font-medium" :class="wechatQRCodeSource === 'uploaded' ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'">
+                            {{ wechatQRCodeSource === 'uploaded' ? t('admin.settings.wechat.sourceUpload') : t('admin.settings.wechat.sourceGenerated') }}
+                          </span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1420,6 +1520,7 @@ const form = reactive<SettingsForm>({
   wechat_server_token: '',
   wechat_server_token_configured: false,
   wechat_account_qrcode_url: '',
+  wechat_account_qrcode_data: '',
   wechat_app_id: '',
   wechat_app_secret: '',
   wechat_app_secret_configured: false,
@@ -1446,6 +1547,60 @@ const linuxdoRedirectUrlSuggestion = computed(() => {
     window.location.origin || `${window.location.protocol}//${window.location.host}`
   return `${origin}/api/v1/auth/oauth/linuxdo/callback`
 })
+
+// 微信公众号二维码 - 计算最终生效的二维码（上传优先）
+const effectiveWeChatQRCode = computed(() => {
+  return form.wechat_account_qrcode_data || form.wechat_account_qrcode_url || ''
+})
+
+// 微信公众号二维码来源标识
+const wechatQRCodeSource = computed(() => {
+  if (form.wechat_account_qrcode_data) return 'uploaded'
+  if (form.wechat_account_qrcode_url) return 'generated'
+  return ''
+})
+
+// 微信公众号二维码上传错误
+const wechatAccountQRCodeError = ref('')
+
+// 微信公众号二维码上传处理
+function handleWeChatAccountQRCodeUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  wechatAccountQRCodeError.value = ''
+
+  if (!file) return
+
+  // Check file size (500KB = 512000 bytes)
+  const maxSize = 500 * 1024
+  if (file.size > maxSize) {
+    wechatAccountQRCodeError.value = t('admin.settings.wechat.qrcodeSizeError', {
+      size: (file.size / 1024).toFixed(1)
+    })
+    input.value = ''
+    return
+  }
+
+  // Check file type
+  if (!file.type.startsWith('image/')) {
+    wechatAccountQRCodeError.value = t('admin.settings.wechat.qrcodeTypeError')
+    input.value = ''
+    return
+  }
+
+  // Convert to base64
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    form.wechat_account_qrcode_data = e.target?.result as string
+  }
+  reader.onerror = () => {
+    wechatAccountQRCodeError.value = t('admin.settings.wechat.qrcodeReadError')
+  }
+  reader.readAsDataURL(file)
+
+  // Reset input
+  input.value = ''
+}
 
 async function setAndCopyLinuxdoRedirectUrl() {
   const url = linuxdoRedirectUrlSuggestion.value
@@ -1591,6 +1746,13 @@ async function saveSettings() {
       linuxdo_connect_client_id: form.linuxdo_connect_client_id,
       linuxdo_connect_client_secret: form.linuxdo_connect_client_secret || undefined,
       linuxdo_connect_redirect_url: form.linuxdo_connect_redirect_url,
+      wechat_auth_enabled: form.wechat_auth_enabled,
+      wechat_server_address: form.wechat_server_address,
+      wechat_server_token: form.wechat_server_token || undefined,
+      wechat_account_qrcode_url: form.wechat_account_qrcode_url,
+      wechat_account_qrcode_data: form.wechat_account_qrcode_data,
+      wechat_app_id: form.wechat_app_id,
+      wechat_app_secret: form.wechat_app_secret || undefined,
       enable_model_fallback: form.enable_model_fallback,
       fallback_model_anthropic: form.fallback_model_anthropic,
       fallback_model_openai: form.fallback_model_openai,

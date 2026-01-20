@@ -363,6 +363,45 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 	return r.client.User.Query().Where(dbuser.EmailEQ(email)).Exist(ctx)
 }
 
+// BindWeChatOpenID binds a WeChat OpenID to a user
+func (r *userRepository) BindWeChatOpenID(ctx context.Context, userID int64, openID string) error {
+	client := clientFromContext(ctx, r.client)
+	n, err := client.User.Update().
+		Where(dbuser.IDEQ(userID)).
+		SetWechatOpenid(openID).
+		Save(ctx)
+	if err != nil {
+		return translatePersistenceError(err, service.ErrUserNotFound, nil)
+	}
+	if n == 0 {
+		return service.ErrUserNotFound
+	}
+	return nil
+}
+
+// GetByWeChatOpenID finds a user by WeChat OpenID
+func (r *userRepository) GetByWeChatOpenID(ctx context.Context, openID string) (*service.User, error) {
+	m, err := r.client.User.Query().Where(dbuser.WechatOpenidEQ(openID)).Only(ctx)
+	if err != nil {
+		return nil, translatePersistenceError(err, service.ErrUserNotFound, nil)
+	}
+
+	out := userEntityToService(m)
+	groups, err := r.loadAllowedGroups(ctx, []int64{m.ID})
+	if err != nil {
+		return nil, err
+	}
+	if v, ok := groups[m.ID]; ok {
+		out.AllowedGroups = v
+	}
+	return out, nil
+}
+
+// ExistsByWeChatOpenID checks if a user with the given WeChat OpenID exists
+func (r *userRepository) ExistsByWeChatOpenID(ctx context.Context, openID string) (bool, error) {
+	return r.client.User.Query().Where(dbuser.WechatOpenidEQ(openID), dbuser.WechatOpenidNEQ("")).Exist(ctx)
+}
+
 func (r *userRepository) RemoveGroupFromAllowedGroups(ctx context.Context, groupID int64) (int64, error) {
 	// 仅操作 user_allowed_groups 联接表，legacy users.allowed_groups 列已弃用。
 	affected, err := r.client.UserAllowedGroup.Delete().

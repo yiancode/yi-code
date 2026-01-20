@@ -68,6 +68,7 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		WeChatServerAddress:                  settings.WeChatServerAddress,
 		WeChatServerTokenConfigured:          settings.WeChatServerTokenConfigured,
 		WeChatAccountQRCodeURL:               settings.WeChatAccountQRCodeURL,
+		WeChatAccountQRCodeData:              settings.WeChatAccountQRCodeData,
 		WeChatAppID:                          settings.WeChatAppID,
 		WeChatAppSecretConfigured:            settings.WeChatAppSecretConfigured,
 		SiteName:                             settings.SiteName,
@@ -125,12 +126,13 @@ type UpdateSettingsRequest struct {
 	LinuxDoConnectRedirectURL  string `json:"linuxdo_connect_redirect_url"`
 
 	// 微信公众号验证码登录
-	WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
-	WeChatServerAddress    string `json:"wechat_server_address"`
-	WeChatServerToken      string `json:"wechat_server_token"`
-	WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url"`
-	WeChatAppID            string `json:"wechat_app_id"`
-	WeChatAppSecret        string `json:"wechat_app_secret"`
+	WeChatAuthEnabled       bool   `json:"wechat_auth_enabled"`
+	WeChatServerAddress     string `json:"wechat_server_address"`
+	WeChatServerToken       string `json:"wechat_server_token"`
+	WeChatAccountQRCodeURL  string `json:"wechat_account_qrcode_url"`
+	WeChatAccountQRCodeData string `json:"wechat_account_qrcode_data"`
+	WeChatAppID             string `json:"wechat_app_id"`
+	WeChatAppSecret         string `json:"wechat_app_secret"`
 
 	// OEM设置
 	SiteName            string `json:"site_name"`
@@ -307,6 +309,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		WeChatServerAddress:        req.WeChatServerAddress,
 		WeChatServerToken:          req.WeChatServerToken,
 		WeChatAccountQRCodeURL:     req.WeChatAccountQRCodeURL,
+		WeChatAccountQRCodeData:    req.WeChatAccountQRCodeData,
 		WeChatAppID:                req.WeChatAppID,
 		WeChatAppSecret:            req.WeChatAppSecret,
 		SiteName:                   req.SiteName,
@@ -391,6 +394,7 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		WeChatServerAddress:                  updatedSettings.WeChatServerAddress,
 		WeChatServerTokenConfigured:          updatedSettings.WeChatServerTokenConfigured,
 		WeChatAccountQRCodeURL:               updatedSettings.WeChatAccountQRCodeURL,
+		WeChatAccountQRCodeData:              updatedSettings.WeChatAccountQRCodeData,
 		WeChatAppID:                          updatedSettings.WeChatAppID,
 		WeChatAppSecretConfigured:            updatedSettings.WeChatAppSecretConfigured,
 		SiteName:                             updatedSettings.SiteName,
@@ -501,6 +505,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.WeChatAccountQRCodeURL != after.WeChatAccountQRCodeURL {
 		changed = append(changed, "wechat_account_qrcode_url")
+	}
+	if before.WeChatAccountQRCodeData != after.WeChatAccountQRCodeData {
+		changed = append(changed, "wechat_account_qrcode_data")
 	}
 	if before.WeChatAppID != after.WeChatAppID {
 		changed = append(changed, "wechat_app_id")

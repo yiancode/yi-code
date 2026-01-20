@@ -52,6 +52,7 @@ export interface SystemSettings {
   wechat_server_address: string
   wechat_server_token_configured: boolean
   wechat_account_qrcode_url: string
+  wechat_account_qrcode_data: string
   wechat_app_id: string
   wechat_app_secret_configured: boolean
 
@@ -108,6 +109,7 @@ export interface UpdateSettingsRequest {
   wechat_server_address?: string
   wechat_server_token?: string
   wechat_account_qrcode_url?: string
+  wechat_account_qrcode_data?: string
   wechat_app_id?: string
   wechat_app_secret?: string
   enable_model_fallback?: boolean

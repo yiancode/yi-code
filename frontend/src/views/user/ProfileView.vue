@@ -15,6 +15,7 @@
       </div>
       <ProfileEditForm :initial-username="user?.username || ''" />
       <ProfilePasswordForm />
+      <ProfileWeChatBind />
     </div>
   </AppLayout>
 </template>
@@ -27,6 +28,7 @@ import StatCard from '@/components/common/StatCard.vue'
 import ProfileInfoCard from '@/components/user/profile/ProfileInfoCard.vue'
 import ProfileEditForm from '@/components/user/profile/ProfileEditForm.vue'
 import ProfilePasswordForm from '@/components/user/profile/ProfilePasswordForm.vue'
+import ProfileWeChatBind from '@/components/user/profile/ProfileWeChatBind.vue'
 import { Icon } from '@/components/icons'
 
 const { t } = useI18n(); const authStore = useAuthStore(); const user = computed(() => authStore.user)

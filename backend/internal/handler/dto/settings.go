@@ -28,6 +28,7 @@ type SystemSettings struct {
 	WeChatServerAddress         string `json:"wechat_server_address"`
 	WeChatServerTokenConfigured bool   `json:"wechat_server_token_configured"`
 	WeChatAccountQRCodeURL      string `json:"wechat_account_qrcode_url"`
+	WeChatAccountQRCodeData     string `json:"wechat_account_qrcode_data"`
 	WeChatAppID                 string `json:"wechat_app_id"`
 	WeChatAppSecretConfigured   bool   `json:"wechat_app_secret_configured"`
 
@@ -81,10 +82,11 @@ type PublicSettings struct {
 	DocURL                 string `json:"doc_url"`
 	HomeContent            string `json:"home_content"`
 	HideCcsImportButton    bool   `json:"hide_ccs_import_button"`
-	LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
-	WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
-	WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url"`
-	Version                string `json:"version"`
+	LinuxDoOAuthEnabled     bool   `json:"linuxdo_oauth_enabled"`
+	WeChatAuthEnabled       bool   `json:"wechat_auth_enabled"`
+	WeChatAccountQRCodeURL  string `json:"wechat_account_qrcode_url"`
+	WeChatAccountQRCodeData string `json:"wechat_account_qrcode_data"`
+	Version                 string `json:"version"`
 }
 
 // StreamTimeoutSettings 流超时处理配置 DTO

@@ -20,6 +20,7 @@ func UserFromServiceShallow(u *service.User) *User {
 		Concurrency:   u.Concurrency,
 		Status:        u.Status,
 		AllowedGroups: u.AllowedGroups,
+		WeChatOpenID:  u.WeChatOpenID,
 		CreatedAt:     u.CreatedAt,
 		UpdatedAt:     u.UpdatedAt,
 	}

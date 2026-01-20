@@ -167,6 +167,20 @@ func (_c *UserCreate) SetNillableNotes(v *string) *UserCreate {
 	return _c
 }
 
+// SetWechatOpenid sets the "wechat_openid" field.
+func (_c *UserCreate) SetWechatOpenid(v string) *UserCreate {
+	_c.mutation.SetWechatOpenid(v)
+	return _c
+}
+
+// SetNillableWechatOpenid sets the "wechat_openid" field if the given value is not nil.
+func (_c *UserCreate) SetNillableWechatOpenid(v *string) *UserCreate {
+	if v != nil {
+		_c.SetWechatOpenid(*v)
+	}
+	return _c
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_c *UserCreate) AddAPIKeyIDs(ids ...int64) *UserCreate {
 	_c.mutation.AddAPIKeyIDs(ids...)
@@ -362,6 +376,10 @@ func (_c *UserCreate) defaults() error {
 		v := user.DefaultNotes
 		_c.mutation.SetNotes(v)
 	}
+	if _, ok := _c.mutation.WechatOpenid(); !ok {
+		v := user.DefaultWechatOpenid
+		_c.mutation.SetWechatOpenid(v)
+	}
 	return nil
 }
 
@@ -421,6 +439,14 @@ func (_c *UserCreate) check() error {
 	}
 	if _, ok := _c.mutation.Notes(); !ok {
 		return &ValidationError{Name: "notes", err: errors.New(`ent: missing required field "User.notes"`)}
+	}
+	if _, ok := _c.mutation.WechatOpenid(); !ok {
+		return &ValidationError{Name: "wechat_openid", err: errors.New(`ent: missing required field "User.wechat_openid"`)}
+	}
+	if v, ok := _c.mutation.WechatOpenid(); ok {
+		if err := user.WechatOpenidValidator(v); err != nil {
+			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -492,6 +518,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Notes(); ok {
 		_spec.SetField(user.FieldNotes, field.TypeString, value)
 		_node.Notes = value
+	}
+	if value, ok := _c.mutation.WechatOpenid(); ok {
+		_spec.SetField(user.FieldWechatOpenid, field.TypeString, value)
+		_node.WechatOpenid = value
 	}
 	if nodes := _c.mutation.APIKeysIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -815,6 +845,18 @@ func (u *UserUpsert) UpdateNotes() *UserUpsert {
 	return u
 }
 
+// SetWechatOpenid sets the "wechat_openid" field.
+func (u *UserUpsert) SetWechatOpenid(v string) *UserUpsert {
+	u.Set(user.FieldWechatOpenid, v)
+	return u
+}
+
+// UpdateWechatOpenid sets the "wechat_openid" field to the value that was provided on create.
+func (u *UserUpsert) UpdateWechatOpenid() *UserUpsert {
+	u.SetExcluded(user.FieldWechatOpenid)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -1018,6 +1060,20 @@ func (u *UserUpsertOne) SetNotes(v string) *UserUpsertOne {
 func (u *UserUpsertOne) UpdateNotes() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateNotes()
+	})
+}
+
+// SetWechatOpenid sets the "wechat_openid" field.
+func (u *UserUpsertOne) SetWechatOpenid(v string) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetWechatOpenid(v)
+	})
+}
+
+// UpdateWechatOpenid sets the "wechat_openid" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateWechatOpenid() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateWechatOpenid()
 	})
 }
 
@@ -1390,6 +1446,20 @@ func (u *UserUpsertBulk) SetNotes(v string) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdateNotes() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateNotes()
+	})
+}
+
+// SetWechatOpenid sets the "wechat_openid" field.
+func (u *UserUpsertBulk) SetWechatOpenid(v string) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetWechatOpenid(v)
+	})
+}
+
+// UpdateWechatOpenid sets the "wechat_openid" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateWechatOpenid() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateWechatOpenid()
 	})
 }
 

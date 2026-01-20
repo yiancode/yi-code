@@ -37,6 +37,8 @@ const (
 	FieldUsername = "username"
 	// FieldNotes holds the string denoting the notes field in the database.
 	FieldNotes = "notes"
+	// FieldWechatOpenid holds the string denoting the wechat_openid field in the database.
+	FieldWechatOpenid = "wechat_openid"
 	// EdgeAPIKeys holds the string denoting the api_keys edge name in mutations.
 	EdgeAPIKeys = "api_keys"
 	// EdgeRedeemCodes holds the string denoting the redeem_codes edge name in mutations.
@@ -134,6 +136,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldUsername,
 	FieldNotes,
+	FieldWechatOpenid,
 }
 
 var (
@@ -188,6 +191,10 @@ var (
 	UsernameValidator func(string) error
 	// DefaultNotes holds the default value on creation for the "notes" field.
 	DefaultNotes string
+	// DefaultWechatOpenid holds the default value on creation for the "wechat_openid" field.
+	DefaultWechatOpenid string
+	// WechatOpenidValidator is a validator for the "wechat_openid" field. It is called by the builders before save.
+	WechatOpenidValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -251,6 +258,11 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 // ByNotes orders the results by the notes field.
 func ByNotes(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotes, opts...).ToFunc()
+}
+
+// ByWechatOpenid orders the results by the wechat_openid field.
+func ByWechatOpenid(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWechatOpenid, opts...).ToFunc()
 }
 
 // ByAPIKeysCount orders the results by api_keys count.

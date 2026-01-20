@@ -38,6 +38,11 @@ type UserRepository interface {
 	UpdateConcurrency(ctx context.Context, id int64, amount int) error
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
 	RemoveGroupFromAllowedGroups(ctx context.Context, groupID int64) (int64, error)
+
+	// WeChat binding methods
+	BindWeChatOpenID(ctx context.Context, userID int64, openID string) error
+	GetByWeChatOpenID(ctx context.Context, openID string) (*User, error)
+	ExistsByWeChatOpenID(ctx context.Context, openID string) (bool, error)
 }
 
 // UpdateProfileRequest 更新用户资料请求
@@ -225,4 +230,19 @@ func (s *UserService) Delete(ctx context.Context, userID int64) error {
 // ExistsByEmail 检查邮箱是否已被使用
 func (s *UserService) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	return s.userRepo.ExistsByEmail(ctx, email)
+}
+
+// BindWeChatOpenID 绑定微信 OpenID 到用户
+func (s *UserService) BindWeChatOpenID(ctx context.Context, userID int64, openID string) error {
+	return s.userRepo.BindWeChatOpenID(ctx, userID, openID)
+}
+
+// GetByWeChatOpenID 根据微信 OpenID 获取用户
+func (s *UserService) GetByWeChatOpenID(ctx context.Context, openID string) (*User, error) {
+	return s.userRepo.GetByWeChatOpenID(ctx, openID)
+}
+
+// ExistsByWeChatOpenID 检查微信 OpenID 是否已绑定
+func (s *UserService) ExistsByWeChatOpenID(ctx context.Context, openID string) (bool, error) {
+	return s.userRepo.ExistsByWeChatOpenID(ctx, openID)
 }

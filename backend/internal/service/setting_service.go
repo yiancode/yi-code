@@ -60,6 +60,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 	keys := []string{
 		SettingKeyRegistrationEnabled,
 		SettingKeyEmailVerifyEnabled,
+		SettingKeyPromoCodeEnabled,
 		SettingKeyTurnstileEnabled,
 		SettingKeyTurnstileSiteKey,
 		SettingKeySiteName,
@@ -93,6 +94,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 	return &PublicSettings{
 		RegistrationEnabled:    settings[SettingKeyRegistrationEnabled] == "true",
 		EmailVerifyEnabled:     settings[SettingKeyEmailVerifyEnabled] == "true",
+		PromoCodeEnabled:       settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
 		TurnstileEnabled:       settings[SettingKeyTurnstileEnabled] == "true",
 		TurnstileSiteKey:       settings[SettingKeyTurnstileSiteKey],
 		SiteName:               s.getStringOrDefault(settings, SettingKeySiteName, "Code80"),
@@ -135,6 +137,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 	return &struct {
 		RegistrationEnabled    bool   `json:"registration_enabled"`
 		EmailVerifyEnabled     bool   `json:"email_verify_enabled"`
+		PromoCodeEnabled       bool   `json:"promo_code_enabled"`
 		TurnstileEnabled       bool   `json:"turnstile_enabled"`
 		TurnstileSiteKey       string `json:"turnstile_site_key,omitempty"`
 		SiteName               string `json:"site_name"`
@@ -155,6 +158,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 	}{
 		RegistrationEnabled:    settings.RegistrationEnabled,
 		EmailVerifyEnabled:     settings.EmailVerifyEnabled,
+		PromoCodeEnabled:       settings.PromoCodeEnabled,
 		TurnstileEnabled:       settings.TurnstileEnabled,
 		TurnstileSiteKey:       settings.TurnstileSiteKey,
 		SiteName:               settings.SiteName,
@@ -182,6 +186,7 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	// 注册设置
 	updates[SettingKeyRegistrationEnabled] = strconv.FormatBool(settings.RegistrationEnabled)
 	updates[SettingKeyEmailVerifyEnabled] = strconv.FormatBool(settings.EmailVerifyEnabled)
+	updates[SettingKeyPromoCodeEnabled] = strconv.FormatBool(settings.PromoCodeEnabled)
 
 	// 邮件服务设置（只有非空才更新密码）
 	updates[SettingKeySMTPHost] = settings.SMTPHost
@@ -283,6 +288,15 @@ func (s *SettingService) IsEmailVerifyEnabled(ctx context.Context) bool {
 	return value == "true"
 }
 
+// IsPromoCodeEnabled 检查是否启用优惠码功能
+func (s *SettingService) IsPromoCodeEnabled(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyPromoCodeEnabled)
+	if err != nil {
+		return true // 默认启用
+	}
+	return value != "false"
+}
+
 // GetSiteName 获取网站名称
 func (s *SettingService) GetSiteName(ctx context.Context) string {
 	value, err := s.settingRepo.GetValue(ctx, SettingKeySiteName)
@@ -332,6 +346,7 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 	defaults := map[string]string{
 		SettingKeyRegistrationEnabled: "true",
 		SettingKeyEmailVerifyEnabled:  "false",
+		SettingKeyPromoCodeEnabled:    "true", // 默认启用优惠码功能
 		SettingKeySiteName:            "Code80",
 		SettingKeySiteLogo:            "",
 		SettingKeyDefaultConcurrency:  strconv.Itoa(s.cfg.Default.UserConcurrency),
@@ -363,6 +378,7 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 	result := &SystemSettings{
 		RegistrationEnabled:          settings[SettingKeyRegistrationEnabled] == "true",
 		EmailVerifyEnabled:           settings[SettingKeyEmailVerifyEnabled] == "true",
+		PromoCodeEnabled:             settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
 		SMTPHost:                     settings[SettingKeySMTPHost],
 		SMTPUsername:                 settings[SettingKeySMTPUsername],
 		SMTPFrom:                     settings[SettingKeySMTPFrom],

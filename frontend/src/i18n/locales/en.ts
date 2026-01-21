@@ -273,6 +273,7 @@ export default {
       callbackMissingToken: 'Missing login token, please try again.',
       backToLogin: 'Back to Login'
     },
+    useEmailPassword: 'Use email and password',
     wechat: {
       signIn: 'Continue with WeChat',
       orContinue: 'or continue with email',

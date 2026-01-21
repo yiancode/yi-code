@@ -270,8 +270,9 @@ export default {
       callbackMissingToken: '登录信息缺失，请返回重试。',
       backToLogin: '返回登录'
     },
+    useEmailPassword: '使用邮箱密码登录',
     wechat: {
-      signIn: '使用微信登录',
+      signIn: '使用微信继续',
       orContinue: '或使用邮箱密码继续',
       modalTitle: '微信扫码登录',
       qrCodeAlt: '微信公众号二维码',
@@ -283,6 +284,17 @@ export default {
       verify: '登录',
       verifying: '验证中...',
       verifyFailed: '验证失败，请检查验证码'
+    },
+    wechatBind: {
+      title: '建议绑定微信账号',
+      description: '为了您的账户安全，建议您绑定微信账号。绑定后可以使用微信快速登录，并获得更完善的服务体验。',
+      benefit1: '微信扫码快速登录，免输密码',
+      benefit2: '账号安全保障，双重验证',
+      benefit3: '获得完整的服务功能访问权限',
+      skip: '暂时跳过',
+      bind: '立即绑定',
+      success: '绑定成功！',
+      bindFailed: '绑定失败，请重试'
     },
     oauth: {
       code: '授权码',

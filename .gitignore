@@ -118,7 +118,11 @@ tests
 CLAUDE.md
 AGENTS.md
 .claude
-scripts
+# scripts 目录排除 db 子目录
+scripts/*
+!scripts/db/
+!scripts/*.sh
+!scripts/*.conf
 .code-review-state
 openspec/
 docs/

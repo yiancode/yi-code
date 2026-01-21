@@ -11,18 +11,54 @@
         </p>
       </div>
 
-      <!-- LinuxDo Connect OAuth 登录 -->
-      <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled" :disabled="isLoading" />
+      <!-- Loading Settings -->
+      <div v-if="isLoadingSettings" class="flex justify-center py-8">
+        <svg
+          class="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+      </div>
 
-      <!-- 微信公众号验证码登录 -->
-      <WeChatAuthSection
-        v-if="wechatAuthEnabled"
-        :disabled="isLoading"
-        :qr-code-url="wechatAccountQRCodeURL"
-      />
+      <!-- Login Options (only show after settings loaded) -->
+      <template v-else>
+        <!-- LinuxDo Connect OAuth 登录 -->
+        <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled" :disabled="isLoading" />
 
-      <!-- Login Form -->
-      <form @submit.prevent="handleLogin" class="space-y-5">
+        <!-- 微信公众号验证码登录 -->
+        <WeChatAuthSection
+          v-if="wechatAuthEnabled"
+          :disabled="isLoading"
+          :qr-code-url="wechatAccountQRCodeURL"
+        />
+
+        <!-- 切换到邮箱密码登录 -->
+        <div v-if="wechatAuthEnabled && !showEmailPasswordForm" class="text-center">
+          <button
+            type="button"
+            @click="showEmailPasswordForm = true"
+            class="text-sm text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+          >
+            {{ t('auth.useEmailPassword') }}
+          </button>
+        </div>
+
+        <!-- Login Form -->
+        <form v-if="!wechatAuthEnabled || showEmailPasswordForm" @submit.prevent="handleLogin" class="space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -145,7 +181,17 @@
           {{ isLoading ? t('auth.signingIn') : t('auth.signIn') }}
         </button>
       </form>
+      </template>
     </div>
+
+    <!-- WeChat Bind Modal -->
+    <WeChatBindModal
+      :show="showWeChatBindModal"
+      :qr-code-url="wechatAccountQRCodeURL"
+      @close="showWeChatBindModal = false"
+      @skip="handleSkipWeChatBind"
+      @success="handleWeChatBindSuccess"
+    />
 
     <!-- Footer -->
     <template #footer>
@@ -169,10 +215,10 @@ import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
 import WeChatAuthSection from '@/components/auth/WeChatAuthSection.vue'
+import WeChatBindModal from '@/components/auth/WeChatBindModal.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
 import { useAuthStore, useAppStore } from '@/stores'
-import { getPublicSettings } from '@/api/auth'
 
 const { t } = useI18n()
 
@@ -185,8 +231,11 @@ const appStore = useAppStore()
 // ==================== State ====================
 
 const isLoading = ref<boolean>(false)
+const isLoadingSettings = ref<boolean>(true) // 控制设置加载状态
 const errorMessage = ref<string>('')
 const showPassword = ref<boolean>(false)
+const showEmailPasswordForm = ref<boolean>(false) // 控制是否显示邮箱密码表单
+const showWeChatBindModal = ref<boolean>(false) // 控制是否显示微信绑定提示弹框
 
 // Public settings
 const turnstileEnabled = ref<boolean>(false)
@@ -236,15 +285,26 @@ onMounted(async () => {
   }
 
   try {
-    const settings = await getPublicSettings()
-    turnstileEnabled.value = settings.turnstile_enabled
-    turnstileSiteKey.value = settings.turnstile_site_key || ''
-    linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
-    wechatAuthEnabled.value = settings.wechat_auth_enabled
-    // 上传的图片 (Base64) 优先于 API 生成的 URL
-    wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_data || settings.wechat_account_qrcode_url || ''
+    // Try to use cached settings first (instant if already loaded by App.vue)
+    let settings = appStore.cachedPublicSettings
+
+    // If not cached yet, fetch from API
+    if (!settings) {
+      settings = await appStore.fetchPublicSettings()
+    }
+
+    if (settings) {
+      turnstileEnabled.value = settings.turnstile_enabled
+      turnstileSiteKey.value = settings.turnstile_site_key || ''
+      linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
+      wechatAuthEnabled.value = settings.wechat_auth_enabled
+      // 上传的图片 (Base64) 优先于 API 生成的 URL
+      wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_data || settings.wechat_account_qrcode_url || ''
+    }
   } catch (error) {
     console.error('Failed to load public settings:', error)
+  } finally {
+    isLoadingSettings.value = false
   }
 })
 
@@ -329,9 +389,16 @@ async function handleLogin(): Promise<void> {
     // Play horn sound on successful login
     playHorn()
 
-    // Redirect to dashboard or intended route
-    const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
-    await router.push(redirectTo)
+    // Check if user has bound WeChat
+    const user = authStore.user
+    if (user && showEmailPasswordForm.value && wechatAuthEnabled.value && !user.wechat_openid) {
+      // If user logged in with email/password and hasn't bound WeChat, show bind modal
+      showWeChatBindModal.value = true
+    } else {
+      // Redirect to dashboard or intended route
+      const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+      await router.push(redirectTo)
+    }
   } catch (error: unknown) {
     // Reset Turnstile on error
     if (turnstileRef.value) {
@@ -355,6 +422,20 @@ async function handleLogin(): Promise<void> {
   } finally {
     isLoading.value = false
   }
+}
+
+// Handle skip WeChat bind
+function handleSkipWeChatBind(): void {
+  showWeChatBindModal.value = false
+  const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+  router.push(redirectTo)
+}
+
+// Handle WeChat bind success
+function handleWeChatBindSuccess(): void {
+  showWeChatBindModal.value = false
+  const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+  router.push(redirectTo)
 }
 </script>
 

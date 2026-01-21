@@ -27,6 +27,7 @@ export const useAppStore = defineStore('app', () => {
   const siteName = ref<string>('Code80')
   const siteLogo = ref<string>('')
   const siteLogoDark = ref<string>('')
+  const siteSubtitle = ref<string>('Subscription to API Conversion Platform')
   const siteVersion = ref<string>('')
   const contactInfo = ref<string>('')
   const contactQRCodeWechat = ref<string>('')
@@ -290,6 +291,7 @@ export const useAppStore = defineStore('app', () => {
     siteName.value = config.site_name || 'Code80'
     siteLogo.value = config.site_logo || ''
     siteLogoDark.value = config.site_logo_dark || ''
+    siteSubtitle.value = config.site_subtitle || 'Subscription to API Conversion Platform'
     siteVersion.value = config.version || ''
     contactInfo.value = config.contact_info || ''
     contactQRCodeWechat.value = config.contact_qrcode_wechat || ''
@@ -324,7 +326,7 @@ export const useAppStore = defineStore('app', () => {
         site_name: siteName.value,
         site_logo: siteLogo.value,
         site_logo_dark: siteLogoDark.value,
-        site_subtitle: '',
+        site_subtitle: siteSubtitle.value,
         api_base_url: apiBaseUrl.value,
         contact_info: contactInfo.value,
         contact_qrcode_wechat: contactQRCodeWechat.value,
@@ -393,6 +395,7 @@ export const useAppStore = defineStore('app', () => {
     siteName,
     siteLogo,
     siteLogoDark,
+    siteSubtitle,
     siteVersion,
     contactInfo,
     contactQRCodeWechat,

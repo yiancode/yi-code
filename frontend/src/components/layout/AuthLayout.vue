@@ -62,19 +62,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPublicSettings } from '@/api/auth'
+import { useAppStore } from '@/stores'
 import { sanitizeUrl } from '@/utils/url'
 import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
+const appStore = useAppStore()
 const { isDark } = useTheme()
 
-const siteName = ref('Code80')
-const siteLogo = ref('')
-const siteLogoDark = ref('')
-const siteSubtitle = ref('Subscription to API Conversion Platform')
+// Use computed properties to directly access appStore state (reactive and instant)
+const siteName = computed(() => appStore.siteName)
+const siteLogo = computed(() => sanitizeUrl(appStore.siteLogo, { allowRelative: true }))
+const siteLogoDark = computed(() => sanitizeUrl(appStore.siteLogoDark, { allowRelative: true }))
+const siteSubtitle = computed(() => appStore.siteSubtitle)
 
 // Current logo based on theme
 const currentLogo = computed(() => {
@@ -86,34 +88,20 @@ const currentLogo = computed(() => {
 
 const currentYear = computed(() => new Date().getFullYear())
 
-// Audio for horn sound
-const busHornSound = ref<HTMLAudioElement | null>(null)
-
-function playHorn() {
-  if (!busHornSound.value) {
-    busHornSound.value = new Audio('/audio/bus-horn.MP3')
-    busHornSound.value.volume = 0.6
-  }
-  busHornSound.value.currentTime = 0
-  busHornSound.value.play().catch(() => {
+function handleLogoClick() {
+  // Play horn sound
+  const busHornSound = new Audio('/audio/bus-horn.MP3')
+  busHornSound.volume = 0.6
+  busHornSound.play().catch(() => {
     // Ignore autoplay errors
   })
-}
-
-function handleLogoClick() {
-  playHorn()
   router.push('/')
 }
 
+// Ensure settings are loaded (will use cache if already loaded by App.vue)
 onMounted(async () => {
-  try {
-    const settings = await getPublicSettings()
-    siteName.value = settings.site_name || 'Code80'
-    siteLogo.value = sanitizeUrl(settings.site_logo || '', { allowRelative: true })
-    siteLogoDark.value = sanitizeUrl(settings.site_logo_dark || '', { allowRelative: true })
-    siteSubtitle.value = settings.site_subtitle || 'Subscription to API Conversion Platform'
-  } catch (error) {
-    console.error('Failed to load public settings:', error)
+  if (!appStore.cachedPublicSettings) {
+    await appStore.fetchPublicSettings()
   }
 })
 </script>

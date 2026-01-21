@@ -11,26 +11,69 @@
         </p>
       </div>
 
-      <!-- LinuxDo Connect OAuth 登录 -->
-      <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled" :disabled="isLoading" />
-
-      <!-- Registration Disabled Message -->
-      <div
-        v-if="!registrationEnabled && settingsLoaded"
-        class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
-      >
-        <div class="flex items-start gap-3">
-          <div class="flex-shrink-0">
-            <Icon name="exclamationCircle" size="md" class="text-amber-500" />
-          </div>
-          <p class="text-sm text-amber-700 dark:text-amber-400">
-            {{ t('auth.registrationDisabled') }}
-          </p>
-        </div>
+      <!-- Loading Settings -->
+      <div v-if="isLoadingSettings" class="flex justify-center py-8">
+        <svg
+          class="h-8 w-8 animate-spin text-primary-600 dark:text-primary-400"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
       </div>
 
-      <!-- Registration Form -->
-      <form v-else @submit.prevent="handleRegister" class="space-y-5">
+      <!-- Registration Options (only show after settings loaded) -->
+      <template v-else>
+        <!-- LinuxDo Connect OAuth 登录 -->
+        <LinuxDoOAuthSection v-if="linuxdoOAuthEnabled" :disabled="isLoading" />
+
+        <!-- 微信公众号验证码登录/注册 -->
+        <WeChatAuthSection
+          v-if="wechatAuthEnabled"
+          :disabled="isLoading"
+          :qr-code-url="wechatAccountQRCodeURL"
+        />
+
+        <!-- 切换到邮箱密码注册 -->
+        <div v-if="wechatAuthEnabled && !showEmailPasswordForm" class="text-center">
+          <button
+            type="button"
+            @click="showEmailPasswordForm = true"
+            class="text-sm text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+          >
+            {{ t('auth.useEmailPassword') }}
+          </button>
+        </div>
+
+        <!-- Registration Disabled Message -->
+        <div
+          v-if="(!wechatAuthEnabled || showEmailPasswordForm) && !registrationEnabled"
+          class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/50 dark:bg-amber-900/20"
+        >
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0">
+              <Icon name="exclamationCircle" size="md" class="text-amber-500" />
+            </div>
+            <p class="text-sm text-amber-700 dark:text-amber-400">
+              {{ t('auth.registrationDisabled') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Registration Form -->
+        <form v-if="(!wechatAuthEnabled || showEmailPasswordForm) && registrationEnabled" @submit.prevent="handleRegister" class="space-y-5">
         <!-- Email Input -->
         <div>
           <label for="email" class="input-label">
@@ -213,6 +256,7 @@
           }}
         </button>
       </form>
+      </template>
     </div>
 
     <!-- Footer -->
@@ -236,10 +280,11 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AuthLayout } from '@/components/layout'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
+import WeChatAuthSection from '@/components/auth/WeChatAuthSection.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
 import { useAuthStore, useAppStore } from '@/stores'
-import { getPublicSettings, validatePromoCode } from '@/api/auth'
+import { validatePromoCode } from '@/api/auth'
 
 const { t } = useI18n()
 
@@ -253,9 +298,10 @@ const appStore = useAppStore()
 // ==================== State ====================
 
 const isLoading = ref<boolean>(false)
-const settingsLoaded = ref<boolean>(false)
+const isLoadingSettings = ref<boolean>(true) // 控制设置加载状态
 const errorMessage = ref<string>('')
 const showPassword = ref<boolean>(false)
+const showEmailPasswordForm = ref<boolean>(false) // 控制是否显示邮箱密码表单
 
 // Public settings
 const registrationEnabled = ref<boolean>(true)
@@ -265,6 +311,8 @@ const turnstileEnabled = ref<boolean>(false)
 const turnstileSiteKey = ref<string>('')
 const siteName = ref<string>('Code80')
 const linuxdoOAuthEnabled = ref<boolean>(false)
+const wechatAuthEnabled = ref<boolean>(false)
+const wechatAccountQRCodeURL = ref<string>('')
 
 // Turnstile
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
@@ -296,28 +344,40 @@ const errors = reactive({
 
 onMounted(async () => {
   try {
-    const settings = await getPublicSettings()
-    registrationEnabled.value = settings.registration_enabled
-    emailVerifyEnabled.value = settings.email_verify_enabled
-    promoCodeEnabled.value = settings.promo_code_enabled
-    turnstileEnabled.value = settings.turnstile_enabled
-    turnstileSiteKey.value = settings.turnstile_site_key || ''
-    siteName.value = settings.site_name || 'Code80'
-    linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
+    // Try to use cached settings first (instant if already loaded by App.vue)
+    let settings = appStore.cachedPublicSettings
 
-    // Read promo code from URL parameter only if promo code is enabled
-    if (promoCodeEnabled.value) {
-      const promoParam = route.query.promo as string
-      if (promoParam) {
-        formData.promo_code = promoParam
-        // Validate the promo code from URL
-        await validatePromoCodeDebounced(promoParam)
+    // If not cached yet, fetch from API
+    if (!settings) {
+      settings = await appStore.fetchPublicSettings()
+    }
+
+    if (settings) {
+      registrationEnabled.value = settings.registration_enabled
+      emailVerifyEnabled.value = settings.email_verify_enabled
+      promoCodeEnabled.value = settings.promo_code_enabled
+      turnstileEnabled.value = settings.turnstile_enabled
+      turnstileSiteKey.value = settings.turnstile_site_key || ''
+      siteName.value = settings.site_name || 'Code80'
+      linuxdoOAuthEnabled.value = settings.linuxdo_oauth_enabled
+      wechatAuthEnabled.value = settings.wechat_auth_enabled
+      // 上传的图片 (Base64) 优先于 API 生成的 URL
+      wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_data || settings.wechat_account_qrcode_url || ''
+
+      // Read promo code from URL parameter only if promo code is enabled
+      if (promoCodeEnabled.value) {
+        const promoParam = route.query.promo as string
+        if (promoParam) {
+          formData.promo_code = promoParam
+          // Validate the promo code from URL
+          await validatePromoCodeDebounced(promoParam)
+        }
       }
     }
   } catch (error) {
     console.error('Failed to load public settings:', error)
   } finally {
-    settingsLoaded.value = true
+    isLoadingSettings.value = false
   }
 })
 

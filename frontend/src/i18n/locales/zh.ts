@@ -283,7 +283,7 @@ export default {
       modalTitle: '微信扫码登录',
       qrCodeAlt: '微信公众号二维码',
       noQrCode: '二维码未配置',
-      scanTip: '使用微信扫描上方二维码，关注公众号并发送任意消息获取验证码',
+      scanTip: '使用微信扫描上方二维码，关注公众号并发送【验证码】获取验证码',
       codeLabel: '验证码',
       codePlaceholder: '请输入验证码',
       codeRequired: '请输入验证码',

@@ -2,9 +2,12 @@ package dto
 
 // SystemSettings represents the admin settings API response payload.
 type SystemSettings struct {
-	RegistrationEnabled bool `json:"registration_enabled"`
-	EmailVerifyEnabled  bool `json:"email_verify_enabled"`
-	PromoCodeEnabled    bool `json:"promo_code_enabled"`
+	RegistrationEnabled         bool `json:"registration_enabled"`
+	EmailVerifyEnabled          bool `json:"email_verify_enabled"`
+	PromoCodeEnabled            bool `json:"promo_code_enabled"`
+	PasswordResetEnabled        bool `json:"password_reset_enabled"`
+	TotpEnabled                 bool `json:"totp_enabled"`                   // TOTP 双因素认证
+	TotpEncryptionKeyConfigured bool `json:"totp_encryption_key_configured"` // TOTP 加密密钥是否已配置
 
 	SMTPHost               string `json:"smtp_host"`
 	SMTPPort               int    `json:"smtp_port"`
@@ -66,22 +69,24 @@ type SystemSettings struct {
 }
 
 type PublicSettings struct {
-	RegistrationEnabled    bool   `json:"registration_enabled"`
-	EmailVerifyEnabled     bool   `json:"email_verify_enabled"`
-	PromoCodeEnabled       bool   `json:"promo_code_enabled"`
-	TurnstileEnabled       bool   `json:"turnstile_enabled"`
-	TurnstileSiteKey       string `json:"turnstile_site_key"`
-	SiteName               string `json:"site_name"`
-	SiteLogo               string `json:"site_logo"`
-	SiteLogoDark           string `json:"site_logo_dark"`
-	SiteSubtitle           string `json:"site_subtitle"`
-	APIBaseURL             string `json:"api_base_url"`
-	ContactInfo            string `json:"contact_info"`
-	ContactQRCodeWechat    string `json:"contact_qrcode_wechat"`
-	ContactQRCodeGroup     string `json:"contact_qrcode_group"`
-	DocURL                 string `json:"doc_url"`
-	HomeContent            string `json:"home_content"`
-	HideCcsImportButton    bool   `json:"hide_ccs_import_button"`
+	RegistrationEnabled     bool   `json:"registration_enabled"`
+	EmailVerifyEnabled      bool   `json:"email_verify_enabled"`
+	PromoCodeEnabled        bool   `json:"promo_code_enabled"`
+	PasswordResetEnabled    bool   `json:"password_reset_enabled"`
+	TotpEnabled             bool   `json:"totp_enabled"` // TOTP 双因素认证
+	TurnstileEnabled        bool   `json:"turnstile_enabled"`
+	TurnstileSiteKey        string `json:"turnstile_site_key"`
+	SiteName                string `json:"site_name"`
+	SiteLogo                string `json:"site_logo"`
+	SiteLogoDark            string `json:"site_logo_dark"`
+	SiteSubtitle            string `json:"site_subtitle"`
+	APIBaseURL              string `json:"api_base_url"`
+	ContactInfo             string `json:"contact_info"`
+	ContactQRCodeWechat     string `json:"contact_qrcode_wechat"`
+	ContactQRCodeGroup      string `json:"contact_qrcode_group"`
+	DocURL                  string `json:"doc_url"`
+	HomeContent             string `json:"home_content"`
+	HideCcsImportButton     bool   `json:"hide_ccs_import_button"`
 	LinuxDoOAuthEnabled     bool   `json:"linuxdo_oauth_enabled"`
 	WeChatAuthEnabled       bool   `json:"wechat_auth_enabled"`
 	WeChatAccountQRCodeURL  string `json:"wechat_account_qrcode_url"`

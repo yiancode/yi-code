@@ -43,6 +43,11 @@ type UserRepository interface {
 	BindWeChatOpenID(ctx context.Context, userID int64, openID string) error
 	GetByWeChatOpenID(ctx context.Context, openID string) (*User, error)
 	ExistsByWeChatOpenID(ctx context.Context, openID string) (bool, error)
+
+	// TOTP 相关方法
+	UpdateTotpSecret(ctx context.Context, userID int64, encryptedSecret *string) error
+	EnableTotp(ctx context.Context, userID int64) error
+	DisableTotp(ctx context.Context, userID int64) error
 }
 
 // UpdateProfileRequest 更新用户资料请求

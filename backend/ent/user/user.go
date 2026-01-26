@@ -39,6 +39,12 @@ const (
 	FieldNotes = "notes"
 	// FieldWechatOpenid holds the string denoting the wechat_openid field in the database.
 	FieldWechatOpenid = "wechat_openid"
+	// FieldTotpSecretEncrypted holds the string denoting the totp_secret_encrypted field in the database.
+	FieldTotpSecretEncrypted = "totp_secret_encrypted"
+	// FieldTotpEnabled holds the string denoting the totp_enabled field in the database.
+	FieldTotpEnabled = "totp_enabled"
+	// FieldTotpEnabledAt holds the string denoting the totp_enabled_at field in the database.
+	FieldTotpEnabledAt = "totp_enabled_at"
 	// EdgeAPIKeys holds the string denoting the api_keys edge name in mutations.
 	EdgeAPIKeys = "api_keys"
 	// EdgeRedeemCodes holds the string denoting the redeem_codes edge name in mutations.
@@ -137,6 +143,9 @@ var Columns = []string{
 	FieldUsername,
 	FieldNotes,
 	FieldWechatOpenid,
+	FieldTotpSecretEncrypted,
+	FieldTotpEnabled,
+	FieldTotpEnabledAt,
 }
 
 var (
@@ -195,6 +204,8 @@ var (
 	DefaultWechatOpenid string
 	// WechatOpenidValidator is a validator for the "wechat_openid" field. It is called by the builders before save.
 	WechatOpenidValidator func(string) error
+	// DefaultTotpEnabled holds the default value on creation for the "totp_enabled" field.
+	DefaultTotpEnabled bool
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -263,6 +274,21 @@ func ByNotes(opts ...sql.OrderTermOption) OrderOption {
 // ByWechatOpenid orders the results by the wechat_openid field.
 func ByWechatOpenid(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWechatOpenid, opts...).ToFunc()
+}
+
+// ByTotpSecretEncrypted orders the results by the totp_secret_encrypted field.
+func ByTotpSecretEncrypted(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotpSecretEncrypted, opts...).ToFunc()
+}
+
+// ByTotpEnabled orders the results by the totp_enabled field.
+func ByTotpEnabled(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotpEnabled, opts...).ToFunc()
+}
+
+// ByTotpEnabledAt orders the results by the totp_enabled_at field.
+func ByTotpEnabledAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotpEnabledAt, opts...).ToFunc()
 }
 
 // ByAPIKeysCount orders the results by api_keys count.

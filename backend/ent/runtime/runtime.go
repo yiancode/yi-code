@@ -742,6 +742,10 @@ func init() {
 	user.DefaultWechatOpenid = userDescWechatOpenid.Default.(string)
 	// user.WechatOpenidValidator is a validator for the "wechat_openid" field. It is called by the builders before save.
 	user.WechatOpenidValidator = userDescWechatOpenid.Validators[0].(func(string) error)
+	// userDescTotpEnabled is the schema descriptor for totp_enabled field.
+	userDescTotpEnabled := userFields[10].Descriptor()
+	// user.DefaultTotpEnabled holds the default value on creation for the totp_enabled field.
+	user.DefaultTotpEnabled = userDescTotpEnabled.Default.(bool)
 	userallowedgroupFields := schema.UserAllowedGroup{}.Fields()
 	_ = userallowedgroupFields
 	// userallowedgroupDescCreatedAt is the schema descriptor for created_at field.

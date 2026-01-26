@@ -61,6 +61,8 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyRegistrationEnabled,
 		SettingKeyEmailVerifyEnabled,
 		SettingKeyPromoCodeEnabled,
+		SettingKeyPasswordResetEnabled,
+		SettingKeyTotpEnabled,
 		SettingKeyTurnstileEnabled,
 		SettingKeyTurnstileSiteKey,
 		SettingKeySiteName,
@@ -92,23 +94,29 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		linuxDoEnabled = s.cfg != nil && s.cfg.LinuxDo.Enabled
 	}
 
+	// Password reset requires email verification to be enabled
+	emailVerifyEnabled := settings[SettingKeyEmailVerifyEnabled] == "true"
+	passwordResetEnabled := emailVerifyEnabled && settings[SettingKeyPasswordResetEnabled] == "true"
+
 	return &PublicSettings{
-		RegistrationEnabled:    settings[SettingKeyRegistrationEnabled] == "true",
-		EmailVerifyEnabled:     settings[SettingKeyEmailVerifyEnabled] == "true",
-		PromoCodeEnabled:       settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
-		TurnstileEnabled:       settings[SettingKeyTurnstileEnabled] == "true",
-		TurnstileSiteKey:       settings[SettingKeyTurnstileSiteKey],
-		SiteName:               s.getStringOrDefault(settings, SettingKeySiteName, "Code80"),
-		SiteLogo:               settings[SettingKeySiteLogo],
-		SiteLogoDark:           settings[SettingKeySiteLogoDark],
-		SiteSubtitle:           s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
-		APIBaseURL:             settings[SettingKeyAPIBaseURL],
-		ContactInfo:            settings[SettingKeyContactInfo],
-		ContactQRCodeWechat:    settings[SettingKeyContactQRCodeWechat],
-		ContactQRCodeGroup:     settings[SettingKeyContactQRCodeGroup],
-		DocURL:                 settings[SettingKeyDocURL],
-		HomeContent:            settings[SettingKeyHomeContent],
-		HideCcsImportButton:    settings[SettingKeyHideCcsImportButton] == "true",
+		RegistrationEnabled:     settings[SettingKeyRegistrationEnabled] == "true",
+		EmailVerifyEnabled:      emailVerifyEnabled,
+		PromoCodeEnabled:        settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
+		PasswordResetEnabled:    passwordResetEnabled,
+		TotpEnabled:             settings[SettingKeyTotpEnabled] == "true",
+		TurnstileEnabled:        settings[SettingKeyTurnstileEnabled] == "true",
+		TurnstileSiteKey:        settings[SettingKeyTurnstileSiteKey],
+		SiteName:                s.getStringOrDefault(settings, SettingKeySiteName, "Code80"),
+		SiteLogo:                settings[SettingKeySiteLogo],
+		SiteLogoDark:            settings[SettingKeySiteLogoDark],
+		SiteSubtitle:            s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
+		APIBaseURL:              settings[SettingKeyAPIBaseURL],
+		ContactInfo:             settings[SettingKeyContactInfo],
+		ContactQRCodeWechat:     settings[SettingKeyContactQRCodeWechat],
+		ContactQRCodeGroup:      settings[SettingKeyContactQRCodeGroup],
+		DocURL:                  settings[SettingKeyDocURL],
+		HomeContent:             settings[SettingKeyHomeContent],
+		HideCcsImportButton:     settings[SettingKeyHideCcsImportButton] == "true",
 		LinuxDoOAuthEnabled:     linuxDoEnabled,
 		WeChatAuthEnabled:       settings[SettingKeyWeChatAuthEnabled] == "true",
 		WeChatAccountQRCodeURL:  settings[SettingKeyWeChatAccountQRCodeURL],
@@ -137,43 +145,47 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 
 	// Return a struct that matches the frontend's expected format
 	return &struct {
-		RegistrationEnabled    bool   `json:"registration_enabled"`
-		EmailVerifyEnabled     bool   `json:"email_verify_enabled"`
-		PromoCodeEnabled       bool   `json:"promo_code_enabled"`
-		TurnstileEnabled       bool   `json:"turnstile_enabled"`
-		TurnstileSiteKey       string `json:"turnstile_site_key,omitempty"`
-		SiteName               string `json:"site_name"`
-		SiteLogo               string `json:"site_logo,omitempty"`
-		SiteLogoDark           string `json:"site_logo_dark,omitempty"`
-		SiteSubtitle           string `json:"site_subtitle,omitempty"`
-		APIBaseURL             string `json:"api_base_url,omitempty"`
-		ContactInfo            string `json:"contact_info,omitempty"`
-		ContactQRCodeWechat    string `json:"contact_qrcode_wechat,omitempty"`
-		ContactQRCodeGroup     string `json:"contact_qrcode_group,omitempty"`
-		DocURL                 string `json:"doc_url,omitempty"`
-		HomeContent            string `json:"home_content,omitempty"`
-		HideCcsImportButton    bool   `json:"hide_ccs_import_button"`
-		LinuxDoOAuthEnabled    bool   `json:"linuxdo_oauth_enabled"`
-		WeChatAuthEnabled      bool   `json:"wechat_auth_enabled"`
-		WeChatAccountQRCodeURL string `json:"wechat_account_qrcode_url,omitempty"`
+		RegistrationEnabled     bool   `json:"registration_enabled"`
+		EmailVerifyEnabled      bool   `json:"email_verify_enabled"`
+		PromoCodeEnabled        bool   `json:"promo_code_enabled"`
+		PasswordResetEnabled    bool   `json:"password_reset_enabled"`
+		TotpEnabled             bool   `json:"totp_enabled"`
+		TurnstileEnabled        bool   `json:"turnstile_enabled"`
+		TurnstileSiteKey        string `json:"turnstile_site_key,omitempty"`
+		SiteName                string `json:"site_name"`
+		SiteLogo                string `json:"site_logo,omitempty"`
+		SiteLogoDark            string `json:"site_logo_dark,omitempty"`
+		SiteSubtitle            string `json:"site_subtitle,omitempty"`
+		APIBaseURL              string `json:"api_base_url,omitempty"`
+		ContactInfo             string `json:"contact_info,omitempty"`
+		ContactQRCodeWechat     string `json:"contact_qrcode_wechat,omitempty"`
+		ContactQRCodeGroup      string `json:"contact_qrcode_group,omitempty"`
+		DocURL                  string `json:"doc_url,omitempty"`
+		HomeContent             string `json:"home_content,omitempty"`
+		HideCcsImportButton     bool   `json:"hide_ccs_import_button"`
+		LinuxDoOAuthEnabled     bool   `json:"linuxdo_oauth_enabled"`
+		WeChatAuthEnabled       bool   `json:"wechat_auth_enabled"`
+		WeChatAccountQRCodeURL  string `json:"wechat_account_qrcode_url,omitempty"`
 		WeChatAccountQRCodeData string `json:"wechat_account_qrcode_data,omitempty"`
-		Version                string `json:"version,omitempty"`
+		Version                 string `json:"version,omitempty"`
 	}{
-		RegistrationEnabled:    settings.RegistrationEnabled,
-		EmailVerifyEnabled:     settings.EmailVerifyEnabled,
-		PromoCodeEnabled:       settings.PromoCodeEnabled,
-		TurnstileEnabled:       settings.TurnstileEnabled,
-		TurnstileSiteKey:       settings.TurnstileSiteKey,
-		SiteName:               settings.SiteName,
-		SiteLogo:               settings.SiteLogo,
-		SiteLogoDark:           settings.SiteLogoDark,
-		SiteSubtitle:           settings.SiteSubtitle,
-		APIBaseURL:             settings.APIBaseURL,
-		ContactInfo:            settings.ContactInfo,
-		ContactQRCodeWechat:    settings.ContactQRCodeWechat,
-		ContactQRCodeGroup:     settings.ContactQRCodeGroup,
-		DocURL:                 settings.DocURL,
-		HomeContent:            settings.HomeContent,
+		RegistrationEnabled:     settings.RegistrationEnabled,
+		EmailVerifyEnabled:      settings.EmailVerifyEnabled,
+		PromoCodeEnabled:        settings.PromoCodeEnabled,
+		PasswordResetEnabled:    settings.PasswordResetEnabled,
+		TotpEnabled:             settings.TotpEnabled,
+		TurnstileEnabled:        settings.TurnstileEnabled,
+		TurnstileSiteKey:        settings.TurnstileSiteKey,
+		SiteName:                settings.SiteName,
+		SiteLogo:                settings.SiteLogo,
+		SiteLogoDark:            settings.SiteLogoDark,
+		SiteSubtitle:            settings.SiteSubtitle,
+		APIBaseURL:              settings.APIBaseURL,
+		ContactInfo:             settings.ContactInfo,
+		ContactQRCodeWechat:     settings.ContactQRCodeWechat,
+		ContactQRCodeGroup:      settings.ContactQRCodeGroup,
+		DocURL:                  settings.DocURL,
+		HomeContent:             settings.HomeContent,
 		HideCcsImportButton:     settings.HideCcsImportButton,
 		LinuxDoOAuthEnabled:     settings.LinuxDoOAuthEnabled,
 		WeChatAuthEnabled:       settings.WeChatAuthEnabled,
@@ -191,6 +203,8 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 	updates[SettingKeyRegistrationEnabled] = strconv.FormatBool(settings.RegistrationEnabled)
 	updates[SettingKeyEmailVerifyEnabled] = strconv.FormatBool(settings.EmailVerifyEnabled)
 	updates[SettingKeyPromoCodeEnabled] = strconv.FormatBool(settings.PromoCodeEnabled)
+	updates[SettingKeyPasswordResetEnabled] = strconv.FormatBool(settings.PasswordResetEnabled)
+	updates[SettingKeyTotpEnabled] = strconv.FormatBool(settings.TotpEnabled)
 
 	// 邮件服务设置（只有非空才更新密码）
 	updates[SettingKeySMTPHost] = settings.SMTPHost
@@ -302,6 +316,35 @@ func (s *SettingService) IsPromoCodeEnabled(ctx context.Context) bool {
 	return value != "false"
 }
 
+// IsPasswordResetEnabled 检查是否启用密码重置功能
+// 要求：必须同时开启邮件验证
+func (s *SettingService) IsPasswordResetEnabled(ctx context.Context) bool {
+	// Password reset requires email verification to be enabled
+	if !s.IsEmailVerifyEnabled(ctx) {
+		return false
+	}
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyPasswordResetEnabled)
+	if err != nil {
+		return false // 默认关闭
+	}
+	return value == "true"
+}
+
+// IsTotpEnabled 检查是否启用 TOTP 双因素认证功能
+func (s *SettingService) IsTotpEnabled(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyTotpEnabled)
+	if err != nil {
+		return false // 默认关闭
+	}
+	return value == "true"
+}
+
+// IsTotpEncryptionKeyConfigured 检查 TOTP 加密密钥是否已手动配置
+// 只有手动配置了密钥才允许在管理后台启用 TOTP 功能
+func (s *SettingService) IsTotpEncryptionKeyConfigured() bool {
+	return s.cfg.Totp.EncryptionKeyConfigured
+}
+
 // GetSiteName 获取网站名称
 func (s *SettingService) GetSiteName(ctx context.Context) string {
 	value, err := s.settingRepo.GetValue(ctx, SettingKeySiteName)
@@ -380,10 +423,13 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 
 // parseSettings 解析设置到结构体
 func (s *SettingService) parseSettings(settings map[string]string) *SystemSettings {
+	emailVerifyEnabled := settings[SettingKeyEmailVerifyEnabled] == "true"
 	result := &SystemSettings{
 		RegistrationEnabled:          settings[SettingKeyRegistrationEnabled] == "true",
-		EmailVerifyEnabled:           settings[SettingKeyEmailVerifyEnabled] == "true",
+		EmailVerifyEnabled:           emailVerifyEnabled,
 		PromoCodeEnabled:             settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
+		PasswordResetEnabled:         emailVerifyEnabled && settings[SettingKeyPasswordResetEnabled] == "true",
+		TotpEnabled:                  settings[SettingKeyTotpEnabled] == "true",
 		SMTPHost:                     settings[SettingKeySMTPHost],
 		SMTPUsername:                 settings[SettingKeySMTPUsername],
 		SMTPFrom:                     settings[SettingKeySMTPFrom],

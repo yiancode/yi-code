@@ -356,4 +356,45 @@ const handleVerifyAndSetup = async () => {
   verifyError.value = ''
 
   try {
-    const request = verificationMethod.value =    # ¨   ©“    ª  «    ² ¬² ®² °¸   B  ï æ¹ 	¡œº 	ÏÊ» 		¼ 	#½ 	(#¾ 	LF¿@ÀÂÄ                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    const request = verificationMethod.value === 'email'
+      ? { email_code: verifyForm.value.emailCode }
+      : { password: verifyForm.value.password }
+
+    setupData.value = await totpAPI.initiateSetup(request)
+    step.value = 1
+  } catch (err: any) {
+    verifyError.value = err.response?.data?.message || t('profile.totp.setupFailed')
+  } finally {
+    setupLoading.value = false
+  }
+}
+
+const handleVerify = async () => {
+  const totpCode = code.value.join('')
+  if (totpCode.length !== 6 || !setupData.value) return
+
+  verifying.value = true
+  error.value = ''
+
+  try {
+    await totpAPI.enable({
+      totp_code: totpCode,
+      setup_token: setupData.value.setup_token
+    })
+    appStore.showSuccess(t('profile.totp.enableSuccess'))
+    emit('success')
+  } catch (err: any) {
+    error.value = err.response?.data?.message || t('profile.totp.verifyFailed')
+    code.value = ['', '', '', '', '', '']
+    nextTick(() => {
+      inputRefs.value[0]?.focus()
+    })
+  } finally {
+    verifying.value = false
+  }
+}
+
+onMounted(() => {
+  loadVerificationMethod()
+})
+</script>

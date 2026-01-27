@@ -240,7 +240,7 @@ import TotpLoginModal from '@/components/auth/TotpLoginModal.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
 import { useAuthStore, useAppStore } from '@/stores'
-import { getPublicSettings, isTotp2FARequired } from '@/api/auth'
+import { isTotp2FARequired } from '@/api/auth'
 import type { TotpLoginResponse } from '@/types'
 
 const { t } = useI18n()

@@ -44,6 +44,7 @@
           v-if="wechatAuthEnabled"
           :disabled="isLoading"
           :qr-code-url="wechatAccountQRCodeURL"
+          @need-email-bind="handleNeedEmailBind"
         />
 
         <!-- 切换到邮箱密码登录 -->
@@ -203,6 +204,14 @@
       @success="handleWeChatBindSuccess"
     />
 
+    <!-- Email Bind Modal -->
+    <EmailBindModal
+      :show="showEmailBindModal"
+      @close="showEmailBindModal = false"
+      @skip="handleSkipEmailBind"
+      @success="handleEmailBindSuccess"
+    />
+
     <!-- Footer -->
     <template #footer>
       <p class="text-gray-500 dark:text-dark-400">
@@ -236,6 +245,7 @@ import { AuthLayout } from '@/components/layout'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
 import WeChatAuthSection from '@/components/auth/WeChatAuthSection.vue'
 import WeChatBindModal from '@/components/auth/WeChatBindModal.vue'
+import EmailBindModal from '@/components/auth/EmailBindModal.vue'
 import TotpLoginModal from '@/components/auth/TotpLoginModal.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
@@ -259,6 +269,7 @@ const errorMessage = ref<string>('')
 const showPassword = ref<boolean>(false)
 const showEmailPasswordForm = ref<boolean>(false) // 控制是否显示邮箱密码表单
 const showWeChatBindModal = ref<boolean>(false) // 控制是否显示微信绑定提示弹框
+const showEmailBindModal = ref<boolean>(false) // 控制是否显示邮箱绑定提示弹框
 
 // Public settings
 const turnstileEnabled = ref<boolean>(false)
@@ -475,6 +486,25 @@ function handleSkipWeChatBind(): void {
 // Handle WeChat bind success
 function handleWeChatBindSuccess(): void {
   showWeChatBindModal.value = false
+  const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+  router.push(redirectTo)
+}
+
+// Handle need email bind (WeChat login users with synthetic email)
+function handleNeedEmailBind(): void {
+  showEmailBindModal.value = true
+}
+
+// Handle skip email bind
+function handleSkipEmailBind(): void {
+  showEmailBindModal.value = false
+  const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+  router.push(redirectTo)
+}
+
+// Handle email bind success
+function handleEmailBindSuccess(): void {
+  showEmailBindModal.value = false
   const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
   router.push(redirectTo)
 }

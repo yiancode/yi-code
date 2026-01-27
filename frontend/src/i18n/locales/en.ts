@@ -297,6 +297,37 @@ export default {
       verifying: 'Verifying...',
       verifyFailed: 'Verification failed, please check the code'
     },
+    wechatBind: {
+      title: 'Bind WeChat Account',
+      description: 'For your account security, we recommend binding your WeChat account. After binding, you can use WeChat for quick login and enjoy a better service experience.',
+      benefit1: 'Quick WeChat scan login, no password needed',
+      benefit2: 'Account security guarantee, dual verification',
+      benefit3: 'Access to complete service features',
+      skip: 'Skip for now',
+      bind: 'Bind Now',
+      success: 'Binding successful!',
+      bindFailed: 'Binding failed, please try again'
+    },
+    emailBind: {
+      title: 'Bind Email Address',
+      description: 'For your account security, we recommend binding an email address. After binding, you can use email and password to login and enjoy a better service experience.',
+      benefit1: 'Email & password login as backup method',
+      benefit2: 'Receive important notifications',
+      benefit3: 'Password recovery and account protection',
+      emailLabel: 'Email Address',
+      emailPlaceholder: 'Enter your email address',
+      codeLabel: 'Verification Code',
+      codePlaceholder: 'Enter verification code',
+      codeRequired: 'Please enter the verification code',
+      sendCode: 'Send Code',
+      codeSent: 'Verification code sent',
+      sendCodeFailed: 'Failed to send verification code',
+      skip: 'Skip for now',
+      bind: 'Bind Now',
+      binding: 'Binding...',
+      success: 'Email binding successful!',
+      bindFailed: 'Binding failed, please try again'
+    },
     oauth: {
       code: 'Code',
       state: 'State',

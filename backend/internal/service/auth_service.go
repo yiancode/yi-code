@@ -726,3 +726,31 @@ func (s *AuthService) ResetPassword(ctx context.Context, email, token, newPasswo
 	log.Printf("[Auth] Password reset successful for user: %s", email)
 	return nil
 }
+
+// VerifyEmailCode 验证邮箱验证码（用于绑定邮箱等场景）
+func (s *AuthService) VerifyEmailCode(ctx context.Context, email, code string) error {
+	if s.emailService == nil {
+		return ErrServiceUnavailable
+	}
+	return s.emailService.VerifyCode(ctx, email, code)
+}
+
+// SendBindEmailCode 发送绑定邮箱验证码（用于已登录用户绑定邮箱）
+func (s *AuthService) SendBindEmailCode(ctx context.Context, email string) error {
+	if isReservedEmail(email) {
+		return ErrEmailReserved
+	}
+
+	// 发送验证码
+	if s.emailService == nil {
+		return errors.New("email service not configured")
+	}
+
+	// 获取网站名称
+	siteName := "Code80"
+	if s.settingService != nil {
+		siteName = s.settingService.GetSiteName(ctx)
+	}
+
+	return s.emailService.SendVerifyCode(ctx, email, siteName)
+}

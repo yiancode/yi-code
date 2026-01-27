@@ -305,6 +305,26 @@ export default {
       success: '绑定成功！',
       bindFailed: '绑定失败，请重试'
     },
+    emailBind: {
+      title: '建议绑定邮箱',
+      description: '为了您的账户安全，建议您绑定邮箱地址。绑定后可以使用邮箱密码登录，并获得更完善的服务体验。',
+      benefit1: '邮箱密码登录，备用登录方式',
+      benefit2: '接收重要通知和服务提醒',
+      benefit3: '找回密码和账号安全保护',
+      emailLabel: '邮箱地址',
+      emailPlaceholder: '请输入邮箱地址',
+      codeLabel: '验证码',
+      codePlaceholder: '请输入验证码',
+      codeRequired: '请输入验证码',
+      sendCode: '发送验证码',
+      codeSent: '验证码已发送',
+      sendCodeFailed: '发送验证码失败',
+      skip: '暂时跳过',
+      bind: '立即绑定',
+      binding: '绑定中...',
+      success: '邮箱绑定成功！',
+      bindFailed: '绑定失败，请重试'
+    },
     oauth: {
       code: '授权码',
       state: '状态',

@@ -244,6 +244,52 @@ export async function resetPassword(request: ResetPasswordRequest): Promise<Rese
   return data
 }
 
+/**
+ * Email binding request for WeChat users
+ */
+export interface BindEmailRequest {
+  email: string
+  verify_code: string
+}
+
+/**
+ * Email binding response
+ */
+export interface BindEmailResponse {
+  email: string
+  message: string
+}
+
+/**
+ * Bind email for logged-in user (used by WeChat login users to bind a real email)
+ * @param request - Email and verification code
+ * @returns Binding result with email
+ */
+export async function bindEmail(request: BindEmailRequest): Promise<BindEmailResponse> {
+  const { data } = await apiClient.post<BindEmailResponse>('/auth/bind-email', request)
+  return data
+}
+
+/**
+ * Send bind email verification code request
+ */
+export interface SendBindEmailCodeRequest {
+  email: string
+  turnstile_token?: string
+}
+
+/**
+ * Send verification code for binding email (logged-in users only)
+ * @param request - Email and optional Turnstile token
+ * @returns Response with countdown seconds
+ */
+export async function sendBindEmailCode(
+  request: SendBindEmailCodeRequest
+): Promise<SendVerifyCodeResponse> {
+  const { data } = await apiClient.post<SendVerifyCodeResponse>('/auth/send-bind-email-code', request)
+  return data
+}
+
 export const authAPI = {
   login,
   login2FA,
@@ -261,7 +307,9 @@ export const authAPI = {
   wechatAuth,
   wechatBind,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  bindEmail,
+  sendBindEmailCode
 }
 
 export default authAPI

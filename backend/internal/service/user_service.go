@@ -251,3 +251,28 @@ func (s *UserService) GetByWeChatOpenID(ctx context.Context, openID string) (*Us
 func (s *UserService) ExistsByWeChatOpenID(ctx context.Context, openID string) (bool, error) {
 	return s.userRepo.ExistsByWeChatOpenID(ctx, openID)
 }
+
+// GetByEmail 根据邮箱获取用户
+func (s *UserService) GetByEmail(ctx context.Context, email string) (*User, error) {
+	return s.userRepo.GetByEmail(ctx, email)
+}
+
+// UpdateEmail 更新用户邮箱
+func (s *UserService) UpdateEmail(ctx context.Context, userID int64, email string) error {
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("get user: %w", err)
+	}
+
+	user.Email = email
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		return fmt.Errorf("update user: %w", err)
+	}
+
+	// Invalidate auth cache
+	if s.authCacheInvalidator != nil {
+		s.authCacheInvalidator.InvalidateAuthCacheByUserID(ctx, userID)
+	}
+
+	return nil
+}

@@ -1913,7 +1913,11 @@ async function saveSettings() {
       fallback_model_gemini: form.fallback_model_gemini,
       fallback_model_antigravity: form.fallback_model_antigravity,
       enable_identity_patch: form.enable_identity_patch,
-      identity_patch_prompt: form.identity_patch_prompt
+      identity_patch_prompt: form.identity_patch_prompt,
+      // Usage report settings
+      usage_report_global_enabled: form.usage_report_global_enabled,
+      usage_report_target_scope: form.usage_report_target_scope,
+      usage_report_global_schedule: form.usage_report_global_schedule
     }
     const updated = await adminAPI.settings.updateSettings(payload)
     Object.assign(form, updated)

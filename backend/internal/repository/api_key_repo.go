@@ -400,6 +400,9 @@ func userEntityToService(u *dbent.User) *service.User {
 		TotpSecretEncrypted: u.TotpSecretEncrypted,
 		TotpEnabled:         u.TotpEnabled,
 		TotpEnabledAt:       u.TotpEnabledAt,
+		UsageReportEnabled:  u.UsageReportEnabled,
+		UsageReportSchedule: u.UsageReportSchedule,
+		UsageReportTimezone: u.UsageReportTimezone,
 		CreatedAt:           u.CreatedAt,
 		UpdatedAt:           u.UpdatedAt,
 	}

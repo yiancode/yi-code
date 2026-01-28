@@ -14364,6 +14364,9 @@ type UserMutation struct {
 	totp_secret_encrypted         *string
 	totp_enabled                  *bool
 	totp_enabled_at               *time.Time
+	usage_report_enabled          *bool
+	usage_report_schedule         *string
+	usage_report_timezone         *string
 	clearedFields                 map[string]struct{}
 	api_keys                      map[int64]struct{}
 	removedapi_keys               map[int64]struct{}
@@ -15111,6 +15114,114 @@ func (m *UserMutation) ResetTotpEnabledAt() {
 	delete(m.clearedFields, user.FieldTotpEnabledAt)
 }
 
+// SetUsageReportEnabled sets the "usage_report_enabled" field.
+func (m *UserMutation) SetUsageReportEnabled(b bool) {
+	m.usage_report_enabled = &b
+}
+
+// UsageReportEnabled returns the value of the "usage_report_enabled" field in the mutation.
+func (m *UserMutation) UsageReportEnabled() (r bool, exists bool) {
+	v := m.usage_report_enabled
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsageReportEnabled returns the old "usage_report_enabled" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldUsageReportEnabled(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsageReportEnabled is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsageReportEnabled requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsageReportEnabled: %w", err)
+	}
+	return oldValue.UsageReportEnabled, nil
+}
+
+// ResetUsageReportEnabled resets all changes to the "usage_report_enabled" field.
+func (m *UserMutation) ResetUsageReportEnabled() {
+	m.usage_report_enabled = nil
+}
+
+// SetUsageReportSchedule sets the "usage_report_schedule" field.
+func (m *UserMutation) SetUsageReportSchedule(s string) {
+	m.usage_report_schedule = &s
+}
+
+// UsageReportSchedule returns the value of the "usage_report_schedule" field in the mutation.
+func (m *UserMutation) UsageReportSchedule() (r string, exists bool) {
+	v := m.usage_report_schedule
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsageReportSchedule returns the old "usage_report_schedule" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldUsageReportSchedule(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsageReportSchedule is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsageReportSchedule requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsageReportSchedule: %w", err)
+	}
+	return oldValue.UsageReportSchedule, nil
+}
+
+// ResetUsageReportSchedule resets all changes to the "usage_report_schedule" field.
+func (m *UserMutation) ResetUsageReportSchedule() {
+	m.usage_report_schedule = nil
+}
+
+// SetUsageReportTimezone sets the "usage_report_timezone" field.
+func (m *UserMutation) SetUsageReportTimezone(s string) {
+	m.usage_report_timezone = &s
+}
+
+// UsageReportTimezone returns the value of the "usage_report_timezone" field in the mutation.
+func (m *UserMutation) UsageReportTimezone() (r string, exists bool) {
+	v := m.usage_report_timezone
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUsageReportTimezone returns the old "usage_report_timezone" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldUsageReportTimezone(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUsageReportTimezone is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUsageReportTimezone requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUsageReportTimezone: %w", err)
+	}
+	return oldValue.UsageReportTimezone, nil
+}
+
+// ResetUsageReportTimezone resets all changes to the "usage_report_timezone" field.
+func (m *UserMutation) ResetUsageReportTimezone() {
+	m.usage_report_timezone = nil
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by ids.
 func (m *UserMutation) AddAPIKeyIDs(ids ...int64) {
 	if m.api_keys == nil {
@@ -15577,7 +15688,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -15623,6 +15734,15 @@ func (m *UserMutation) Fields() []string {
 	if m.totp_enabled_at != nil {
 		fields = append(fields, user.FieldTotpEnabledAt)
 	}
+	if m.usage_report_enabled != nil {
+		fields = append(fields, user.FieldUsageReportEnabled)
+	}
+	if m.usage_report_schedule != nil {
+		fields = append(fields, user.FieldUsageReportSchedule)
+	}
+	if m.usage_report_timezone != nil {
+		fields = append(fields, user.FieldUsageReportTimezone)
+	}
 	return fields
 }
 
@@ -15661,6 +15781,12 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.TotpEnabled()
 	case user.FieldTotpEnabledAt:
 		return m.TotpEnabledAt()
+	case user.FieldUsageReportEnabled:
+		return m.UsageReportEnabled()
+	case user.FieldUsageReportSchedule:
+		return m.UsageReportSchedule()
+	case user.FieldUsageReportTimezone:
+		return m.UsageReportTimezone()
 	}
 	return nil, false
 }
@@ -15700,6 +15826,12 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldTotpEnabled(ctx)
 	case user.FieldTotpEnabledAt:
 		return m.OldTotpEnabledAt(ctx)
+	case user.FieldUsageReportEnabled:
+		return m.OldUsageReportEnabled(ctx)
+	case user.FieldUsageReportSchedule:
+		return m.OldUsageReportSchedule(ctx)
+	case user.FieldUsageReportTimezone:
+		return m.OldUsageReportTimezone(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -15813,6 +15945,27 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTotpEnabledAt(v)
+		return nil
+	case user.FieldUsageReportEnabled:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsageReportEnabled(v)
+		return nil
+	case user.FieldUsageReportSchedule:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsageReportSchedule(v)
+		return nil
+	case user.FieldUsageReportTimezone:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUsageReportTimezone(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -15955,6 +16108,15 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldTotpEnabledAt:
 		m.ResetTotpEnabledAt()
+		return nil
+	case user.FieldUsageReportEnabled:
+		m.ResetUsageReportEnabled()
+		return nil
+	case user.FieldUsageReportSchedule:
+		m.ResetUsageReportSchedule()
+		return nil
+	case user.FieldUsageReportTimezone:
+		m.ResetUsageReportTimezone()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

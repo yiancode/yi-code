@@ -697,7 +697,36 @@ export default {
       sendCode: 'Send Code',
       codeSent: 'Verification code sent to your email',
       sendCodeFailed: 'Failed to send verification code'
+    },
+    // Usage Report
+    usageReport: {
+      title: 'Usage Report',
+      description: 'Receive daily usage reports via email',
+      featureDisabled: 'Feature Unavailable',
+      featureDisabledHint: 'Usage reports have not been enabled by the administrator',
+      emailRequired: 'Email Required',
+      emailRequiredHint: 'Please bind a valid email in your profile to enable usage reports',
+      enableReport: 'Enable Daily Report',
+      enableReportHint: 'Receive daily usage statistics via email',
+      sendTime: 'Send Time',
+      sendTimeHint: 'Choose when you want to receive the report',
+      timezone: 'Timezone',
+      sendTest: 'Send Test Report',
+      sendingTest: 'Sending...',
+      testSent: 'Test report sent, please check your email',
+      testFailed: 'Failed to send test report',
+      loadFailed: 'Failed to load configuration',
+      updateSuccess: 'Configuration updated',
+      updateFailed: 'Failed to update configuration'
     }
+  },
+
+  // Email Reminder
+  emailReminder: {
+    title: 'Bind Email',
+    description: 'Binding your email enables usage reports, password reset, and more',
+    bindNow: 'Bind Now',
+    later: 'Remind Later'
   },
 
   // Empty States
@@ -3064,6 +3093,19 @@ export default {
         sendTestEmail: 'Send Test Email',
         sending: 'Sending...',
         enterRecipientHint: 'Please enter a recipient email address'
+      },
+      usageReport: {
+        title: 'Usage Report Email',
+        description: 'Configure daily usage report email delivery',
+        enabled: 'Enable Usage Reports',
+        enabledHint: 'Once enabled globally, users can opt-in to receive reports in their settings',
+        targetScope: 'Target Scope',
+        targetScopeHint: 'Select which users will receive usage reports',
+        scopeAll: 'All Users (with bound email)',
+        scopeActiveToday: 'Users with activity today',
+        scopeOptedIn: 'Only opted-in users',
+        globalSchedule: 'Global Send Time',
+        globalScheduleHint: 'Used for non-opted-in modes'
       },
       opsMonitoring: {
         title: 'Ops Monitoring',

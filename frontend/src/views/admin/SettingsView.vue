@@ -1487,6 +1487,61 @@
           </div>
         </div>
 
+        <!-- Usage Report Settings -->
+        <div class="card">
+          <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-700">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+              {{ t('admin.settings.usageReport.title') }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {{ t('admin.settings.usageReport.description') }}
+            </p>
+          </div>
+          <div class="space-y-4 p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {{ t('admin.settings.usageReport.enabled') }}
+                </label>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.usageReport.enabledHint') }}
+                </p>
+              </div>
+              <Toggle v-model="form.usage_report_global_enabled" />
+            </div>
+
+            <div v-if="form.usage_report_global_enabled" class="space-y-4 pl-0 sm:pl-4">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {{ t('admin.settings.usageReport.targetScope') }}
+                </label>
+                <select v-model="form.usage_report_target_scope" class="input w-full sm:w-80">
+                  <option value="opted_in">{{ t('admin.settings.usageReport.scopeOptedIn') }}</option>
+                  <option value="active_today">{{ t('admin.settings.usageReport.scopeActiveToday') }}</option>
+                  <option value="all">{{ t('admin.settings.usageReport.scopeAll') }}</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.usageReport.targetScopeHint') }}
+                </p>
+              </div>
+
+              <div v-if="form.usage_report_target_scope !== 'opted_in'">
+                <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {{ t('admin.settings.usageReport.globalSchedule') }}
+                </label>
+                <input
+                  v-model="form.usage_report_global_schedule"
+                  type="time"
+                  class="input w-40"
+                />
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  {{ t('admin.settings.usageReport.globalScheduleHint') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Save Button -->
         <div class="flex justify-end">
           <button type="submit" :disabled="saving" class="btn btn-primary">
@@ -1628,7 +1683,11 @@ const form = reactive<SettingsForm>({
   ops_monitoring_enabled: true,
   ops_realtime_monitoring_enabled: true,
   ops_query_mode_default: 'auto',
-  ops_metrics_interval_seconds: 60
+  ops_metrics_interval_seconds: 60,
+  // Usage report settings
+  usage_report_global_enabled: false,
+  usage_report_target_scope: 'opted_in',
+  usage_report_global_schedule: '09:00'
 })
 
 // LinuxDo OAuth redirect URL suggestion

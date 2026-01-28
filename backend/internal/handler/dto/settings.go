@@ -68,6 +68,11 @@ type SystemSettings struct {
 	OpsRealtimeMonitoringEnabled bool   `json:"ops_realtime_monitoring_enabled"`
 	OpsQueryModeDefault          string `json:"ops_query_mode_default"`
 	OpsMetricsIntervalSeconds    int    `json:"ops_metrics_interval_seconds"`
+
+	// Usage report settings
+	UsageReportGlobalEnabled  bool   `json:"usage_report_global_enabled"`
+	UsageReportTargetScope    string `json:"usage_report_target_scope"`
+	UsageReportGlobalSchedule string `json:"usage_report_global_schedule"`
 }
 
 type PublicSettings struct {

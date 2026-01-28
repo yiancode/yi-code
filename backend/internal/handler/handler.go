@@ -38,6 +38,7 @@ type Handlers struct {
 	OpenAIGateway *OpenAIGatewayHandler
 	Setting       *SettingHandler
 	Totp          *TotpHandler
+	UsageReport   *UserUsageReportHandler
 }
 
 // BuildInfo contains build-time information

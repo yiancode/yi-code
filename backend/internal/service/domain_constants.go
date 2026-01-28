@@ -173,7 +173,27 @@ const (
 
 	// SettingKeyStreamTimeoutSettings stores JSON config for stream timeout handling.
 	SettingKeyStreamTimeoutSettings = "stream_timeout_settings"
+
+	// =========================
+	// Usage Report Settings
+	// =========================
+
+	// SettingKeyUsageReportGlobalEnabled controls whether usage report emails are globally enabled.
+	SettingKeyUsageReportGlobalEnabled = "usage_report_global_enabled"
+
+	// SettingKeyUsageReportTargetScope controls who receives usage reports: "all", "active_today", or "opted_in".
+	SettingKeyUsageReportTargetScope = "usage_report_target_scope"
+
+	// SettingKeyUsageReportGlobalSchedule is the global send time (HH:MM) for non-opted_in modes.
+	SettingKeyUsageReportGlobalSchedule = "usage_report_global_schedule"
 )
 
 // AdminAPIKeyPrefix is the prefix for admin API keys (distinct from user "sk-" keys).
 const AdminAPIKeyPrefix = "admin-"
+
+// Usage report target scope constants
+const (
+	UsageReportScopeAll         = "all"          // 全部绑定邮箱的用户
+	UsageReportScopeActiveToday = "active_today" // 当天有使用的用户
+	UsageReportScopeOptedIn     = "opted_in"     // 仅启用了报告功能的用户
+)

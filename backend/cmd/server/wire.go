@@ -79,6 +79,7 @@ func provideCleanup(
 	openaiOAuth *service.OpenAIOAuthService,
 	geminiOAuth *service.GeminiOAuthService,
 	antigravityOAuth *service.AntigravityOAuthService,
+	usageReportScheduler *service.UserUsageReportScheduler,
 ) func() {
 	return func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -89,6 +90,12 @@ func provideCleanup(
 			name string
 			fn   func() error
 		}{
+			{"UserUsageReportScheduler", func() error {
+				if usageReportScheduler != nil {
+					usageReportScheduler.Stop()
+				}
+				return nil
+			}},
 			{"OpsScheduledReportService", func() error {
 				if opsScheduledReport != nil {
 					opsScheduledReport.Stop()

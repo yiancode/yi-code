@@ -72,6 +72,11 @@ type SystemSettings struct {
 	OpsRealtimeMonitoringEnabled bool
 	OpsQueryModeDefault          string
 	OpsMetricsIntervalSeconds    int
+
+	// Usage report settings
+	UsageReportGlobalEnabled  bool
+	UsageReportTargetScope    string
+	UsageReportGlobalSchedule string
 }
 
 type PublicSettings struct {

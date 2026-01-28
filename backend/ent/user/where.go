@@ -130,6 +130,21 @@ func TotpEnabledAt(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldTotpEnabledAt, v))
 }
 
+// UsageReportEnabled applies equality check predicate on the "usage_report_enabled" field. It's identical to UsageReportEnabledEQ.
+func UsageReportEnabled(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUsageReportEnabled, v))
+}
+
+// UsageReportSchedule applies equality check predicate on the "usage_report_schedule" field. It's identical to UsageReportScheduleEQ.
+func UsageReportSchedule(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUsageReportSchedule, v))
+}
+
+// UsageReportTimezone applies equality check predicate on the "usage_report_timezone" field. It's identical to UsageReportTimezoneEQ.
+func UsageReportTimezone(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUsageReportTimezone, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -928,6 +943,146 @@ func TotpEnabledAtIsNil() predicate.User {
 // TotpEnabledAtNotNil applies the NotNil predicate on the "totp_enabled_at" field.
 func TotpEnabledAtNotNil() predicate.User {
 	return predicate.User(sql.FieldNotNull(FieldTotpEnabledAt))
+}
+
+// UsageReportEnabledEQ applies the EQ predicate on the "usage_report_enabled" field.
+func UsageReportEnabledEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUsageReportEnabled, v))
+}
+
+// UsageReportEnabledNEQ applies the NEQ predicate on the "usage_report_enabled" field.
+func UsageReportEnabledNEQ(v bool) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldUsageReportEnabled, v))
+}
+
+// UsageReportScheduleEQ applies the EQ predicate on the "usage_report_schedule" field.
+func UsageReportScheduleEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleNEQ applies the NEQ predicate on the "usage_report_schedule" field.
+func UsageReportScheduleNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleIn applies the In predicate on the "usage_report_schedule" field.
+func UsageReportScheduleIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldUsageReportSchedule, vs...))
+}
+
+// UsageReportScheduleNotIn applies the NotIn predicate on the "usage_report_schedule" field.
+func UsageReportScheduleNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldUsageReportSchedule, vs...))
+}
+
+// UsageReportScheduleGT applies the GT predicate on the "usage_report_schedule" field.
+func UsageReportScheduleGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleGTE applies the GTE predicate on the "usage_report_schedule" field.
+func UsageReportScheduleGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleLT applies the LT predicate on the "usage_report_schedule" field.
+func UsageReportScheduleLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleLTE applies the LTE predicate on the "usage_report_schedule" field.
+func UsageReportScheduleLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleContains applies the Contains predicate on the "usage_report_schedule" field.
+func UsageReportScheduleContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleHasPrefix applies the HasPrefix predicate on the "usage_report_schedule" field.
+func UsageReportScheduleHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleHasSuffix applies the HasSuffix predicate on the "usage_report_schedule" field.
+func UsageReportScheduleHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleEqualFold applies the EqualFold predicate on the "usage_report_schedule" field.
+func UsageReportScheduleEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldUsageReportSchedule, v))
+}
+
+// UsageReportScheduleContainsFold applies the ContainsFold predicate on the "usage_report_schedule" field.
+func UsageReportScheduleContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldUsageReportSchedule, v))
+}
+
+// UsageReportTimezoneEQ applies the EQ predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneEQ(v string) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneNEQ applies the NEQ predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneNEQ(v string) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneIn applies the In predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldIn(FieldUsageReportTimezone, vs...))
+}
+
+// UsageReportTimezoneNotIn applies the NotIn predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneNotIn(vs ...string) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldUsageReportTimezone, vs...))
+}
+
+// UsageReportTimezoneGT applies the GT predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneGT(v string) predicate.User {
+	return predicate.User(sql.FieldGT(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneGTE applies the GTE predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneGTE(v string) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneLT applies the LT predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneLT(v string) predicate.User {
+	return predicate.User(sql.FieldLT(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneLTE applies the LTE predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneLTE(v string) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneContains applies the Contains predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneContains(v string) predicate.User {
+	return predicate.User(sql.FieldContains(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneHasPrefix applies the HasPrefix predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneHasPrefix(v string) predicate.User {
+	return predicate.User(sql.FieldHasPrefix(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneHasSuffix applies the HasSuffix predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneHasSuffix(v string) predicate.User {
+	return predicate.User(sql.FieldHasSuffix(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneEqualFold applies the EqualFold predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneEqualFold(v string) predicate.User {
+	return predicate.User(sql.FieldEqualFold(FieldUsageReportTimezone, v))
+}
+
+// UsageReportTimezoneContainsFold applies the ContainsFold predicate on the "usage_report_timezone" field.
+func UsageReportTimezoneContainsFold(v string) predicate.User {
+	return predicate.User(sql.FieldContainsFold(FieldUsageReportTimezone, v))
 }
 
 // HasAPIKeys applies the HasEdge predicate on the "api_keys" edge.

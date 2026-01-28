@@ -27,6 +27,11 @@ type User struct {
 	TotpEnabled         bool       // 是否启用 TOTP
 	TotpEnabledAt       *time.Time // TOTP 启用时间
 
+	// 使用报告配置字段
+	UsageReportEnabled  bool   // 是否启用使用报告
+	UsageReportSchedule string // 发送时间 (HH:MM)
+	UsageReportTimezone string // 时区
+
 	APIKeys       []APIKey
 	Subscriptions []UserSubscription
 }

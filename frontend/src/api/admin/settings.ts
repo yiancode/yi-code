@@ -77,6 +77,11 @@ export interface SystemSettings {
   ops_realtime_monitoring_enabled: boolean
   ops_query_mode_default: 'auto' | 'raw' | 'preagg' | string
   ops_metrics_interval_seconds: number
+
+  // Usage Report Settings
+  usage_report_global_enabled: boolean
+  usage_report_target_scope: 'all' | 'active_today' | 'opted_in' | string
+  usage_report_global_schedule: string
 }
 
 export interface UpdateSettingsRequest {
@@ -132,6 +137,10 @@ export interface UpdateSettingsRequest {
   ops_realtime_monitoring_enabled?: boolean
   ops_query_mode_default?: 'auto' | 'raw' | 'preagg' | string
   ops_metrics_interval_seconds?: number
+  // Usage Report Settings
+  usage_report_global_enabled?: boolean
+  usage_report_target_scope?: 'all' | 'active_today' | 'opted_in' | string
+  usage_report_global_schedule?: string
 }
 
 /**

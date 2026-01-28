@@ -255,6 +255,48 @@ func (_u *UserUpdate) ClearTotpEnabledAt() *UserUpdate {
 	return _u
 }
 
+// SetUsageReportEnabled sets the "usage_report_enabled" field.
+func (_u *UserUpdate) SetUsageReportEnabled(v bool) *UserUpdate {
+	_u.mutation.SetUsageReportEnabled(v)
+	return _u
+}
+
+// SetNillableUsageReportEnabled sets the "usage_report_enabled" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUsageReportEnabled(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetUsageReportEnabled(*v)
+	}
+	return _u
+}
+
+// SetUsageReportSchedule sets the "usage_report_schedule" field.
+func (_u *UserUpdate) SetUsageReportSchedule(v string) *UserUpdate {
+	_u.mutation.SetUsageReportSchedule(v)
+	return _u
+}
+
+// SetNillableUsageReportSchedule sets the "usage_report_schedule" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUsageReportSchedule(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetUsageReportSchedule(*v)
+	}
+	return _u
+}
+
+// SetUsageReportTimezone sets the "usage_report_timezone" field.
+func (_u *UserUpdate) SetUsageReportTimezone(v string) *UserUpdate {
+	_u.mutation.SetUsageReportTimezone(v)
+	return _u
+}
+
+// SetNillableUsageReportTimezone sets the "usage_report_timezone" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUsageReportTimezone(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetUsageReportTimezone(*v)
+	}
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdate) AddAPIKeyIDs(ids ...int64) *UserUpdate {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -622,6 +664,16 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.UsageReportSchedule(); ok {
+		if err := user.UsageReportScheduleValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_schedule", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_schedule": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.UsageReportTimezone(); ok {
+		if err := user.UsageReportTimezoneValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_timezone", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_timezone": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -693,6 +745,15 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TotpEnabledAtCleared() {
 		_spec.ClearField(user.FieldTotpEnabledAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.UsageReportEnabled(); ok {
+		_spec.SetField(user.FieldUsageReportEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.UsageReportSchedule(); ok {
+		_spec.SetField(user.FieldUsageReportSchedule, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UsageReportTimezone(); ok {
+		_spec.SetField(user.FieldUsageReportTimezone, field.TypeString, value)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1306,6 +1367,48 @@ func (_u *UserUpdateOne) ClearTotpEnabledAt() *UserUpdateOne {
 	return _u
 }
 
+// SetUsageReportEnabled sets the "usage_report_enabled" field.
+func (_u *UserUpdateOne) SetUsageReportEnabled(v bool) *UserUpdateOne {
+	_u.mutation.SetUsageReportEnabled(v)
+	return _u
+}
+
+// SetNillableUsageReportEnabled sets the "usage_report_enabled" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUsageReportEnabled(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsageReportEnabled(*v)
+	}
+	return _u
+}
+
+// SetUsageReportSchedule sets the "usage_report_schedule" field.
+func (_u *UserUpdateOne) SetUsageReportSchedule(v string) *UserUpdateOne {
+	_u.mutation.SetUsageReportSchedule(v)
+	return _u
+}
+
+// SetNillableUsageReportSchedule sets the "usage_report_schedule" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUsageReportSchedule(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsageReportSchedule(*v)
+	}
+	return _u
+}
+
+// SetUsageReportTimezone sets the "usage_report_timezone" field.
+func (_u *UserUpdateOne) SetUsageReportTimezone(v string) *UserUpdateOne {
+	_u.mutation.SetUsageReportTimezone(v)
+	return _u
+}
+
+// SetNillableUsageReportTimezone sets the "usage_report_timezone" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUsageReportTimezone(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsageReportTimezone(*v)
+	}
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdateOne) AddAPIKeyIDs(ids ...int64) *UserUpdateOne {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -1686,6 +1789,16 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.UsageReportSchedule(); ok {
+		if err := user.UsageReportScheduleValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_schedule", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_schedule": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.UsageReportTimezone(); ok {
+		if err := user.UsageReportTimezoneValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_timezone", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_timezone": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1774,6 +1887,15 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if _u.mutation.TotpEnabledAtCleared() {
 		_spec.ClearField(user.FieldTotpEnabledAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.UsageReportEnabled(); ok {
+		_spec.SetField(user.FieldUsageReportEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.UsageReportSchedule(); ok {
+		_spec.SetField(user.FieldUsageReportSchedule, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UsageReportTimezone(); ok {
+		_spec.SetField(user.FieldUsageReportTimezone, field.TypeString, value)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{

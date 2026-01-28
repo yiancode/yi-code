@@ -100,6 +100,9 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		OpsRealtimeMonitoringEnabled:         settings.OpsRealtimeMonitoringEnabled,
 		OpsQueryModeDefault:                  settings.OpsQueryModeDefault,
 		OpsMetricsIntervalSeconds:            settings.OpsMetricsIntervalSeconds,
+		UsageReportGlobalEnabled:             settings.UsageReportGlobalEnabled,
+		UsageReportTargetScope:               settings.UsageReportTargetScope,
+		UsageReportGlobalSchedule:            settings.UsageReportGlobalSchedule,
 	})
 }
 
@@ -176,6 +179,11 @@ type UpdateSettingsRequest struct {
 	OpsRealtimeMonitoringEnabled *bool   `json:"ops_realtime_monitoring_enabled"`
 	OpsQueryModeDefault          *string `json:"ops_query_mode_default"`
 	OpsMetricsIntervalSeconds    *int    `json:"ops_metrics_interval_seconds"`
+
+	// Usage report settings
+	UsageReportGlobalEnabled  *bool   `json:"usage_report_global_enabled"`
+	UsageReportTargetScope    *string `json:"usage_report_target_scope"`
+	UsageReportGlobalSchedule *string `json:"usage_report_global_schedule"`
 }
 
 // UpdateSettings 更新系统设置
@@ -407,6 +415,24 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 			}
 			return previousSettings.OpsMetricsIntervalSeconds
 		}(),
+		UsageReportGlobalEnabled: func() bool {
+			if req.UsageReportGlobalEnabled != nil {
+				return *req.UsageReportGlobalEnabled
+			}
+			return previousSettings.UsageReportGlobalEnabled
+		}(),
+		UsageReportTargetScope: func() string {
+			if req.UsageReportTargetScope != nil {
+				return *req.UsageReportTargetScope
+			}
+			return previousSettings.UsageReportTargetScope
+		}(),
+		UsageReportGlobalSchedule: func() string {
+			if req.UsageReportGlobalSchedule != nil {
+				return *req.UsageReportGlobalSchedule
+			}
+			return previousSettings.UsageReportGlobalSchedule
+		}(),
 	}
 
 	if err := h.settingService.UpdateSettings(c.Request.Context(), settings); err != nil {
@@ -477,6 +503,9 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		OpsRealtimeMonitoringEnabled:         updatedSettings.OpsRealtimeMonitoringEnabled,
 		OpsQueryModeDefault:                  updatedSettings.OpsQueryModeDefault,
 		OpsMetricsIntervalSeconds:            updatedSettings.OpsMetricsIntervalSeconds,
+		UsageReportGlobalEnabled:             updatedSettings.UsageReportGlobalEnabled,
+		UsageReportTargetScope:               updatedSettings.UsageReportTargetScope,
+		UsageReportGlobalSchedule:            updatedSettings.UsageReportGlobalSchedule,
 	})
 }
 
@@ -642,6 +671,15 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.OpsMetricsIntervalSeconds != after.OpsMetricsIntervalSeconds {
 		changed = append(changed, "ops_metrics_interval_seconds")
+	}
+	if before.UsageReportGlobalEnabled != after.UsageReportGlobalEnabled {
+		changed = append(changed, "usage_report_global_enabled")
+	}
+	if before.UsageReportTargetScope != after.UsageReportTargetScope {
+		changed = append(changed, "usage_report_target_scope")
+	}
+	if before.UsageReportGlobalSchedule != after.UsageReportGlobalSchedule {
+		changed = append(changed, "usage_report_global_schedule")
 	}
 	return changed
 }

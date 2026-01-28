@@ -693,7 +693,36 @@ export default {
       sendCode: '发送验证码',
       codeSent: '验证码已发送到您的邮箱',
       sendCodeFailed: '发送验证码失败'
+    },
+    // Usage Report
+    usageReport: {
+      title: '使用报告',
+      description: '接收每日使用情况的邮件报告',
+      featureDisabled: '功能未开放',
+      featureDisabledHint: '管理员尚未开放使用报告功能',
+      emailRequired: '需要绑定邮箱',
+      emailRequiredHint: '请先在个人资料中绑定有效邮箱后再启用使用报告',
+      enableReport: '启用每日报告',
+      enableReportHint: '每天发送前一天的使用统计到您的邮箱',
+      sendTime: '发送时间',
+      sendTimeHint: '选择您希望收到报告的时间',
+      timezone: '时区',
+      sendTest: '发送测试报告',
+      sendingTest: '发送中...',
+      testSent: '测试报告已发送，请检查邮箱',
+      testFailed: '发送测试报告失败',
+      loadFailed: '加载配置失败',
+      updateSuccess: '配置已更新',
+      updateFailed: '更新配置失败'
     }
+  },
+
+  // Email Reminder
+  emailReminder: {
+    title: '绑定邮箱',
+    description: '绑定邮箱可以接收使用报告、重置密码等功能',
+    bindNow: '立即绑定',
+    later: '稍后提醒'
   },
 
   // Empty States
@@ -3215,6 +3244,19 @@ export default {
         sendTestEmail: '发送测试邮件',
         sending: '发送中...',
         enterRecipientHint: '请输入收件人邮箱地址'
+      },
+      usageReport: {
+        title: '使用报告邮件',
+        description: '配置每日使用报告邮件发送',
+        enabled: '启用使用报告',
+        enabledHint: '全局开启后，用户可以在个人设置中选择是否接收报告',
+        targetScope: '发送范围',
+        targetScopeHint: '选择哪些用户将收到使用报告',
+        scopeAll: '全部用户（已绑定邮箱）',
+        scopeActiveToday: '当天有使用的用户',
+        scopeOptedIn: '仅启用报告的用户',
+        globalSchedule: '全局发送时间',
+        globalScheduleHint: '非「仅启用报告的用户」模式下使用此时间发送'
       },
       opsMonitoring: {
         title: '运维监控',

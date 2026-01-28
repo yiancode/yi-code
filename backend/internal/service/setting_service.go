@@ -291,6 +291,11 @@ func (s *SettingService) UpdateSettings(ctx context.Context, settings *SystemSet
 		updates[SettingKeyOpsMetricsIntervalSeconds] = strconv.Itoa(settings.OpsMetricsIntervalSeconds)
 	}
 
+	// Usage report settings
+	updates[SettingKeyUsageReportGlobalEnabled] = strconv.FormatBool(settings.UsageReportGlobalEnabled)
+	updates[SettingKeyUsageReportTargetScope] = settings.UsageReportTargetScope
+	updates[SettingKeyUsageReportGlobalSchedule] = settings.UsageReportGlobalSchedule
+
 	err := s.settingRepo.SetMultiple(ctx, updates)
 	if err == nil && s.onUpdate != nil {
 		s.onUpdate() // Invalidate cache after settings update
@@ -564,6 +569,11 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 			result.OpsMetricsIntervalSeconds = v
 		}
 	}
+
+	// Usage report settings
+	result.UsageReportGlobalEnabled = settings[SettingKeyUsageReportGlobalEnabled] == "true"
+	result.UsageReportTargetScope = s.getStringOrDefault(settings, SettingKeyUsageReportTargetScope, UsageReportScopeOptedIn)
+	result.UsageReportGlobalSchedule = s.getStringOrDefault(settings, SettingKeyUsageReportGlobalSchedule, "09:00")
 
 	return result
 }
@@ -950,4 +960,50 @@ func (s *SettingService) GetWeChatAppCredentials(ctx context.Context) (appID, ap
 // SetWeChatQRCodeURL 设置微信公众号二维码 URL
 func (s *SettingService) SetWeChatQRCodeURL(ctx context.Context, qrcodeURL string) error {
 	return s.settingRepo.Set(ctx, SettingKeyWeChatAccountQRCodeURL, qrcodeURL)
+}
+
+// UsageReportConfig holds usage report global settings
+type UsageReportConfig struct {
+	GlobalEnabled  bool
+	TargetScope    string // "all", "active_today", "opted_in"
+	GlobalSchedule string // HH:MM format
+}
+
+// GetUsageReportConfig 获取使用报告全局配置
+func (s *SettingService) GetUsageReportConfig(ctx context.Context) (*UsageReportConfig, error) {
+	keys := []string{
+		SettingKeyUsageReportGlobalEnabled,
+		SettingKeyUsageReportTargetScope,
+		SettingKeyUsageReportGlobalSchedule,
+	}
+
+	settings, err := s.settingRepo.GetMultiple(ctx, keys)
+	if err != nil {
+		return nil, fmt.Errorf("get usage report config: %w", err)
+	}
+
+	scope := strings.TrimSpace(settings[SettingKeyUsageReportTargetScope])
+	if scope == "" {
+		scope = UsageReportScopeOptedIn
+	}
+
+	schedule := strings.TrimSpace(settings[SettingKeyUsageReportGlobalSchedule])
+	if schedule == "" {
+		schedule = "09:00"
+	}
+
+	return &UsageReportConfig{
+		GlobalEnabled:  settings[SettingKeyUsageReportGlobalEnabled] == "true",
+		TargetScope:    scope,
+		GlobalSchedule: schedule,
+	}, nil
+}
+
+// IsUsageReportGlobalEnabled 检查使用报告是否全局启用
+func (s *SettingService) IsUsageReportGlobalEnabled(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyUsageReportGlobalEnabled)
+	if err != nil {
+		return false
+	}
+	return value == "true"
 }

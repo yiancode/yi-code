@@ -79,5 +79,13 @@ func RegisterUserRoutes(
 			subscriptions.GET("/progress", h.Subscription.GetProgress)
 			subscriptions.GET("/summary", h.Subscription.GetSummary)
 		}
+
+		// 使用报告
+		usageReport := authenticated.Group("/usage-report")
+		{
+			usageReport.GET("/config", h.UsageReport.GetConfig)
+			usageReport.PUT("/config", h.UsageReport.UpdateConfig)
+			usageReport.POST("/test", h.UsageReport.SendTestReport)
+		}
 	}
 }

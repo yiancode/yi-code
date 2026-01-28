@@ -35,17 +35,19 @@ type SystemSettings struct {
 	WeChatAppID                 string `json:"wechat_app_id"`
 	WeChatAppSecretConfigured   bool   `json:"wechat_app_secret_configured"`
 
-	SiteName            string `json:"site_name"`
-	SiteLogo            string `json:"site_logo"`
-	SiteLogoDark        string `json:"site_logo_dark"`
-	SiteSubtitle        string `json:"site_subtitle"`
-	APIBaseURL          string `json:"api_base_url"`
-	ContactInfo         string `json:"contact_info"`
-	ContactQRCodeWechat string `json:"contact_qrcode_wechat"`
-	ContactQRCodeGroup  string `json:"contact_qrcode_group"`
-	DocURL              string `json:"doc_url"`
-	HomeContent         string `json:"home_content"`
-	HideCcsImportButton bool   `json:"hide_ccs_import_button"`
+	SiteName                    string `json:"site_name"`
+	SiteLogo                    string `json:"site_logo"`
+	SiteLogoDark                string `json:"site_logo_dark"`
+	SiteSubtitle                string `json:"site_subtitle"`
+	APIBaseURL                  string `json:"api_base_url"`
+	ContactInfo                 string `json:"contact_info"`
+	ContactQRCodeWechat         string `json:"contact_qrcode_wechat"`
+	ContactQRCodeGroup          string `json:"contact_qrcode_group"`
+	DocURL                      string `json:"doc_url"`
+	HomeContent                 string `json:"home_content"`
+	HideCcsImportButton         bool   `json:"hide_ccs_import_button"`
+	PurchaseSubscriptionEnabled bool   `json:"purchase_subscription_enabled"`
+	PurchaseSubscriptionURL     string `json:"purchase_subscription_url"`
 
 	DefaultConcurrency int     `json:"default_concurrency"`
 	DefaultBalance     float64 `json:"default_balance"`
@@ -69,29 +71,31 @@ type SystemSettings struct {
 }
 
 type PublicSettings struct {
-	RegistrationEnabled     bool   `json:"registration_enabled"`
-	EmailVerifyEnabled      bool   `json:"email_verify_enabled"`
-	PromoCodeEnabled        bool   `json:"promo_code_enabled"`
-	PasswordResetEnabled    bool   `json:"password_reset_enabled"`
-	TotpEnabled             bool   `json:"totp_enabled"` // TOTP 双因素认证
-	TurnstileEnabled        bool   `json:"turnstile_enabled"`
-	TurnstileSiteKey        string `json:"turnstile_site_key"`
-	SiteName                string `json:"site_name"`
-	SiteLogo                string `json:"site_logo"`
-	SiteLogoDark            string `json:"site_logo_dark"`
-	SiteSubtitle            string `json:"site_subtitle"`
-	APIBaseURL              string `json:"api_base_url"`
-	ContactInfo             string `json:"contact_info"`
-	ContactQRCodeWechat     string `json:"contact_qrcode_wechat"`
-	ContactQRCodeGroup      string `json:"contact_qrcode_group"`
-	DocURL                  string `json:"doc_url"`
-	HomeContent             string `json:"home_content"`
-	HideCcsImportButton     bool   `json:"hide_ccs_import_button"`
-	LinuxDoOAuthEnabled     bool   `json:"linuxdo_oauth_enabled"`
-	WeChatAuthEnabled       bool   `json:"wechat_auth_enabled"`
-	WeChatAccountQRCodeURL  string `json:"wechat_account_qrcode_url"`
-	WeChatAccountQRCodeData string `json:"wechat_account_qrcode_data"`
-	Version                 string `json:"version"`
+	RegistrationEnabled         bool   `json:"registration_enabled"`
+	EmailVerifyEnabled          bool   `json:"email_verify_enabled"`
+	PromoCodeEnabled            bool   `json:"promo_code_enabled"`
+	PasswordResetEnabled        bool   `json:"password_reset_enabled"`
+	TotpEnabled                 bool   `json:"totp_enabled"` // TOTP 双因素认证
+	TurnstileEnabled            bool   `json:"turnstile_enabled"`
+	TurnstileSiteKey            string `json:"turnstile_site_key"`
+	SiteName                    string `json:"site_name"`
+	SiteLogo                    string `json:"site_logo"`
+	SiteLogoDark                string `json:"site_logo_dark"`
+	SiteSubtitle                string `json:"site_subtitle"`
+	APIBaseURL                  string `json:"api_base_url"`
+	ContactInfo                 string `json:"contact_info"`
+	ContactQRCodeWechat         string `json:"contact_qrcode_wechat"`
+	ContactQRCodeGroup          string `json:"contact_qrcode_group"`
+	DocURL                      string `json:"doc_url"`
+	HomeContent                 string `json:"home_content"`
+	HideCcsImportButton         bool   `json:"hide_ccs_import_button"`
+	PurchaseSubscriptionEnabled bool   `json:"purchase_subscription_enabled"`
+	PurchaseSubscriptionURL     string `json:"purchase_subscription_url"`
+	LinuxDoOAuthEnabled         bool   `json:"linuxdo_oauth_enabled"`
+	WeChatAuthEnabled           bool   `json:"wechat_auth_enabled"`
+	WeChatAccountQRCodeURL      string `json:"wechat_account_qrcode_url"`
+	WeChatAccountQRCodeData     string `json:"wechat_account_qrcode_data"`
+	Version                     string `json:"version"`
 }
 
 // StreamTimeoutSettings 流超时处理配置 DTO

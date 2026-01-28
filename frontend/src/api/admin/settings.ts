@@ -31,6 +31,8 @@ export interface SystemSettings {
   doc_url: string
   home_content: string
   hide_ccs_import_button: boolean
+  purchase_subscription_enabled: boolean
+  purchase_subscription_url: string
   // SMTP settings
   smtp_host: string
   smtp_port: number
@@ -96,6 +98,8 @@ export interface UpdateSettingsRequest {
   doc_url?: string
   home_content?: string
   hide_ccs_import_button?: boolean
+  purchase_subscription_enabled?: boolean
+  purchase_subscription_url?: string
   smtp_host?: string
   smtp_port?: number
   smtp_username?: string

@@ -86,6 +86,8 @@ export interface PublicSettings {
   doc_url: string
   home_content: string
   hide_ccs_import_button: boolean
+  purchase_subscription_enabled: boolean
+  purchase_subscription_url: string
   linuxdo_oauth_enabled: boolean
   wechat_auth_enabled: boolean
   wechat_account_qrcode_url: string

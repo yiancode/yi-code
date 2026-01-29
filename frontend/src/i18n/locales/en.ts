@@ -5,6 +5,7 @@ export default {
     viewDocs: 'View Documentation',
     docs: 'Docs',
     installGuide: 'Install Guide',
+    releaseNotes: 'Release Notes',
     switchToLight: 'Switch to Light Mode',
     switchToDark: 'Switch to Dark Mode',
     dashboard: 'Dashboard',
@@ -462,6 +463,8 @@ export default {
         'Add the following environment variables to your terminal profile or run directly in terminal to configure API access.',
       copy: 'Copy',
       copied: 'Copied',
+      showKey: 'Show Key',
+      hideKey: 'Hide Key',
       note: 'These environment variables will be active in the current terminal session. For permanent configuration, add them to ~/.bashrc, ~/.zshrc, or the appropriate configuration file.',
       noGroupTitle: 'Please assign a group first',
       noGroupDescription: 'This API key has not been assigned to a group. Please click the group column in the key list to assign one before viewing the configuration.',
@@ -3438,5 +3441,21 @@ export default {
   codeBlock: {
     copy: 'Copy',
     copied: 'Copied'
+  },
+
+  // Release Notes - Version release page
+  releaseNotes: {
+    title: 'Release Notes',                                       // Page header title
+    subtitle: 'View the latest updates and improvements to Code80', // Page header subtitle
+    types: {
+      major: 'Major Update',  // Breaking changes or significant features
+      minor: 'Minor Update',  // New features, backward compatible
+      patch: 'Bug Fix'        // Bug fixes only
+    },
+    sections: {
+      features: 'New Features',  // New features section header (also supports singular "Feature")
+      improvements: 'Improvements', // Improvements section header
+      bugFixes: 'Bug Fixes'     // Bug fixes section header
+    }
   }
 }

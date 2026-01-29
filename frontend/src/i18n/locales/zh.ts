@@ -5,6 +5,7 @@ export default {
     viewDocs: '查看文档',
     docs: '文档',
     installGuide: '安装教程',
+    releaseNotes: '版本发布',
     switchToLight: '切换到浅色模式',
     switchToDark: '切换到深色模式',
     dashboard: '控制台',
@@ -458,6 +459,8 @@ export default {
       description: '将以下环境变量添加到您的终端配置文件或直接在终端中运行。',
       copy: '复制',
       copied: '已复制',
+      showKey: '显示密钥',
+      hideKey: '隐藏密钥',
       note: '这些环境变量将在当前终端会话中生效。如需永久配置，请将其添加到 ~/.bashrc、~/.zshrc 或相应的配置文件中。',
       noGroupTitle: '请先分配分组',
       noGroupDescription: '此 API 密钥尚未分配分组，请先在密钥列表中点击分组列进行分配，然后才能查看使用配置。',
@@ -3586,5 +3589,21 @@ export default {
   codeBlock: {
     copy: '复制',
     copied: '已复制'
+  },
+
+  // Release Notes - 版本发布页面
+  releaseNotes: {
+    title: '版本发布记录',                    // Page title
+    subtitle: '查看 Code80 的最新更新和改进',  // Page subtitle
+    types: {
+      major: '重大更新',   // Breaking changes or significant features
+      minor: '功能更新',   // New features, backward compatible
+      patch: '问题修复'    // Bug fixes only
+    },
+    sections: {
+      features: '新功能',      // New features section header
+      improvements: '改进优化', // Improvements section header
+      bugFixes: '问题修复'     // Bug fixes section header
+    }
   }
 }

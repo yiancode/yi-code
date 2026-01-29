@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"strings"
 
 	"github.com/Wei-Shaw/sub2api/internal/pkg/response"
@@ -28,6 +29,15 @@ func NewUserUsageReportHandler(
 		settingService: settingService,
 		userRepo:       userRepo,
 	}
+}
+
+// checkEmailBound checks if user's email is bound and valid
+func (h *UserUsageReportHandler) checkEmailBound(ctx context.Context, userID int64) bool {
+	user, err := h.userRepo.GetByID(ctx, userID)
+	if err != nil || user == nil {
+		return false
+	}
+	return user.Email != "" && !strings.HasSuffix(user.Email, ".invalid")
 }
 
 // GetConfigResponse represents the response for get config endpoint
@@ -62,12 +72,8 @@ func (h *UserUsageReportHandler) GetConfig(c *gin.Context) {
 		return
 	}
 
-	// Check if email is bound by fetching user info
-	emailBound := false
-	user, err := h.userRepo.GetByID(c.Request.Context(), subject.UserID)
-	if err == nil && user != nil {
-		emailBound = user.Email != "" && !strings.HasSuffix(user.Email, ".invalid")
-	}
+	// Check if email is bound
+	emailBound := h.checkEmailBound(c.Request.Context(), subject.UserID)
 
 	response.Success(c, GetConfigResponse{
 		Enabled:       config.Enabled,
@@ -112,6 +118,14 @@ func (h *UserUsageReportHandler) UpdateConfig(c *gin.Context) {
 		return
 	}
 
+	// Check email binding before enabling the report
+	if req.Enabled != nil && *req.Enabled {
+		if !h.checkEmailBound(c.Request.Context(), subject.UserID) {
+			response.ErrorFrom(c, service.ErrUsageReportEmailNotBound)
+			return
+		}
+	}
+
 	updateReq := &service.UpdateUserUsageReportConfigRequest{
 		Enabled:  req.Enabled,
 		Schedule: req.Schedule,
@@ -124,7 +138,17 @@ func (h *UserUsageReportHandler) UpdateConfig(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, config)
+	// Check if email is bound (for response)
+	emailBound := h.checkEmailBound(c.Request.Context(), subject.UserID)
+
+	// Return complete config response (same structure as GetConfig)
+	response.Success(c, GetConfigResponse{
+		Enabled:       config.Enabled,
+		Schedule:      config.Schedule,
+		Timezone:      config.Timezone,
+		GlobalEnabled: globalConfig.GlobalEnabled,
+		EmailBound:    emailBound,
+	})
 }
 
 // SendTestReport sends a test usage report to the user

@@ -1,14 +1,38 @@
 <template>
+  <!-- 资源加载指示器 -->
+  <div
+    v-if="showAnimation && !assetsLoaded"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
+  >
+    <div class="text-center">
+      <div class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-primary-500 border-r-transparent"></div>
+      <p class="text-sm font-medium text-gray-700 dark:text-dark-300">
+        {{ loadingProgress }}%
+      </p>
+    </div>
+  </div>
+
   <!-- Opening Animation Overlay -->
   <div
     v-if="showAnimation"
     class="fixed inset-0 z-50 overflow-hidden pointer-events-none"
     :class="isDark ? 'bg-dark-950/50' : 'bg-gray-50/50'"
   >
-    <!-- Car (clickable for horn sound) -->
+    <!-- Car (clickable for horn sound) - Light theme -->
     <img
+      v-show="!isDark"
       ref="carRef"
       src="/car.png"
+      alt="car"
+      class="car-animation absolute h-20 w-auto cursor-pointer pointer-events-auto"
+      :style="carStyle"
+      @click="playHorn"
+    />
+    <!-- Car (clickable for horn sound) - Dark theme -->
+    <img
+      v-show="isDark"
+      ref="carRef"
+      src="/car_night.png"
       alt="car"
       class="car-animation absolute h-20 w-auto cursor-pointer pointer-events-auto"
       :style="carStyle"
@@ -33,9 +57,10 @@
       :src="homeContent.trim()"
       class="h-screen w-full border-0"
       allowfullscreen
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
     ></iframe>
-    <!-- HTML mode - SECURITY: homeContent is admin-only setting, XSS risk is acceptable -->
-    <div v-else v-html="homeContent"></div>
+    <!-- HTML mode - Sanitized to prevent XSS attacks -->
+    <div v-else v-html="sanitizedHomeContent"></div>
   </div>
 
   <!-- Default Home Page -->
@@ -89,6 +114,15 @@
             :title="t('home.installGuide')"
           >
             <Icon name="terminal" size="md" />
+          </router-link>
+
+          <!-- Release Notes Link -->
+          <router-link
+            to="/release-notes"
+            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
+            :title="t('home.releaseNotes')"
+          >
+            <Icon name="document" size="md" />
           </router-link>
 
           <!-- Doc Link -->
@@ -430,11 +464,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore, useAppStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
+import { preloadImages } from '@/utils/preload'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import Icon from '@/components/icons/Icon.vue'
 
@@ -464,6 +499,47 @@ const isHomeContentUrl = computed(() => {
   return content.startsWith('http://') || content.startsWith('https://')
 })
 
+// Sanitize HTML content to prevent XSS attacks
+const sanitizedHomeContent = computed(() => {
+  if (!homeContent.value || isHomeContentUrl.value) return ''
+
+  // Create a temporary div to parse HTML
+  const temp = document.createElement('div')
+  temp.innerHTML = homeContent.value
+
+  // Remove script tags and event handlers
+  const scripts = temp.querySelectorAll('script')
+  scripts.forEach(s => s.remove())
+
+  const allElements = temp.querySelectorAll('*')
+  allElements.forEach(el => {
+    // Remove event handler attributes (onclick, onload, etc.)
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.startsWith('on')) {
+        el.removeAttribute(attr.name)
+      }
+    })
+
+    // Sanitize href to prevent javascript: protocol
+    if (el.hasAttribute('href')) {
+      const href = el.getAttribute('href') || ''
+      if (href.toLowerCase().startsWith('javascript:') || href.toLowerCase().startsWith('data:')) {
+        el.removeAttribute('href')
+      }
+    }
+
+    // Sanitize src to prevent javascript: protocol
+    if (el.hasAttribute('src')) {
+      const src = el.getAttribute('src') || ''
+      if (src.toLowerCase().startsWith('javascript:')) {
+        el.removeAttribute('src')
+      }
+    }
+  })
+
+  return temp.innerHTML
+})
+
 // Current logo based on theme
 const currentLogo = computed(() => {
   if (isDark.value && siteLogoDark.value) {
@@ -491,6 +567,10 @@ const showHeroContent = ref(false)
 const showSiteLogo = ref(false)
 const carRef = ref<HTMLImageElement | null>(null)
 const siteLogoRef = ref<HTMLElement | null>(null)
+
+// 资源加载状态
+const assetsLoaded = ref(false)
+const loadingProgress = ref(0)
 
 // Provider refs for target positions
 const providerClaudeRef = ref<HTMLElement | null>(null)
@@ -540,6 +620,44 @@ const fallingLogos = ref<FallingLogo[]>([])
 const busDrivingSound = ref<HTMLAudioElement | null>(null)
 const busHornSound = ref<HTMLAudioElement | null>(null)
 
+// Animation configuration constants
+const ANIMATION_CONFIG = {
+  PRELOAD_DELAY: 300,           // Delay before starting animation after asset preload
+  PHASE1_DURATION: 4500,        // Car driving across screen duration (ms)
+  PHASE1_PAUSE: 400,            // Pause before moving to logo (ms)
+  PHASE2_DURATION: 1200,        // Car moving to logo duration (ms)
+  LOGO_FLY_DURATION: 1200,      // Logo falling animation duration (ms)
+  LOGO_FADE_START: 0.4,         // Logo fade starts at 40% of fly duration
+  LOGO_DROP_DELAY: 50,          // Delay before logo starts falling (ms)
+  HORN_SOUND_DELAY: 400,        // Delay before playing horn after animation (ms)
+  ANIMATION_END_DELAY: 400,     // Delay before hiding animation overlay (ms)
+  HEADER_SCROLL_OFFSET: 96,     // Header height for car positioning (px)
+  MIN_TOP_OFFSET: 8,            // Minimum distance from top (px)
+  CAR_STOP_POSITION: 0.55,      // Stop at 55% of screen width
+  BOUNCING_CYCLES: 6,           // Number of bounce cycles during drive
+  BOUNCE_AMPLITUDE: 2           // Bounce height in pixels
+} as const
+
+// Preload all animation assets
+async function preloadAnimationAssets(): Promise<void> {
+  const imagesToPreload = [
+    '/car.png',
+    '/car_night.png',
+    ...llmLogos.map(logo => logo.src)
+  ]
+
+  try {
+    await preloadImages(imagesToPreload, (progress) => {
+      loadingProgress.value = progress
+    })
+    assetsLoaded.value = true
+  } catch (error) {
+    console.error('预加载资源失败:', error)
+    // 即使失败也设置为true，允许动画继续（降级策略）
+    assetsLoaded.value = true
+  }
+}
+
 // Initialize audio elements
 function initAudio() {
   busDrivingSound.value = new Audio('/audio/bus-driving.MP3')
@@ -574,27 +692,27 @@ function startAnimation() {
   }
 
   // Get site logo position for car path and target
-  let headerY = 16 // Default fallback
+  let headerY = ANIMATION_CONFIG.MIN_TOP_OFFSET * 2 // Default fallback
   let logoTargetX = 24
-  let logoTargetY = 16
+  let logoTargetY = ANIMATION_CONFIG.MIN_TOP_OFFSET * 2
 
   if (siteLogoRef.value) {
     const rect = siteLogoRef.value.getBoundingClientRect()
-    // Position car at same level as logo top, with minimum of 8px from top
-    headerY = Math.max(8, rect.top)
+    // Position car at same level as logo top, with minimum offset from top
+    headerY = Math.max(ANIMATION_CONFIG.MIN_TOP_OFFSET, rect.top)
     logoTargetX = rect.left
     logoTargetY = rect.top
   }
 
   // Car path: Same horizontal level as site logo in header
   const startX = -150
-  const midX = screenWidth * 0.55 // Stop point before going to logo
+  const midX = screenWidth * ANIMATION_CONFIG.CAR_STOP_POSITION // Stop point before going to logo
 
   carPosition.x = startX
   carPosition.y = headerY
 
   // Phase 1: Car drives from left to right along header
-  const phase1Duration = 4500
+  const phase1Duration = ANIMATION_CONFIG.PHASE1_DURATION
   const phase1Start = Date.now()
 
   // Track when to drop each logo
@@ -607,7 +725,7 @@ function startAnimation() {
     const eased = 1 - Math.pow(1 - progress, 2)
 
     carPosition.x = startX + (midX - startX) * eased
-    carPosition.y = headerY + Math.sin(progress * Math.PI * 6) * 2
+    carPosition.y = headerY + Math.sin(progress * Math.PI * ANIMATION_CONFIG.BOUNCING_CYCLES) * ANIMATION_CONFIG.BOUNCE_AMPLITUDE
 
     // Drop logos at specific positions
     while (droppedCount < dropPositions.length && progress >= dropPositions[droppedCount]) {
@@ -627,7 +745,7 @@ function startAnimation() {
           logoTargetY = rect.top
         }
         moveCarToLogo(logoTargetX, logoTargetY)
-      }, 400)
+      }, ANIMATION_CONFIG.PHASE1_PAUSE)
     }
   }
 
@@ -671,7 +789,7 @@ function startAnimation() {
     nextTick(() => {
       const deltaX = targetLogoX - logoStartX
       const deltaY = targetLogoY - logoStartY
-      const flyDuration = 1200
+      const flyDuration = ANIMATION_CONFIG.LOGO_FLY_DURATION
       const rotation = (Math.random() - 0.5) * 360
 
       setTimeout(() => {
@@ -680,16 +798,16 @@ function startAnimation() {
             ...fallingLogos.value[logoIndex].style,
             transform: `translate(${deltaX}px, ${deltaY}px) scale(0.6) rotate(${rotation}deg)`,
             opacity: 0,
-            transition: `transform ${flyDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity ${flyDuration * 0.6}ms ease-out ${flyDuration * 0.4}ms`
+            transition: `transform ${flyDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity ${flyDuration * ANIMATION_CONFIG.LOGO_FADE_START}ms ease-out ${flyDuration * (1 - ANIMATION_CONFIG.LOGO_FADE_START)}ms`
           }
         }
-      }, 50)
+      }, ANIMATION_CONFIG.LOGO_DROP_DELAY)
     })
   }
 
   // Phase 2: Move car to site logo and show logo
   function moveCarToLogo(targetX: number, targetY: number) {
-    const phase2Duration = 1200
+    const phase2Duration = ANIMATION_CONFIG.PHASE2_DURATION
     const phase2Start = Date.now()
     const carStartX = carPosition.x
     const carStartY = carPosition.y
@@ -717,7 +835,7 @@ function startAnimation() {
         setTimeout(() => {
           showAnimation.value = false
           showHeroContent.value = true
-        }, 400)
+        }, ANIMATION_CONFIG.ANIMATION_END_DELAY)
       }
     }
 
@@ -725,7 +843,7 @@ function startAnimation() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   // Check auth state
   authStore.checkAuth()
 
@@ -734,10 +852,27 @@ onMounted(() => {
     appStore.fetchPublicSettings()
   }
 
-  // Start opening animation after a short delay
+  // 预加载动画资源
+  await preloadAnimationAssets()
+
+  // 资源加载完成后启动动画
   setTimeout(() => {
     startAnimation()
-  }, 300)
+  }, ANIMATION_CONFIG.PRELOAD_DELAY)
+})
+
+// Cleanup audio resources when component unmounts
+onUnmounted(() => {
+  if (busDrivingSound.value) {
+    busDrivingSound.value.pause()
+    busDrivingSound.value.src = '' // Release audio source
+    busDrivingSound.value = null
+  }
+  if (busHornSound.value) {
+    busHornSound.value.pause()
+    busHornSound.value.src = ''
+    busHornSound.value = null
+  }
 })
 </script>
 

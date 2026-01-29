@@ -580,6 +580,8 @@ const siteLogoRef = ref<HTMLElement | null>(null)
 
 // 资源加载状态
 const assetsLoaded = ref(false)
+const animationStarted = ref(false)
+const ANIMATION_SEEN_KEY = 'homeAnimationSeen'
 
 // Provider refs for target positions
 const providerClaudeRef = ref<HTMLElement | null>(null)
@@ -632,6 +634,7 @@ const busHornSound = ref<HTMLAudioElement | null>(null)
 // Animation configuration constants
 const ANIMATION_CONFIG = {
   PRELOAD_DELAY: 300,           // Delay before starting animation after asset preload
+  PRELOAD_MAX_WAIT: 600,        // Max wait for preloading before starting animation (ms)
   PHASE1_DURATION: 4500,        // Car driving across screen duration (ms)
   PHASE1_PAUSE: 400,            // Pause before moving to logo (ms)
   PHASE2_DURATION: 1200,        // Car moving to logo duration (ms)
@@ -648,21 +651,14 @@ const ANIMATION_CONFIG = {
 } as const
 
 // Preload all animation assets
-async function preloadAnimationAssets(): Promise<void> {
+function preloadAnimationAssets(): Promise<void> {
   const imagesToPreload = [
     '/car.png',
     '/car_night.png',
     ...llmLogos.map(logo => logo.src)
   ]
 
-  try {
-    await preloadImages(imagesToPreload)
-    assetsLoaded.value = true
-  } catch (error) {
-    console.error('预加载资源失败:', error)
-    // 即使失败也设置为true，允许动画继续（降级策略）
-    assetsLoaded.value = true
-  }
+  return preloadImages(imagesToPreload)
 }
 
 // Initialize audio elements
@@ -688,6 +684,8 @@ function playHorn() {
 
 // Animation controller
 function startAnimation() {
+  if (animationStarted.value) return
+  animationStarted.value = true
   const screenWidth = window.innerWidth
 
   // Initialize and play driving sound
@@ -840,6 +838,7 @@ function startAnimation() {
 
         // End animation and show hero content
         setTimeout(() => {
+          markAnimationSeen()
           showAnimation.value = false
           showHeroContent.value = true
         }, ANIMATION_CONFIG.ANIMATION_END_DELAY)
@@ -848,6 +847,41 @@ function startAnimation() {
 
     animatePhase2()
   }
+}
+
+function markAnimationSeen() {
+  try {
+    localStorage.setItem(ANIMATION_SEEN_KEY, '1')
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function shouldSkipAnimation(): boolean {
+  try {
+    if (localStorage.getItem(ANIMATION_SEEN_KEY) === '1') return true
+  } catch {
+    // Ignore storage errors
+  }
+
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  const connection = (navigator as Navigator & {
+    connection?: { effectiveType?: string; saveData?: boolean }
+  }).connection
+  const saveData = Boolean(connection?.saveData)
+  const effectiveType = connection?.effectiveType || ''
+  const slowConnection = ['slow-2g', '2g', '3g'].includes(effectiveType)
+
+  return prefersReducedMotion || saveData || slowConnection
+}
+
+function revealContentImmediately() {
+  showHeroContent.value = true
+  showSiteLogo.value = true
 }
 
 onMounted(async () => {
@@ -859,13 +893,32 @@ onMounted(async () => {
     appStore.fetchPublicSettings()
   }
 
-  // 预加载动画资源
-  await preloadAnimationAssets()
+  revealContentImmediately()
 
-  // 资源加载完成后启动动画
-  setTimeout(() => {
+  if (shouldSkipAnimation()) {
+    assetsLoaded.value = true
+    showAnimation.value = false
+    return
+  }
+
+  // 预加载动画资源（不阻塞首屏）
+  const fallbackTimer = window.setTimeout(() => {
+    assetsLoaded.value = true
     startAnimation()
-  }, ANIMATION_CONFIG.PRELOAD_DELAY)
+  }, ANIMATION_CONFIG.PRELOAD_MAX_WAIT)
+
+  preloadAnimationAssets()
+    .catch((error) => {
+      console.error('预加载资源失败:', error)
+    })
+    .finally(() => {
+      window.clearTimeout(fallbackTimer)
+      assetsLoaded.value = true
+      // 资源加载完成后启动动画
+      setTimeout(() => {
+        startAnimation()
+      }, ANIMATION_CONFIG.PRELOAD_DELAY)
+    })
 })
 
 // Cleanup audio resources when component unmounts

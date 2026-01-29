@@ -44,6 +44,15 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/release-notes',
+    name: 'ReleaseNotes',
+    component: () => import('@/views/ReleaseNotesView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Release Notes'
+    }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/auth/LoginView.vue'),

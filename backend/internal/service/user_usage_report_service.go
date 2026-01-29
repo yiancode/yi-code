@@ -735,26 +735,8 @@ const usageReportEmailTemplate = `<!DOCTYPE html>
             margin-bottom: 20px;
         }
         .chart-bars {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
             height: 100px;
-            gap: 1px;
             margin-bottom: 8px;
-        }
-        .chart-bar {
-            flex: 1;
-            background: linear-gradient(to top, #fb923c, #fed7aa);
-            border-radius: 3px 3px 0 0;
-            min-height: 2px;
-        }
-        .chart-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-            color: #92400e;
-            font-weight: 600;
-            padding: 0 2px;
         }
 
         /* Model Stats */
@@ -958,24 +940,32 @@ const usageReportEmailTemplate = `<!DOCTYPE html>
                     {{if .HourlyStats}}
                     <div class="section-title">24小时使用分布{{if gt .PeakHour 0}} (高峰: {{.PeakHour}}:00){{end}}</div>
                     <div class="hourly-chart">
+                        {{$maxRequests := 1}}
+                        {{range .HourlyStats}}{{if gt .Requests $maxRequests}}{{$maxRequests = .Requests}}{{end}}{{end}}
                         <div class="chart-bars">
-                            {{range .HourlyStats}}
-                            {{$maxRequests := 1}}
-                            {{range $.HourlyStats}}{{if gt .Requests $maxRequests}}{{$maxRequests = .Requests}}{{end}}{{end}}
-                            {{$height := 0}}
-                            {{if gt $maxRequests 0}}
-                            {{$height = printf "%.0f" (mulf (divf (printf "%d" .Requests) (printf "%d" $maxRequests)) 100)}}
-                            {{end}}
-                            <div class="chart-bar" style="height: {{$height}}%;" title="{{.Hour}}:00 - {{.Requests}} 次"></div>
-                            {{end}}
+                            <table role="presentation" width="100%" height="100" cellspacing="0" cellpadding="0" style="border-collapse:collapse; table-layout:fixed; height:100px;">
+                                <tr>
+                                    {{range .HourlyStats}}
+                                    {{$height := 0}}
+                                    {{if gt $maxRequests 0}}
+                                    {{$height = printf "%.0f" (mulf (divf (printf "%d" .Requests) (printf "%d" $maxRequests)) 100)}}
+                                    {{end}}
+                                    <td valign="bottom" height="100" style="padding:0 1px; height:100px;" title="{{.Hour}}:00 - {{.Requests}} 次">
+                                        <div style="height: {{$height}}px; width: 100%; background-color: #fb923c; background: linear-gradient(to top, #fb923c, #fed7aa); border-radius: 3px 3px 0 0; min-height: 2px;"></div>
+                                    </td>
+                                    {{end}}
+                                </tr>
+                            </table>
                         </div>
-                        <div class="chart-labels">
-                            <span>0</span>
-                            <span>6</span>
-                            <span>12</span>
-                            <span>18</span>
-                            <span>24</span>
-                        </div>
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse; margin-top:6px;">
+                            <tr>
+                                <td align="left" style="width:20%; font-size:10px; color:#92400e; font-weight:600;">0</td>
+                                <td align="center" style="width:20%; font-size:10px; color:#92400e; font-weight:600;">6</td>
+                                <td align="center" style="width:20%; font-size:10px; color:#92400e; font-weight:600;">12</td>
+                                <td align="center" style="width:20%; font-size:10px; color:#92400e; font-weight:600;">18</td>
+                                <td align="right" style="width:20%; font-size:10px; color:#92400e; font-weight:600;">24</td>
+                            </tr>
+                        </table>
                     </div>
                     {{end}}
 

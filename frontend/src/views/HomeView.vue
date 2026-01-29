@@ -1,14 +1,24 @@
 <template>
-  <!-- 资源加载指示器 -->
+  <!-- 资源加载指示器 - 品牌 Logo 脉动动画 -->
   <div
     v-if="showAnimation && !assetsLoaded"
     class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
   >
     <div class="text-center">
-      <div class="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-primary-500 border-r-transparent"></div>
-      <p class="text-sm font-medium text-gray-700 dark:text-dark-300">
-        {{ loadingProgress }}%
-      </p>
+      <div class="relative">
+        <!-- Logo with pulse animation -->
+        <div class="logo-pulse-wrapper">
+          <img
+            :src="currentLogo || '/logo.png'"
+            alt="Loading"
+            class="h-20 w-20 object-contain rounded-xl"
+          />
+        </div>
+        <!-- Subtle loading text (optional) -->
+        <p class="mt-4 text-xs font-medium text-gray-500/60 dark:text-dark-400/60 tracking-wide">
+          {{ siteName }}
+        </p>
+      </div>
     </div>
   </div>
 
@@ -570,7 +580,6 @@ const siteLogoRef = ref<HTMLElement | null>(null)
 
 // 资源加载状态
 const assetsLoaded = ref(false)
-const loadingProgress = ref(0)
 
 // Provider refs for target positions
 const providerClaudeRef = ref<HTMLElement | null>(null)
@@ -647,9 +656,7 @@ async function preloadAnimationAssets(): Promise<void> {
   ]
 
   try {
-    await preloadImages(imagesToPreload, (progress) => {
-      loadingProgress.value = progress
-    })
+    await preloadImages(imagesToPreload)
     assetsLoaded.value = true
   } catch (error) {
     console.error('预加载资源失败:', error)
@@ -877,6 +884,54 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Logo Pulse Animation - Loading State */
+.logo-pulse-wrapper {
+  position: relative;
+  display: inline-block;
+  animation: logo-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.logo-pulse-wrapper::before,
+.logo-pulse-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 1rem;
+  border: 2px solid;
+  border-color: rgb(var(--color-primary-500) / 0.4);
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.logo-pulse-wrapper::after {
+  animation-delay: 1s;
+}
+
+@keyframes logo-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.25);
+    opacity: 0;
+  }
+}
+
 /* Car Animation */
 .car-animation {
   will-change: transform, opacity;

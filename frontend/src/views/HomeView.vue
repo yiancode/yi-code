@@ -474,9 +474,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, reactive, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAuthStore, useAppStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
 import { preloadImages } from '@/utils/preload'
@@ -485,7 +485,6 @@ import Icon from '@/components/icons/Icon.vue'
 
 const { t } = useI18n()
 const router = useRouter()
-const route = useRoute()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -838,6 +837,10 @@ function startAnimation() {
 
         // End animation and show hero content
         setTimeout(() => {
+          if (animationSafetyTimer) {
+            window.clearTimeout(animationSafetyTimer)
+            animationSafetyTimer = null
+          }
           showAnimation.value = false
           showHeroContent.value = true
         }, ANIMATION_CONFIG.ANIMATION_END_DELAY)
@@ -871,29 +874,23 @@ function revealContentImmediately() {
   showSiteLogo.value = true
 }
 
-// Reset animation state for replay
-function resetAnimationState() {
-  showAnimation.value = true
-  showHeroContent.value = false
-  showSiteLogo.value = false
-  assetsLoaded.value = false
-  animationStarted.value = false
-  fallingLogos.value = []
-  carPosition.x = -150
-  carPosition.y = 0
-  carPosition.scale = 1
-  carPosition.opacity = 1
-}
+// 安全超时ID，确保组件卸载时清理
+let animationSafetyTimer: number | null = null
 
 // Initialize and start animation
 async function initAnimation() {
-  revealContentImmediately()
-
   if (shouldSkipAnimation()) {
+    revealContentImmediately()
     assetsLoaded.value = true
     showAnimation.value = false
     return
   }
+
+  // 安全超时：如果动画异常未完成，确保内容可见
+  animationSafetyTimer = window.setTimeout(() => {
+    revealContentImmediately()
+    showAnimation.value = false
+  }, 12000)
 
   // 预加载动画资源（不阻塞首屏）
   const fallbackTimer = window.setTimeout(() => {
@@ -915,18 +912,6 @@ async function initAnimation() {
     })
 }
 
-// Watch for route changes - replay animation when navigating back to home
-watch(
-  () => route.path,
-  (newPath, oldPath) => {
-    if (newPath === '/' && oldPath && oldPath !== '/') {
-      // Navigated back to home from another page
-      resetAnimationState()
-      initAnimation()
-    }
-  }
-)
-
 onMounted(async () => {
   // Check auth state
   authStore.checkAuth()
@@ -940,8 +925,12 @@ onMounted(async () => {
   initAnimation()
 })
 
-// Cleanup audio resources when component unmounts
+// Cleanup resources when component unmounts
 onUnmounted(() => {
+  if (animationSafetyTimer) {
+    window.clearTimeout(animationSafetyTimer)
+    animationSafetyTimer = null
+  }
   if (busDrivingSound.value) {
     busDrivingSound.value.pause()
     busDrivingSound.value.src = '' // Release audio source

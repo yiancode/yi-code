@@ -474,9 +474,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, reactive, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore, useAppStore } from '@/stores'
 import { useTheme } from '@/composables/useTheme'
 import { preloadImages } from '@/utils/preload'
@@ -485,6 +485,7 @@ import Icon from '@/components/icons/Icon.vue'
 
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -581,7 +582,6 @@ const siteLogoRef = ref<HTMLElement | null>(null)
 // 资源加载状态
 const assetsLoaded = ref(false)
 const animationStarted = ref(false)
-const ANIMATION_SEEN_KEY = 'homeAnimationSeen'
 
 // Provider refs for target positions
 const providerClaudeRef = ref<HTMLElement | null>(null)
@@ -838,7 +838,6 @@ function startAnimation() {
 
         // End animation and show hero content
         setTimeout(() => {
-          markAnimationSeen()
           showAnimation.value = false
           showHeroContent.value = true
         }, ANIMATION_CONFIG.ANIMATION_END_DELAY)
@@ -849,26 +848,14 @@ function startAnimation() {
   }
 }
 
-function markAnimationSeen() {
-  try {
-    localStorage.setItem(ANIMATION_SEEN_KEY, '1')
-  } catch {
-    // Ignore storage errors
-  }
-}
-
 function shouldSkipAnimation(): boolean {
-  try {
-    if (localStorage.getItem(ANIMATION_SEEN_KEY) === '1') return true
-  } catch {
-    // Ignore storage errors
-  }
-
+  // Skip animation for users who prefer reduced motion
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+  // Skip animation on slow connections or data saver mode
   const connection = (navigator as Navigator & {
     connection?: { effectiveType?: string; saveData?: boolean }
   }).connection
@@ -884,15 +871,22 @@ function revealContentImmediately() {
   showSiteLogo.value = true
 }
 
-onMounted(async () => {
-  // Check auth state
-  authStore.checkAuth()
+// Reset animation state for replay
+function resetAnimationState() {
+  showAnimation.value = true
+  showHeroContent.value = false
+  showSiteLogo.value = false
+  assetsLoaded.value = false
+  animationStarted.value = false
+  fallingLogos.value = []
+  carPosition.x = -150
+  carPosition.y = 0
+  carPosition.scale = 1
+  carPosition.opacity = 1
+}
 
-  // Ensure public settings are loaded (will use cache if already loaded from injected config)
-  if (!appStore.publicSettingsLoaded) {
-    appStore.fetchPublicSettings()
-  }
-
+// Initialize and start animation
+async function initAnimation() {
   revealContentImmediately()
 
   if (shouldSkipAnimation()) {
@@ -919,6 +913,31 @@ onMounted(async () => {
         startAnimation()
       }, ANIMATION_CONFIG.PRELOAD_DELAY)
     })
+}
+
+// Watch for route changes - replay animation when navigating back to home
+watch(
+  () => route.path,
+  (newPath, oldPath) => {
+    if (newPath === '/' && oldPath && oldPath !== '/') {
+      // Navigated back to home from another page
+      resetAnimationState()
+      initAnimation()
+    }
+  }
+)
+
+onMounted(async () => {
+  // Check auth state
+  authStore.checkAuth()
+
+  // Ensure public settings are loaded (will use cache if already loaded from injected config)
+  if (!appStore.publicSettingsLoaded) {
+    appStore.fetchPublicSettings()
+  }
+
+  // Start animation
+  initAnimation()
 })
 
 // Cleanup audio resources when component unmounts

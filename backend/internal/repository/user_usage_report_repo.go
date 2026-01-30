@@ -8,6 +8,7 @@ import (
 	dbent "github.com/Wei-Shaw/sub2api/ent"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
 	dbuser "github.com/Wei-Shaw/sub2api/ent/user"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/timezone"
 	"github.com/Wei-Shaw/sub2api/internal/service"
 )
 
@@ -71,9 +72,10 @@ func (r *userUsageReportRepository) GetUsersForUsageReport(ctx context.Context, 
 		// All users with valid email - no additional filters
 
 	case service.UsageReportScopeActiveToday:
-		// Get users who had activity today - need to join with usage_logs
-		// This is handled separately via GetActiveUserIDs
-		activeUserIDs, err := r.GetActiveUserIDs(ctx, now)
+		// Get users who had activity YESTERDAY (since report sends yesterday's data)
+		// This ensures users who used the service yesterday will receive their report
+		yesterday := now.AddDate(0, 0, -1)
+		activeUserIDs, err := r.GetActiveUserIDs(ctx, yesterday)
 		if err != nil {
 			return nil, err
 		}
@@ -112,8 +114,9 @@ func (r *userUsageReportRepository) GetUsersForUsageReport(ctx context.Context, 
 
 // GetActiveUserIDs returns user IDs who had activity on the given date
 func (r *userUsageReportRepository) GetActiveUserIDs(ctx context.Context, date time.Time) ([]int64, error) {
-	// Calculate start and end of day (in UTC)
-	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+	// Calculate start and end of day in the configured server timezone
+	// This ensures consistency with how usage_logs timestamps are stored and queried
+	startOfDay := timezone.StartOfDay(date)
 	endOfDay := startOfDay.Add(24 * time.Hour)
 
 	// Query distinct user_ids from usage_logs for the date

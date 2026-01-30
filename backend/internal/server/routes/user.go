@@ -22,6 +22,17 @@ func RegisterUserRoutes(
 			user.GET("/profile", h.User.GetProfile)
 			user.PUT("/password", h.User.ChangePassword)
 			user.PUT("", h.User.UpdateProfile)
+
+			// TOTP 双因素认证
+			totp := user.Group("/totp")
+			{
+				totp.GET("/status", h.Totp.GetStatus)
+				totp.GET("/verification-method", h.Totp.GetVerificationMethod)
+				totp.POST("/send-code", h.Totp.SendVerifyCode)
+				totp.POST("/setup", h.Totp.InitiateSetup)
+				totp.POST("/enable", h.Totp.Enable)
+				totp.POST("/disable", h.Totp.Disable)
+			}
 		}
 
 		// API Key管理
@@ -67,6 +78,14 @@ func RegisterUserRoutes(
 			subscriptions.GET("/active", h.Subscription.GetActive)
 			subscriptions.GET("/progress", h.Subscription.GetProgress)
 			subscriptions.GET("/summary", h.Subscription.GetSummary)
+		}
+
+		// 使用报告
+		usageReport := authenticated.Group("/usage-report")
+		{
+			usageReport.GET("/config", h.UsageReport.GetConfig)
+			usageReport.PUT("/config", h.UsageReport.UpdateConfig)
+			usageReport.POST("/test", h.UsageReport.SendTestReport)
 		}
 	}
 }

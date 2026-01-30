@@ -5,6 +5,7 @@ export default {
     viewDocs: 'View Documentation',
     docs: 'Docs',
     installGuide: 'Install Guide',
+    releaseNotes: 'Release Notes',
     switchToLight: 'Switch to Light Mode',
     switchToDark: 'Switch to Dark Mode',
     dashboard: 'Dashboard',
@@ -147,7 +148,10 @@ export default {
     balance: 'Balance',
     available: 'Available',
     copiedToClipboard: 'Copied to clipboard',
+    copied: 'Copied',
     copyFailed: 'Failed to copy',
+    verifying: 'Verifying...',
+    processing: 'Processing...',
     contactSupport: 'Contact Support',
     add: 'Add',
     invalidEmail: 'Please enter a valid email address',
@@ -215,6 +219,7 @@ export default {
     logout: 'Logout',
     github: 'GitHub',
     mySubscriptions: 'My Subscriptions',
+    buySubscription: 'Purchase Subscription',
     docs: 'Docs'
   },
 
@@ -294,11 +299,71 @@ export default {
       verifying: 'Verifying...',
       verifyFailed: 'Verification failed, please check the code'
     },
+    wechatBind: {
+      title: 'Bind WeChat Account',
+      description: 'For your account security, we recommend binding your WeChat account. After binding, you can use WeChat for quick login and enjoy a better service experience.',
+      benefit1: 'Quick WeChat scan login, no password needed',
+      benefit2: 'Account security guarantee, dual verification',
+      benefit3: 'Access to complete service features',
+      skip: 'Skip for now',
+      bind: 'Bind Now',
+      success: 'Binding successful!',
+      bindFailed: 'Binding failed, please try again'
+    },
+    emailBind: {
+      title: 'Bind Email Address',
+      description: 'For your account security, we recommend binding an email address. After binding, you can use email and password to login and enjoy a better service experience.',
+      benefit1: 'Email & password login as backup method',
+      benefit2: 'Receive important notifications',
+      benefit3: 'Password recovery and account protection',
+      emailLabel: 'Email Address',
+      emailPlaceholder: 'Enter your email address',
+      codeLabel: 'Verification Code',
+      codePlaceholder: 'Enter verification code',
+      codeRequired: 'Please enter the verification code',
+      sendCode: 'Send Code',
+      codeSent: 'Verification code sent',
+      sendCodeFailed: 'Failed to send verification code',
+      skip: 'Skip for now',
+      bind: 'Bind Now',
+      binding: 'Binding...',
+      success: 'Email binding successful!',
+      bindFailed: 'Binding failed, please try again'
+    },
     oauth: {
       code: 'Code',
       state: 'State',
       fullUrl: 'Full URL'
-    }
+    },
+    // Forgot password
+    forgotPassword: 'Forgot password?',
+    forgotPasswordTitle: 'Reset Your Password',
+    forgotPasswordHint: 'Enter your email address and we will send you a link to reset your password.',
+    sendResetLink: 'Send Reset Link',
+    sendingResetLink: 'Sending...',
+    sendResetLinkFailed: 'Failed to send reset link. Please try again.',
+    resetEmailSent: 'Reset Link Sent',
+    resetEmailSentHint: 'If an account exists with this email, you will receive a password reset link shortly. Please check your inbox and spam folder.',
+    backToLogin: 'Back to Login',
+    rememberedPassword: 'Remembered your password?',
+    // Reset password
+    resetPasswordTitle: 'Set New Password',
+    resetPasswordHint: 'Enter your new password below.',
+    newPassword: 'New Password',
+    newPasswordPlaceholder: 'Enter your new password',
+    confirmPassword: 'Confirm Password',
+    confirmPasswordPlaceholder: 'Confirm your new password',
+    confirmPasswordRequired: 'Please confirm your password',
+    passwordsDoNotMatch: 'Passwords do not match',
+    resetPassword: 'Reset Password',
+    resettingPassword: 'Resetting...',
+    resetPasswordFailed: 'Failed to reset password. Please try again.',
+    passwordResetSuccess: 'Password Reset Successful',
+    passwordResetSuccessHint: 'Your password has been reset. You can now sign in with your new password.',
+    invalidResetLink: 'Invalid Reset Link',
+    invalidResetLinkHint: 'This password reset link is invalid or has expired. Please request a new one.',
+    requestNewResetLink: 'Request New Reset Link',
+    invalidOrExpiredToken: 'The password reset link is invalid or has expired. Please request a new one.'
   },
 
   // Dashboard
@@ -398,6 +463,8 @@ export default {
         'Add the following environment variables to your terminal profile or run directly in terminal to configure API access.',
       copy: 'Copy',
       copied: 'Copied',
+      showKey: 'Show Key',
+      hideKey: 'Hide Key',
       note: 'These environment variables will be active in the current terminal session. For permanent configuration, add them to ~/.bashrc, ~/.zshrc, or the appropriate configuration file.',
       noGroupTitle: 'Please assign a group first',
       noGroupDescription: 'This API key has not been assigned to a group. Please click the group column in the key list to assign one before viewing the configuration.',
@@ -594,7 +661,75 @@ export default {
       bindFailed: 'Failed to bind WeChat account',
       bound: 'Bound',
       boundStatus: 'WeChat account linked, you can use QR code to login'
+    },
+    // TOTP 2FA
+    totp: {
+      title: 'Two-Factor Authentication (2FA)',
+      description: 'Enhance account security with Google Authenticator or similar apps',
+      enabled: 'Enabled',
+      enabledAt: 'Enabled at',
+      notEnabled: 'Not Enabled',
+      notEnabledHint: 'Enable two-factor authentication to enhance account security',
+      enable: 'Enable',
+      disable: 'Disable',
+      featureDisabled: 'Feature Unavailable',
+      featureDisabledHint: 'Two-factor authentication has not been enabled by the administrator',
+      setupTitle: 'Set Up Two-Factor Authentication',
+      setupStep1: 'Scan the QR code below with your authenticator app',
+      setupStep2: 'Enter the 6-digit code from your app',
+      manualEntry: "Can't scan? Enter the key manually:",
+      enterCode: 'Enter 6-digit code',
+      verify: 'Verify',
+      setupFailed: 'Failed to get setup information',
+      verifyFailed: 'Invalid code, please try again',
+      enableSuccess: 'Two-factor authentication enabled',
+      disableTitle: 'Disable Two-Factor Authentication',
+      disableWarning: 'After disabling, you will no longer need a verification code to log in. This may reduce your account security.',
+      enterPassword: 'Enter your current password to confirm',
+      confirmDisable: 'Confirm Disable',
+      disableSuccess: 'Two-factor authentication disabled',
+      disableFailed: 'Failed to disable, please check your password',
+      loginTitle: 'Two-Factor Authentication',
+      loginHint: 'Enter the 6-digit code from your authenticator app',
+      loginFailed: 'Verification failed, please try again',
+      // New translations for email verification
+      verifyEmailFirst: 'Please verify your email first',
+      verifyPasswordFirst: 'Please verify your identity first',
+      emailCode: 'Email Verification Code',
+      enterEmailCode: 'Enter 6-digit code',
+      sendCode: 'Send Code',
+      codeSent: 'Verification code sent to your email',
+      sendCodeFailed: 'Failed to send verification code'
+    },
+    // Usage Report
+    usageReport: {
+      title: 'Usage Report',
+      description: 'Receive daily usage reports via email',
+      featureDisabled: 'Feature Unavailable',
+      featureDisabledHint: 'Usage reports have not been enabled by the administrator',
+      emailRequired: 'Email Required',
+      emailRequiredHint: 'Please bind a valid email in your profile to enable usage reports',
+      enableReport: 'Enable Daily Report',
+      enableReportHint: 'Receive daily usage statistics via email',
+      sendTime: 'Send Time',
+      sendTimeHint: 'Choose when you want to receive the report',
+      timezone: 'Timezone',
+      sendTest: 'Send Test Report',
+      sendingTest: 'Sending...',
+      testSent: 'Test report sent, please check your email',
+      testFailed: 'Failed to send test report',
+      loadFailed: 'Failed to load configuration',
+      updateSuccess: 'Configuration updated',
+      updateFailed: 'Failed to update configuration'
     }
+  },
+
+  // Email Reminder
+  emailReminder: {
+    title: 'Bind Email',
+    description: 'Binding your email enables usage reports, password reset, and more',
+    bindNow: 'Bind Now',
+    later: 'Remind Later'
   },
 
   // Empty States
@@ -2783,7 +2918,13 @@ export default {
         emailVerification: 'Email Verification',
         emailVerificationHint: 'Require email verification for new registrations',
         promoCode: 'Promo Code',
-        promoCodeHint: 'Allow users to use promo codes during registration'
+        promoCodeHint: 'Allow users to use promo codes during registration',
+        passwordReset: 'Password Reset',
+        passwordResetHint: 'Allow users to reset their password via email',
+        totp: 'Two-Factor Authentication (2FA)',
+        totpHint: 'Allow users to use authenticator apps like Google Authenticator',
+        totpKeyNotConfigured:
+          'Please configure TOTP_ENCRYPTION_KEY in environment variables first. Generate a key with: openssl rand -hex 32'
       },
       turnstile: {
         title: 'Cloudflare Turnstile',
@@ -2913,6 +3054,17 @@ export default {
         hideCcsImportButton: 'Hide CCS Import Button',
         hideCcsImportButtonHint: 'When enabled, the "Import to CCS" button will be hidden on the API Keys page'
       },
+      purchase: {
+        title: 'Purchase Page',
+        description: 'Show a "Purchase Subscription" entry in the sidebar and open the configured URL in an iframe',
+        enabled: 'Show Purchase Entry',
+        enabledHint: 'Only shown in standard mode (not simple mode)',
+        url: 'Purchase URL',
+        urlPlaceholder: 'https://example.com/purchase',
+        urlHint: 'Must be an absolute http(s) URL',
+        iframeWarning:
+          '⚠️ iframe note: Some websites block embedding via X-Frame-Options or CSP (frame-ancestors). If the page is blank, provide an "Open in new tab" alternative.'
+      },
       smtp: {
         title: 'SMTP Settings',
         description: 'Configure email sending for verification codes',
@@ -2944,6 +3096,19 @@ export default {
         sendTestEmail: 'Send Test Email',
         sending: 'Sending...',
         enterRecipientHint: 'Please enter a recipient email address'
+      },
+      usageReport: {
+        title: 'Usage Report Email',
+        description: 'Configure daily usage report email delivery',
+        enabled: 'Enable Usage Reports',
+        enabledHint: 'Once enabled globally, users can opt-in to receive reports in their settings',
+        targetScope: 'Target Scope',
+        targetScopeHint: 'Select which users will receive usage reports',
+        scopeAll: 'All Users (with bound email)',
+        scopeActiveToday: 'Users with activity today',
+        scopeOptedIn: 'Only opted-in users',
+        globalSchedule: 'Global Send Time',
+        globalScheduleHint: 'Used for non-opted-in modes'
       },
       opsMonitoring: {
         title: 'Ops Monitoring',
@@ -3056,6 +3221,18 @@ export default {
     restartNow: 'Restart Now',
     restarting: 'Restarting...',
     retry: 'Retry'
+  },
+
+  // Purchase Subscription Page
+  purchase: {
+    title: 'Purchase Subscription',
+    description: 'Purchase a subscription via the embedded page',
+    openInNewTab: 'Open in new tab',
+    notEnabledTitle: 'Feature not enabled',
+    notEnabledDesc: 'The administrator has not enabled the purchase page. Please contact admin.',
+    notConfiguredTitle: 'Purchase URL not configured',
+    notConfiguredDesc:
+      'The administrator enabled the entry but has not configured a purchase URL. Please contact admin.'
   },
 
   // User Subscriptions Page
@@ -3264,5 +3441,21 @@ export default {
   codeBlock: {
     copy: 'Copy',
     copied: 'Copied'
+  },
+
+  // Release Notes - Version release page
+  releaseNotes: {
+    title: 'Release Notes',                                       // Page header title
+    subtitle: 'View the latest updates and improvements to Code80', // Page header subtitle
+    types: {
+      major: 'Major Update',  // Breaking changes or significant features
+      minor: 'Minor Update',  // New features, backward compatible
+      patch: 'Bug Fix'        // Bug fixes only
+    },
+    sections: {
+      features: 'New Features',  // New features section header (also supports singular "Feature")
+      improvements: 'Improvements', // Improvements section header
+      bugFixes: 'Bug Fixes'     // Bug fixes section header
+    }
   }
 }

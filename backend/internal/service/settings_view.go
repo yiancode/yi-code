@@ -1,9 +1,11 @@
 package service
 
 type SystemSettings struct {
-	RegistrationEnabled bool
-	EmailVerifyEnabled  bool
-	PromoCodeEnabled    bool
+	RegistrationEnabled  bool
+	EmailVerifyEnabled   bool
+	PromoCodeEnabled     bool
+	PasswordResetEnabled bool
+	TotpEnabled          bool // TOTP 双因素认证
 
 	SMTPHost               string
 	SMTPPort               int
@@ -37,17 +39,19 @@ type SystemSettings struct {
 	WeChatAppSecret             string
 	WeChatAppSecretConfigured   bool
 
-	SiteName            string
-	SiteLogo            string
-	SiteLogoDark        string
-	SiteSubtitle        string
-	APIBaseURL          string
-	ContactInfo         string
-	ContactQRCodeWechat string
-	ContactQRCodeGroup  string
-	DocURL              string
-	HomeContent         string
-	HideCcsImportButton bool
+	SiteName                    string
+	SiteLogo                    string
+	SiteLogoDark                string
+	SiteSubtitle                string
+	APIBaseURL                  string
+	ContactInfo                 string
+	ContactQRCodeWechat         string
+	ContactQRCodeGroup          string
+	DocURL                      string
+	HomeContent                 string
+	HideCcsImportButton         bool
+	PurchaseSubscriptionEnabled bool
+	PurchaseSubscriptionURL     string
 
 	DefaultConcurrency int
 	DefaultBalance     float64
@@ -68,25 +72,36 @@ type SystemSettings struct {
 	OpsRealtimeMonitoringEnabled bool
 	OpsQueryModeDefault          string
 	OpsMetricsIntervalSeconds    int
+
+	// Usage report settings
+	UsageReportGlobalEnabled  bool
+	UsageReportTargetScope    string
+	UsageReportGlobalSchedule string
 }
 
 type PublicSettings struct {
-	RegistrationEnabled bool
-	EmailVerifyEnabled  bool
-	PromoCodeEnabled    bool
-	TurnstileEnabled    bool
-	TurnstileSiteKey    string
-	SiteName            string
-	SiteLogo            string
-	SiteLogoDark        string
-	SiteSubtitle        string
-	APIBaseURL          string
-	ContactInfo         string
-	ContactQRCodeWechat string
-	ContactQRCodeGroup  string
-	DocURL              string
-	HomeContent         string
-	HideCcsImportButton bool
+	RegistrationEnabled  bool
+	EmailVerifyEnabled   bool
+	PromoCodeEnabled     bool
+	PasswordResetEnabled bool
+	TotpEnabled          bool // TOTP 双因素认证
+	TurnstileEnabled     bool
+	TurnstileSiteKey     string
+	SiteName             string
+	SiteLogo             string
+	SiteLogoDark         string
+	SiteSubtitle         string
+	APIBaseURL           string
+	ContactInfo          string
+	ContactQRCodeWechat  string
+	ContactQRCodeGroup   string
+	DocURL               string
+	HomeContent          string
+	HideCcsImportButton  bool
+
+	PurchaseSubscriptionEnabled bool
+	PurchaseSubscriptionURL     string
+
 	LinuxDoOAuthEnabled bool
 	// 微信登录
 	WeChatAuthEnabled       bool

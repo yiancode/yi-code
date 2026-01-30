@@ -70,6 +70,7 @@ func provideCleanup(
 	schedulerSnapshot *service.SchedulerSnapshotService,
 	tokenRefresh *service.TokenRefreshService,
 	accountExpiry *service.AccountExpiryService,
+	subscriptionExpiry *service.SubscriptionExpiryService,
 	usageCleanup *service.UsageCleanupService,
 	pricing *service.PricingService,
 	emailQueue *service.EmailQueueService,
@@ -78,6 +79,7 @@ func provideCleanup(
 	openaiOAuth *service.OpenAIOAuthService,
 	geminiOAuth *service.GeminiOAuthService,
 	antigravityOAuth *service.AntigravityOAuthService,
+	usageReportScheduler *service.UserUsageReportScheduler,
 ) func() {
 	return func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -88,6 +90,12 @@ func provideCleanup(
 			name string
 			fn   func() error
 		}{
+			{"UserUsageReportScheduler", func() error {
+				if usageReportScheduler != nil {
+					usageReportScheduler.Stop()
+				}
+				return nil
+			}},
 			{"OpsScheduledReportService", func() error {
 				if opsScheduledReport != nil {
 					opsScheduledReport.Stop()
@@ -136,6 +144,10 @@ func provideCleanup(
 			}},
 			{"AccountExpiryService", func() error {
 				accountExpiry.Stop()
+				return nil
+			}},
+			{"SubscriptionExpiryService", func() error {
+				subscriptionExpiry.Stop()
 				return nil
 			}},
 			{"PricingService", func() error {

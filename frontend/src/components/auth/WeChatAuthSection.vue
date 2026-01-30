@@ -145,6 +145,10 @@ defineProps<{
   qrCodeUrl?: string
 }>()
 
+const emit = defineEmits<{
+  (e: 'needEmailBind'): void
+}>()
+
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
@@ -175,13 +179,21 @@ async function handleWeChatLogin(): Promise<void> {
     await wechatAuth(verifyCode.value.trim())
 
     // Re-load auth state from localStorage (wechatAuth already saved token and user)
-    authStore.checkAuth()
+    await authStore.checkAuth()
 
     // Show success
     appStore.showSuccess(t('auth.loginSuccess'))
 
     // Close modal
     closeModal()
+
+    // Check if user needs to bind email (WeChat login users with synthetic email)
+    const user = authStore.user
+    if (user && user.email.endsWith('@wechat-auth.invalid')) {
+      // Emit event to show email bind modal
+      emit('needEmailBind')
+      return
+    }
 
     // Redirect
     const redirectTo = (route.query.redirect as string) || '/dashboard'

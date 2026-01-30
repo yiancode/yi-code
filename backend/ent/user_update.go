@@ -201,6 +201,102 @@ func (_u *UserUpdate) SetNillableWechatOpenid(v *string) *UserUpdate {
 	return _u
 }
 
+// SetTotpSecretEncrypted sets the "totp_secret_encrypted" field.
+func (_u *UserUpdate) SetTotpSecretEncrypted(v string) *UserUpdate {
+	_u.mutation.SetTotpSecretEncrypted(v)
+	return _u
+}
+
+// SetNillableTotpSecretEncrypted sets the "totp_secret_encrypted" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableTotpSecretEncrypted(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetTotpSecretEncrypted(*v)
+	}
+	return _u
+}
+
+// ClearTotpSecretEncrypted clears the value of the "totp_secret_encrypted" field.
+func (_u *UserUpdate) ClearTotpSecretEncrypted() *UserUpdate {
+	_u.mutation.ClearTotpSecretEncrypted()
+	return _u
+}
+
+// SetTotpEnabled sets the "totp_enabled" field.
+func (_u *UserUpdate) SetTotpEnabled(v bool) *UserUpdate {
+	_u.mutation.SetTotpEnabled(v)
+	return _u
+}
+
+// SetNillableTotpEnabled sets the "totp_enabled" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableTotpEnabled(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetTotpEnabled(*v)
+	}
+	return _u
+}
+
+// SetTotpEnabledAt sets the "totp_enabled_at" field.
+func (_u *UserUpdate) SetTotpEnabledAt(v time.Time) *UserUpdate {
+	_u.mutation.SetTotpEnabledAt(v)
+	return _u
+}
+
+// SetNillableTotpEnabledAt sets the "totp_enabled_at" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableTotpEnabledAt(v *time.Time) *UserUpdate {
+	if v != nil {
+		_u.SetTotpEnabledAt(*v)
+	}
+	return _u
+}
+
+// ClearTotpEnabledAt clears the value of the "totp_enabled_at" field.
+func (_u *UserUpdate) ClearTotpEnabledAt() *UserUpdate {
+	_u.mutation.ClearTotpEnabledAt()
+	return _u
+}
+
+// SetUsageReportEnabled sets the "usage_report_enabled" field.
+func (_u *UserUpdate) SetUsageReportEnabled(v bool) *UserUpdate {
+	_u.mutation.SetUsageReportEnabled(v)
+	return _u
+}
+
+// SetNillableUsageReportEnabled sets the "usage_report_enabled" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUsageReportEnabled(v *bool) *UserUpdate {
+	if v != nil {
+		_u.SetUsageReportEnabled(*v)
+	}
+	return _u
+}
+
+// SetUsageReportSchedule sets the "usage_report_schedule" field.
+func (_u *UserUpdate) SetUsageReportSchedule(v string) *UserUpdate {
+	_u.mutation.SetUsageReportSchedule(v)
+	return _u
+}
+
+// SetNillableUsageReportSchedule sets the "usage_report_schedule" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUsageReportSchedule(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetUsageReportSchedule(*v)
+	}
+	return _u
+}
+
+// SetUsageReportTimezone sets the "usage_report_timezone" field.
+func (_u *UserUpdate) SetUsageReportTimezone(v string) *UserUpdate {
+	_u.mutation.SetUsageReportTimezone(v)
+	return _u
+}
+
+// SetNillableUsageReportTimezone sets the "usage_report_timezone" field if the given value is not nil.
+func (_u *UserUpdate) SetNillableUsageReportTimezone(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetUsageReportTimezone(*v)
+	}
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdate) AddAPIKeyIDs(ids ...int64) *UserUpdate {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -568,6 +664,16 @@ func (_u *UserUpdate) check() error {
 			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.UsageReportSchedule(); ok {
+		if err := user.UsageReportScheduleValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_schedule", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_schedule": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.UsageReportTimezone(); ok {
+		if err := user.UsageReportTimezoneValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_timezone", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_timezone": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -624,6 +730,30 @@ func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.WechatOpenid(); ok {
 		_spec.SetField(user.FieldWechatOpenid, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.TotpSecretEncrypted(); ok {
+		_spec.SetField(user.FieldTotpSecretEncrypted, field.TypeString, value)
+	}
+	if _u.mutation.TotpSecretEncryptedCleared() {
+		_spec.ClearField(user.FieldTotpSecretEncrypted, field.TypeString)
+	}
+	if value, ok := _u.mutation.TotpEnabled(); ok {
+		_spec.SetField(user.FieldTotpEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TotpEnabledAt(); ok {
+		_spec.SetField(user.FieldTotpEnabledAt, field.TypeTime, value)
+	}
+	if _u.mutation.TotpEnabledAtCleared() {
+		_spec.ClearField(user.FieldTotpEnabledAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.UsageReportEnabled(); ok {
+		_spec.SetField(user.FieldUsageReportEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.UsageReportSchedule(); ok {
+		_spec.SetField(user.FieldUsageReportSchedule, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UsageReportTimezone(); ok {
+		_spec.SetField(user.FieldUsageReportTimezone, field.TypeString, value)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1183,6 +1313,102 @@ func (_u *UserUpdateOne) SetNillableWechatOpenid(v *string) *UserUpdateOne {
 	return _u
 }
 
+// SetTotpSecretEncrypted sets the "totp_secret_encrypted" field.
+func (_u *UserUpdateOne) SetTotpSecretEncrypted(v string) *UserUpdateOne {
+	_u.mutation.SetTotpSecretEncrypted(v)
+	return _u
+}
+
+// SetNillableTotpSecretEncrypted sets the "totp_secret_encrypted" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableTotpSecretEncrypted(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetTotpSecretEncrypted(*v)
+	}
+	return _u
+}
+
+// ClearTotpSecretEncrypted clears the value of the "totp_secret_encrypted" field.
+func (_u *UserUpdateOne) ClearTotpSecretEncrypted() *UserUpdateOne {
+	_u.mutation.ClearTotpSecretEncrypted()
+	return _u
+}
+
+// SetTotpEnabled sets the "totp_enabled" field.
+func (_u *UserUpdateOne) SetTotpEnabled(v bool) *UserUpdateOne {
+	_u.mutation.SetTotpEnabled(v)
+	return _u
+}
+
+// SetNillableTotpEnabled sets the "totp_enabled" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableTotpEnabled(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetTotpEnabled(*v)
+	}
+	return _u
+}
+
+// SetTotpEnabledAt sets the "totp_enabled_at" field.
+func (_u *UserUpdateOne) SetTotpEnabledAt(v time.Time) *UserUpdateOne {
+	_u.mutation.SetTotpEnabledAt(v)
+	return _u
+}
+
+// SetNillableTotpEnabledAt sets the "totp_enabled_at" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableTotpEnabledAt(v *time.Time) *UserUpdateOne {
+	if v != nil {
+		_u.SetTotpEnabledAt(*v)
+	}
+	return _u
+}
+
+// ClearTotpEnabledAt clears the value of the "totp_enabled_at" field.
+func (_u *UserUpdateOne) ClearTotpEnabledAt() *UserUpdateOne {
+	_u.mutation.ClearTotpEnabledAt()
+	return _u
+}
+
+// SetUsageReportEnabled sets the "usage_report_enabled" field.
+func (_u *UserUpdateOne) SetUsageReportEnabled(v bool) *UserUpdateOne {
+	_u.mutation.SetUsageReportEnabled(v)
+	return _u
+}
+
+// SetNillableUsageReportEnabled sets the "usage_report_enabled" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUsageReportEnabled(v *bool) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsageReportEnabled(*v)
+	}
+	return _u
+}
+
+// SetUsageReportSchedule sets the "usage_report_schedule" field.
+func (_u *UserUpdateOne) SetUsageReportSchedule(v string) *UserUpdateOne {
+	_u.mutation.SetUsageReportSchedule(v)
+	return _u
+}
+
+// SetNillableUsageReportSchedule sets the "usage_report_schedule" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUsageReportSchedule(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsageReportSchedule(*v)
+	}
+	return _u
+}
+
+// SetUsageReportTimezone sets the "usage_report_timezone" field.
+func (_u *UserUpdateOne) SetUsageReportTimezone(v string) *UserUpdateOne {
+	_u.mutation.SetUsageReportTimezone(v)
+	return _u
+}
+
+// SetNillableUsageReportTimezone sets the "usage_report_timezone" field if the given value is not nil.
+func (_u *UserUpdateOne) SetNillableUsageReportTimezone(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetUsageReportTimezone(*v)
+	}
+	return _u
+}
+
 // AddAPIKeyIDs adds the "api_keys" edge to the APIKey entity by IDs.
 func (_u *UserUpdateOne) AddAPIKeyIDs(ids ...int64) *UserUpdateOne {
 	_u.mutation.AddAPIKeyIDs(ids...)
@@ -1563,6 +1789,16 @@ func (_u *UserUpdateOne) check() error {
 			return &ValidationError{Name: "wechat_openid", err: fmt.Errorf(`ent: validator failed for field "User.wechat_openid": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.UsageReportSchedule(); ok {
+		if err := user.UsageReportScheduleValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_schedule", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_schedule": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.UsageReportTimezone(); ok {
+		if err := user.UsageReportTimezoneValidator(v); err != nil {
+			return &ValidationError{Name: "usage_report_timezone", err: fmt.Errorf(`ent: validator failed for field "User.usage_report_timezone": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1636,6 +1872,30 @@ func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	}
 	if value, ok := _u.mutation.WechatOpenid(); ok {
 		_spec.SetField(user.FieldWechatOpenid, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.TotpSecretEncrypted(); ok {
+		_spec.SetField(user.FieldTotpSecretEncrypted, field.TypeString, value)
+	}
+	if _u.mutation.TotpSecretEncryptedCleared() {
+		_spec.ClearField(user.FieldTotpSecretEncrypted, field.TypeString)
+	}
+	if value, ok := _u.mutation.TotpEnabled(); ok {
+		_spec.SetField(user.FieldTotpEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.TotpEnabledAt(); ok {
+		_spec.SetField(user.FieldTotpEnabledAt, field.TypeTime, value)
+	}
+	if _u.mutation.TotpEnabledAtCleared() {
+		_spec.ClearField(user.FieldTotpEnabledAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.UsageReportEnabled(); ok {
+		_spec.SetField(user.FieldUsageReportEnabled, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.UsageReportSchedule(); ok {
+		_spec.SetField(user.FieldUsageReportSchedule, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.UsageReportTimezone(); ok {
+		_spec.SetField(user.FieldUsageReportTimezone, field.TypeString, value)
 	}
 	if _u.mutation.APIKeysCleared() {
 		edge := &sqlgraph.EdgeSpec{

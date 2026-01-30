@@ -65,6 +65,27 @@ func (User) Fields() []ent.Field {
 		field.String("wechat_openid").
 			MaxLen(64).
 			Default(""),
+
+		// TOTP 双因素认证字段
+		field.String("totp_secret_encrypted").
+			SchemaType(map[string]string{dialect.Postgres: "text"}).
+			Optional().
+			Nillable(),
+		field.Bool("totp_enabled").
+			Default(false),
+		field.Time("totp_enabled_at").
+			Optional().
+			Nillable(),
+
+		// 使用报告邮件配置字段
+		field.Bool("usage_report_enabled").
+			Default(false),
+		field.String("usage_report_schedule").
+			MaxLen(20).
+			Default("09:00"),
+		field.String("usage_report_timezone").
+			MaxLen(50).
+			Default("Asia/Shanghai"),
 	}
 }
 

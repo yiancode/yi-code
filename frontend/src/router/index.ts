@@ -44,6 +44,15 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/release-notes',
+    name: 'ReleaseNotes',
+    component: () => import('@/views/ReleaseNotesView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Release Notes'
+    }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/auth/LoginView.vue'),
@@ -86,6 +95,24 @@ const routes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: false,
       title: 'LinuxDo OAuth Callback'
+    }
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: () => import('@/views/auth/ForgotPasswordView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Forgot Password'
+    }
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: () => import('@/views/auth/ResetPasswordView.vue'),
+    meta: {
+      requiresAuth: false,
+      title: 'Reset Password'
     }
   },
 
@@ -164,6 +191,18 @@ const routes: RouteRecordRaw[] = [
       title: 'My Subscriptions',
       titleKey: 'userSubscriptions.title',
       descriptionKey: 'userSubscriptions.description'
+    }
+  },
+  {
+    path: '/purchase',
+    name: 'PurchaseSubscription',
+    component: () => import('@/views/user/PurchaseSubscriptionView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Purchase Subscription',
+      titleKey: 'purchase.title',
+      descriptionKey: 'purchase.description'
     }
   },
 

@@ -13,6 +13,9 @@ export interface SystemSettings {
   registration_enabled: boolean
   email_verify_enabled: boolean
   promo_code_enabled: boolean
+  password_reset_enabled: boolean
+  totp_enabled: boolean // TOTP 双因素认证
+  totp_encryption_key_configured: boolean // TOTP 加密密钥是否已配置
   // Default settings
   default_balance: number
   default_concurrency: number
@@ -28,6 +31,8 @@ export interface SystemSettings {
   doc_url: string
   home_content: string
   hide_ccs_import_button: boolean
+  purchase_subscription_enabled: boolean
+  purchase_subscription_url: string
   // SMTP settings
   smtp_host: string
   smtp_port: number
@@ -72,12 +77,19 @@ export interface SystemSettings {
   ops_realtime_monitoring_enabled: boolean
   ops_query_mode_default: 'auto' | 'raw' | 'preagg' | string
   ops_metrics_interval_seconds: number
+
+  // Usage Report Settings
+  usage_report_global_enabled: boolean
+  usage_report_target_scope: 'all' | 'active_today' | 'opted_in' | string
+  usage_report_global_schedule: string
 }
 
 export interface UpdateSettingsRequest {
   registration_enabled?: boolean
   email_verify_enabled?: boolean
   promo_code_enabled?: boolean
+  password_reset_enabled?: boolean
+  totp_enabled?: boolean // TOTP 双因素认证
   default_balance?: number
   default_concurrency?: number
   site_name?: string
@@ -91,6 +103,8 @@ export interface UpdateSettingsRequest {
   doc_url?: string
   home_content?: string
   hide_ccs_import_button?: boolean
+  purchase_subscription_enabled?: boolean
+  purchase_subscription_url?: string
   smtp_host?: string
   smtp_port?: number
   smtp_username?: string
@@ -123,6 +137,10 @@ export interface UpdateSettingsRequest {
   ops_realtime_monitoring_enabled?: boolean
   ops_query_mode_default?: 'auto' | 'raw' | 'preagg' | string
   ops_metrics_interval_seconds?: number
+  // Usage Report Settings
+  usage_report_global_enabled?: boolean
+  usage_report_target_scope?: 'all' | 'active_today' | 'opted_in' | string
+  usage_report_global_schedule?: string
 }
 
 /**

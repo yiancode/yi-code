@@ -22,6 +22,16 @@ type User struct {
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 
+	// TOTP 双因素认证字段
+	TotpSecretEncrypted *string    // AES-256-GCM 加密的 TOTP 密钥
+	TotpEnabled         bool       // 是否启用 TOTP
+	TotpEnabledAt       *time.Time // TOTP 启用时间
+
+	// 使用报告配置字段
+	UsageReportEnabled  bool   // 是否启用使用报告
+	UsageReportSchedule string // 发送时间 (HH:MM)
+	UsageReportTimezone string // 时区
+
 	APIKeys       []APIKey
 	Subscriptions []UserSubscription
 }

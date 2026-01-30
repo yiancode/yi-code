@@ -69,9 +69,10 @@ const LinuxDoConnectSyntheticEmailDomain = "@linuxdo-connect.invalid"
 // Setting keys
 const (
 	// 注册设置
-	SettingKeyRegistrationEnabled = "registration_enabled" // 是否开放注册
-	SettingKeyEmailVerifyEnabled  = "email_verify_enabled" // 是否开启邮件验证
-	SettingKeyPromoCodeEnabled    = "promo_code_enabled"   // 是否启用优惠码功能
+	SettingKeyRegistrationEnabled  = "registration_enabled"   // 是否开放注册
+	SettingKeyEmailVerifyEnabled   = "email_verify_enabled"   // 是否开启邮件验证
+	SettingKeyPromoCodeEnabled     = "promo_code_enabled"     // 是否启用优惠码功能
+	SettingKeyPasswordResetEnabled = "password_reset_enabled" // 是否启用忘记密码功能（需要先开启邮件验证）
 
 	// 邮件服务设置
 	SettingKeySMTPHost     = "smtp_host"      // SMTP服务器地址
@@ -86,6 +87,9 @@ const (
 	SettingKeyTurnstileEnabled   = "turnstile_enabled"    // 是否启用 Turnstile 验证
 	SettingKeyTurnstileSiteKey   = "turnstile_site_key"   // Turnstile Site Key
 	SettingKeyTurnstileSecretKey = "turnstile_secret_key" // Turnstile Secret Key
+
+	// TOTP 双因素认证设置
+	SettingKeyTotpEnabled = "totp_enabled" // 是否启用 TOTP 2FA 功能
 
 	// LinuxDo Connect OAuth 登录设置
 	SettingKeyLinuxDoConnectEnabled      = "linuxdo_connect_enabled"
@@ -103,17 +107,19 @@ const (
 	SettingKeyWeChatAppSecret         = "wechat_app_secret"          // 微信公众号 AppSecret
 
 	// OEM设置
-	SettingKeySiteName            = "site_name"              // 网站名称
-	SettingKeySiteLogo            = "site_logo"              // 网站Logo (base64)
-	SettingKeySiteLogoDark        = "site_logo_dark"         // 网站Logo 夜间模式 (base64)
-	SettingKeySiteSubtitle        = "site_subtitle"          // 网站副标题
-	SettingKeyAPIBaseURL          = "api_base_url"           // API端点地址（用于客户端配置和导入）
-	SettingKeyContactInfo         = "contact_info"           // 客服联系方式
-	SettingKeyContactQRCodeWechat = "contact_qrcode_wechat"  // 客服微信二维码 (base64)
-	SettingKeyContactQRCodeGroup  = "contact_qrcode_group"   // 客服社群二维码 (base64)
-	SettingKeyDocURL              = "doc_url"                // 文档链接
-	SettingKeyHomeContent         = "home_content"           // 首页内容（支持 Markdown/HTML，或 URL 作为 iframe src）
-	SettingKeyHideCcsImportButton = "hide_ccs_import_button" // 是否隐藏 API Keys 页面的导入 CCS 按钮
+	SettingKeySiteName                    = "site_name"                     // 网站名称
+	SettingKeySiteLogo                    = "site_logo"                     // 网站Logo (base64)
+	SettingKeySiteLogoDark                = "site_logo_dark"                // 网站Logo 夜间模式 (base64)
+	SettingKeySiteSubtitle                = "site_subtitle"                 // 网站副标题
+	SettingKeyAPIBaseURL                  = "api_base_url"                  // API端点地址（用于客户端配置和导入）
+	SettingKeyContactInfo                 = "contact_info"                  // 客服联系方式
+	SettingKeyContactQRCodeWechat         = "contact_qrcode_wechat"         // 客服微信二维码 (base64)
+	SettingKeyContactQRCodeGroup          = "contact_qrcode_group"          // 客服社群二维码 (base64)
+	SettingKeyDocURL                      = "doc_url"                       // 文档链接
+	SettingKeyHomeContent                 = "home_content"                  // 首页内容（支持 Markdown/HTML，或 URL 作为 iframe src）
+	SettingKeyHideCcsImportButton         = "hide_ccs_import_button"        // 是否隐藏 API Keys 页面的导入 CCS 按钮
+	SettingKeyPurchaseSubscriptionEnabled = "purchase_subscription_enabled" // 是否展示"购买订阅"页面入口
+	SettingKeyPurchaseSubscriptionURL     = "purchase_subscription_url"     // "购买订阅"页面 URL（作为 iframe src）
 
 	// 默认配置
 	SettingKeyDefaultConcurrency = "default_concurrency" // 新用户默认并发量
@@ -167,7 +173,27 @@ const (
 
 	// SettingKeyStreamTimeoutSettings stores JSON config for stream timeout handling.
 	SettingKeyStreamTimeoutSettings = "stream_timeout_settings"
+
+	// =========================
+	// Usage Report Settings
+	// =========================
+
+	// SettingKeyUsageReportGlobalEnabled controls whether usage report emails are globally enabled.
+	SettingKeyUsageReportGlobalEnabled = "usage_report_global_enabled"
+
+	// SettingKeyUsageReportTargetScope controls who receives usage reports: "all", "active_today", or "opted_in".
+	SettingKeyUsageReportTargetScope = "usage_report_target_scope"
+
+	// SettingKeyUsageReportGlobalSchedule is the global send time (HH:MM) for non-opted_in modes.
+	SettingKeyUsageReportGlobalSchedule = "usage_report_global_schedule"
 )
 
 // AdminAPIKeyPrefix is the prefix for admin API keys (distinct from user "sk-" keys).
 const AdminAPIKeyPrefix = "admin-"
+
+// Usage report target scope constants
+const (
+	UsageReportScopeAll         = "all"          // 全部绑定邮箱的用户
+	UsageReportScopeActiveToday = "active_today" // 当天有使用的用户
+	UsageReportScopeOptedIn     = "opted_in"     // 仅启用了报告功能的用户
+)

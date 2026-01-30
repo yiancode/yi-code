@@ -44,6 +44,7 @@
           v-if="wechatAuthEnabled"
           :disabled="isLoading"
           :qr-code-url="wechatAccountQRCodeURL"
+          @need-email-bind="handleNeedEmailBind"
         />
 
         <!-- 切换到邮箱密码登录 -->
@@ -115,9 +116,19 @@
               <Icon v-else name="eye" size="md" />
             </button>
           </div>
-          <p v-if="errors.password" class="input-error-text">
-            {{ errors.password }}
-          </p>
+          <div class="mt-1 flex items-center justify-between">
+            <p v-if="errors.password" class="input-error-text">
+              {{ errors.password }}
+            </p>
+            <span v-else></span>
+            <router-link
+              v-if="passwordResetEnabled"
+              to="/forgot-password"
+              class="text-sm font-medium text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+            >
+              {{ t('auth.forgotPassword') }}
+            </router-link>
+          </div>
         </div>
 
         <!-- Turnstile Widget -->
@@ -193,6 +204,14 @@
       @success="handleWeChatBindSuccess"
     />
 
+    <!-- Email Bind Modal -->
+    <EmailBindModal
+      :show="showEmailBindModal"
+      @close="showEmailBindModal = false"
+      @skip="handleSkipEmailBind"
+      @success="handleEmailBindSuccess"
+    />
+
     <!-- Footer -->
     <template #footer>
       <p class="text-gray-500 dark:text-dark-400">
@@ -206,6 +225,16 @@
       </p>
     </template>
   </AuthLayout>
+
+  <!-- 2FA Modal -->
+  <TotpLoginModal
+    v-if="show2FAModal"
+    ref="totpModalRef"
+    :temp-token="totpTempToken"
+    :user-email-masked="totpUserEmailMasked"
+    @verify="handle2FAVerify"
+    @cancel="handle2FACancel"
+  />
 </template>
 
 <script setup lang="ts">
@@ -216,9 +245,13 @@ import { AuthLayout } from '@/components/layout'
 import LinuxDoOAuthSection from '@/components/auth/LinuxDoOAuthSection.vue'
 import WeChatAuthSection from '@/components/auth/WeChatAuthSection.vue'
 import WeChatBindModal from '@/components/auth/WeChatBindModal.vue'
+import EmailBindModal from '@/components/auth/EmailBindModal.vue'
+import TotpLoginModal from '@/components/auth/TotpLoginModal.vue'
 import Icon from '@/components/icons/Icon.vue'
 import TurnstileWidget from '@/components/TurnstileWidget.vue'
 import { useAuthStore, useAppStore } from '@/stores'
+import { isTotp2FARequired } from '@/api/auth'
+import type { TotpLoginResponse } from '@/types'
 
 const { t } = useI18n()
 
@@ -236,6 +269,7 @@ const errorMessage = ref<string>('')
 const showPassword = ref<boolean>(false)
 const showEmailPasswordForm = ref<boolean>(false) // 控制是否显示邮箱密码表单
 const showWeChatBindModal = ref<boolean>(false) // 控制是否显示微信绑定提示弹框
+const showEmailBindModal = ref<boolean>(false) // 控制是否显示邮箱绑定提示弹框
 
 // Public settings
 const turnstileEnabled = ref<boolean>(false)
@@ -243,6 +277,7 @@ const turnstileSiteKey = ref<string>('')
 const linuxdoOAuthEnabled = ref<boolean>(false)
 const wechatAuthEnabled = ref<boolean>(false)
 const wechatAccountQRCodeURL = ref<string>('')
+const passwordResetEnabled = ref<boolean>(false)
 
 // Turnstile
 const turnstileRef = ref<InstanceType<typeof TurnstileWidget> | null>(null)
@@ -261,6 +296,12 @@ function playHorn() {
     // Ignore autoplay errors
   })
 }
+
+// 2FA state
+const show2FAModal = ref<boolean>(false)
+const totpTempToken = ref<string>('')
+const totpUserEmailMasked = ref<string>('')
+const totpModalRef = ref<InstanceType<typeof TotpLoginModal> | null>(null)
 
 const formData = reactive({
   email: '',
@@ -300,6 +341,7 @@ onMounted(async () => {
       wechatAuthEnabled.value = settings.wechat_auth_enabled
       // 上传的图片 (Base64) 优先于 API 生成的 URL
       wechatAccountQRCodeURL.value = settings.wechat_account_qrcode_data || settings.wechat_account_qrcode_url || ''
+      passwordResetEnabled.value = settings.password_reset_enabled
     }
   } catch (error) {
     console.error('Failed to load public settings:', error)
@@ -377,11 +419,21 @@ async function handleLogin(): Promise<void> {
 
   try {
     // Call auth store login
-    await authStore.login({
+    const response = await authStore.login({
       email: formData.email,
       password: formData.password,
       turnstile_token: turnstileEnabled.value ? turnstileToken.value : undefined
     })
+
+    // Check if 2FA is required
+    if (isTotp2FARequired(response)) {
+      const totpResponse = response as TotpLoginResponse
+      totpTempToken.value = totpResponse.temp_token || ''
+      totpUserEmailMasked.value = totpResponse.user_email_masked || ''
+      show2FAModal.value = true
+      isLoading.value = false
+      return
+    }
 
     // Show success toast
     appStore.showSuccess(t('auth.loginSuccess'))
@@ -436,6 +488,59 @@ function handleWeChatBindSuccess(): void {
   showWeChatBindModal.value = false
   const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
   router.push(redirectTo)
+}
+
+// Handle need email bind (WeChat login users with synthetic email)
+function handleNeedEmailBind(): void {
+  showEmailBindModal.value = true
+}
+
+// Handle skip email bind
+function handleSkipEmailBind(): void {
+  showEmailBindModal.value = false
+  const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+  router.push(redirectTo)
+}
+
+// Handle email bind success
+function handleEmailBindSuccess(): void {
+  showEmailBindModal.value = false
+  const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+  router.push(redirectTo)
+}
+
+// ==================== 2FA Handlers ====================
+
+async function handle2FAVerify(code: string): Promise<void> {
+  if (totpModalRef.value) {
+    totpModalRef.value.setVerifying(true)
+  }
+
+  try {
+    await authStore.login2FA(totpTempToken.value, code)
+
+    // Close modal and show success
+    show2FAModal.value = false
+    appStore.showSuccess(t('auth.loginSuccess'))
+
+    // Redirect to dashboard or intended route
+    const redirectTo = (router.currentRoute.value.query.redirect as string) || '/dashboard'
+    await router.push(redirectTo)
+  } catch (error: unknown) {
+    const err = error as { message?: string; response?: { data?: { message?: string } } }
+    const message = err.response?.data?.message || err.message || t('profile.totp.loginFailed')
+
+    if (totpModalRef.value) {
+      totpModalRef.value.setError(message)
+      totpModalRef.value.setVerifying(false)
+    }
+  }
+}
+
+function handle2FACancel(): void {
+  show2FAModal.value = false
+  totpTempToken.value = ''
+  totpUserEmailMasked.value = ''
 }
 </script>
 

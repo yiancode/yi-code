@@ -72,6 +72,13 @@ func ProvideAccountExpiryService(accountRepo AccountRepository) *AccountExpirySe
 	return svc
 }
 
+// ProvideSubscriptionExpiryService creates and starts SubscriptionExpiryService.
+func ProvideSubscriptionExpiryService(userSubRepo UserSubscriptionRepository) *SubscriptionExpiryService {
+	svc := NewSubscriptionExpiryService(userSubRepo, time.Minute)
+	svc.Start()
+	return svc
+}
+
 // ProvideTimingWheelService creates and starts TimingWheelService
 func ProvideTimingWheelService() (*TimingWheelService, error) {
 	svc, err := NewTimingWheelService()
@@ -195,6 +202,18 @@ func ProvideOpsScheduledReportService(
 	return svc
 }
 
+// ProvideUserUsageReportScheduler creates and starts UserUsageReportScheduler.
+func ProvideUserUsageReportScheduler(
+	reportService *UserUsageReportService,
+	settingService *SettingService,
+	reportRepo UserUsageReportRepository,
+	redisClient *redis.Client,
+) *UserUsageReportScheduler {
+	svc := NewUserUsageReportScheduler(reportService, settingService, reportRepo, redisClient)
+	svc.Start()
+	return svc
+}
+
 // ProvideAPIKeyAuthCacheInvalidator 提供 API Key 认证缓存失效能力
 func ProvideAPIKeyAuthCacheInvalidator(apiKeyService *APIKeyService) APIKeyAuthCacheInvalidator {
 	// Start Pub/Sub subscriber for L1 cache invalidation across instances
@@ -257,6 +276,7 @@ var ProviderSet = wire.NewSet(
 	ProvideUpdateService,
 	ProvideTokenRefreshService,
 	ProvideAccountExpiryService,
+	ProvideSubscriptionExpiryService,
 	ProvideTimingWheelService,
 	ProvideDashboardAggregationService,
 	ProvideUsageCleanupService,
@@ -264,4 +284,7 @@ var ProviderSet = wire.NewSet(
 	NewAntigravityQuotaFetcher,
 	NewUserAttributeService,
 	NewUsageCache,
+	NewTotpService,
+	NewUserUsageReportService,
+	ProvideUserUsageReportScheduler,
 )

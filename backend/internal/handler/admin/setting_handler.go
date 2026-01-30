@@ -50,6 +50,9 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		RegistrationEnabled:                  settings.RegistrationEnabled,
 		EmailVerifyEnabled:                   settings.EmailVerifyEnabled,
 		PromoCodeEnabled:                     settings.PromoCodeEnabled,
+		PasswordResetEnabled:                 settings.PasswordResetEnabled,
+		TotpEnabled:                          settings.TotpEnabled,
+		TotpEncryptionKeyConfigured:          h.settingService.IsTotpEncryptionKeyConfigured(),
 		SMTPHost:                             settings.SMTPHost,
 		SMTPPort:                             settings.SMTPPort,
 		SMTPUsername:                         settings.SMTPUsername,
@@ -82,6 +85,8 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		DocURL:                               settings.DocURL,
 		HomeContent:                          settings.HomeContent,
 		HideCcsImportButton:                  settings.HideCcsImportButton,
+		PurchaseSubscriptionEnabled:          settings.PurchaseSubscriptionEnabled,
+		PurchaseSubscriptionURL:              settings.PurchaseSubscriptionURL,
 		DefaultConcurrency:                   settings.DefaultConcurrency,
 		DefaultBalance:                       settings.DefaultBalance,
 		EnableModelFallback:                  settings.EnableModelFallback,
@@ -95,15 +100,20 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		OpsRealtimeMonitoringEnabled:         settings.OpsRealtimeMonitoringEnabled,
 		OpsQueryModeDefault:                  settings.OpsQueryModeDefault,
 		OpsMetricsIntervalSeconds:            settings.OpsMetricsIntervalSeconds,
+		UsageReportGlobalEnabled:             settings.UsageReportGlobalEnabled,
+		UsageReportTargetScope:               settings.UsageReportTargetScope,
+		UsageReportGlobalSchedule:            settings.UsageReportGlobalSchedule,
 	})
 }
 
 // UpdateSettingsRequest 更新设置请求
 type UpdateSettingsRequest struct {
 	// 注册设置
-	RegistrationEnabled bool `json:"registration_enabled"`
-	EmailVerifyEnabled  bool `json:"email_verify_enabled"`
-	PromoCodeEnabled    bool `json:"promo_code_enabled"`
+	RegistrationEnabled  bool `json:"registration_enabled"`
+	EmailVerifyEnabled   bool `json:"email_verify_enabled"`
+	PromoCodeEnabled     bool `json:"promo_code_enabled"`
+	PasswordResetEnabled bool `json:"password_reset_enabled"`
+	TotpEnabled          bool `json:"totp_enabled"` // TOTP 双因素认证
 
 	// 邮件服务设置
 	SMTPHost     string `json:"smtp_host"`
@@ -135,17 +145,19 @@ type UpdateSettingsRequest struct {
 	WeChatAppSecret         string `json:"wechat_app_secret"`
 
 	// OEM设置
-	SiteName            string `json:"site_name"`
-	SiteLogo            string `json:"site_logo"`
-	SiteLogoDark        string `json:"site_logo_dark"`
-	SiteSubtitle        string `json:"site_subtitle"`
-	APIBaseURL          string `json:"api_base_url"`
-	ContactInfo         string `json:"contact_info"`
-	ContactQRCodeWechat string `json:"contact_qrcode_wechat"`
-	ContactQRCodeGroup  string `json:"contact_qrcode_group"`
-	DocURL              string `json:"doc_url"`
-	HomeContent         string `json:"home_content"`
-	HideCcsImportButton bool   `json:"hide_ccs_import_button"`
+	SiteName                    string  `json:"site_name"`
+	SiteLogo                    string  `json:"site_logo"`
+	SiteLogoDark                string  `json:"site_logo_dark"`
+	SiteSubtitle                string  `json:"site_subtitle"`
+	APIBaseURL                  string  `json:"api_base_url"`
+	ContactInfo                 string  `json:"contact_info"`
+	ContactQRCodeWechat         string  `json:"contact_qrcode_wechat"`
+	ContactQRCodeGroup          string  `json:"contact_qrcode_group"`
+	DocURL                      string  `json:"doc_url"`
+	HomeContent                 string  `json:"home_content"`
+	HideCcsImportButton         bool    `json:"hide_ccs_import_button"`
+	PurchaseSubscriptionEnabled *bool   `json:"purchase_subscription_enabled"`
+	PurchaseSubscriptionURL     *string `json:"purchase_subscription_url"`
 
 	// 默认配置
 	DefaultConcurrency int     `json:"default_concurrency"`
@@ -167,6 +179,11 @@ type UpdateSettingsRequest struct {
 	OpsRealtimeMonitoringEnabled *bool   `json:"ops_realtime_monitoring_enabled"`
 	OpsQueryModeDefault          *string `json:"ops_query_mode_default"`
 	OpsMetricsIntervalSeconds    *int    `json:"ops_metrics_interval_seconds"`
+
+	// Usage report settings
+	UsageReportGlobalEnabled  *bool   `json:"usage_report_global_enabled"`
+	UsageReportTargetScope    *string `json:"usage_report_target_scope"`
+	UsageReportGlobalSchedule *string `json:"usage_report_global_schedule"`
 }
 
 // UpdateSettings 更新系统设置
@@ -219,6 +236,16 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 				response.ErrorFrom(c, err)
 				return
 			}
+		}
+	}
+
+	// TOTP 双因素认证参数验证
+	// 只有手动配置了加密密钥才允许启用 TOTP 功能
+	if req.TotpEnabled && !previousSettings.TotpEnabled {
+		// 尝试启用 TOTP，检查加密密钥是否已手动配置
+		if !h.settingService.IsTotpEncryptionKeyConfigured() {
+			response.BadRequest(c, "Cannot enable TOTP: TOTP_ENCRYPTION_KEY environment variable must be configured first. Generate a key with 'openssl rand -hex 32' and set it in your environment.")
+			return
 		}
 	}
 
@@ -275,6 +302,34 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		}
 	}
 
+	// "购买订阅"页面配置验证
+	purchaseEnabled := previousSettings.PurchaseSubscriptionEnabled
+	if req.PurchaseSubscriptionEnabled != nil {
+		purchaseEnabled = *req.PurchaseSubscriptionEnabled
+	}
+	purchaseURL := previousSettings.PurchaseSubscriptionURL
+	if req.PurchaseSubscriptionURL != nil {
+		purchaseURL = strings.TrimSpace(*req.PurchaseSubscriptionURL)
+	}
+
+	// - 启用时要求 URL 合法且非空
+	// - 禁用时允许为空；若提供了 URL 也做基本校验，避免误配置
+	if purchaseEnabled {
+		if purchaseURL == "" {
+			response.BadRequest(c, "Purchase Subscription URL is required when enabled")
+			return
+		}
+		if err := config.ValidateAbsoluteHTTPURL(purchaseURL); err != nil {
+			response.BadRequest(c, "Purchase Subscription URL must be an absolute http(s) URL")
+			return
+		}
+	} else if purchaseURL != "" {
+		if err := config.ValidateAbsoluteHTTPURL(purchaseURL); err != nil {
+			response.BadRequest(c, "Purchase Subscription URL must be an absolute http(s) URL")
+			return
+		}
+	}
+
 	// Ops metrics collector interval validation (seconds).
 	if req.OpsMetricsIntervalSeconds != nil {
 		v := *req.OpsMetricsIntervalSeconds
@@ -288,50 +343,54 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 	}
 
 	settings := &service.SystemSettings{
-		RegistrationEnabled:        req.RegistrationEnabled,
-		EmailVerifyEnabled:         req.EmailVerifyEnabled,
-		PromoCodeEnabled:           req.PromoCodeEnabled,
-		SMTPHost:                   req.SMTPHost,
-		SMTPPort:                   req.SMTPPort,
-		SMTPUsername:               req.SMTPUsername,
-		SMTPPassword:               req.SMTPPassword,
-		SMTPFrom:                   req.SMTPFrom,
-		SMTPFromName:               req.SMTPFromName,
-		SMTPUseTLS:                 req.SMTPUseTLS,
-		TurnstileEnabled:           req.TurnstileEnabled,
-		TurnstileSiteKey:           req.TurnstileSiteKey,
-		TurnstileSecretKey:         req.TurnstileSecretKey,
-		LinuxDoConnectEnabled:      req.LinuxDoConnectEnabled,
-		LinuxDoConnectClientID:     req.LinuxDoConnectClientID,
-		LinuxDoConnectClientSecret: req.LinuxDoConnectClientSecret,
-		LinuxDoConnectRedirectURL:  req.LinuxDoConnectRedirectURL,
-		WeChatAuthEnabled:          req.WeChatAuthEnabled,
-		WeChatServerAddress:        req.WeChatServerAddress,
-		WeChatServerToken:          req.WeChatServerToken,
-		WeChatAccountQRCodeURL:     req.WeChatAccountQRCodeURL,
-		WeChatAccountQRCodeData:    req.WeChatAccountQRCodeData,
-		WeChatAppID:                req.WeChatAppID,
-		WeChatAppSecret:            req.WeChatAppSecret,
-		SiteName:                   req.SiteName,
-		SiteLogo:                   req.SiteLogo,
-		SiteLogoDark:               req.SiteLogoDark,
-		SiteSubtitle:               req.SiteSubtitle,
-		APIBaseURL:                 req.APIBaseURL,
-		ContactInfo:                req.ContactInfo,
-		ContactQRCodeWechat:        req.ContactQRCodeWechat,
-		ContactQRCodeGroup:         req.ContactQRCodeGroup,
-		DocURL:                     req.DocURL,
-		HomeContent:                req.HomeContent,
-		HideCcsImportButton:        req.HideCcsImportButton,
-		DefaultConcurrency:         req.DefaultConcurrency,
-		DefaultBalance:             req.DefaultBalance,
-		EnableModelFallback:        req.EnableModelFallback,
-		FallbackModelAnthropic:     req.FallbackModelAnthropic,
-		FallbackModelOpenAI:        req.FallbackModelOpenAI,
-		FallbackModelGemini:        req.FallbackModelGemini,
-		FallbackModelAntigravity:   req.FallbackModelAntigravity,
-		EnableIdentityPatch:        req.EnableIdentityPatch,
-		IdentityPatchPrompt:        req.IdentityPatchPrompt,
+		RegistrationEnabled:         req.RegistrationEnabled,
+		EmailVerifyEnabled:          req.EmailVerifyEnabled,
+		PromoCodeEnabled:            req.PromoCodeEnabled,
+		PasswordResetEnabled:        req.PasswordResetEnabled,
+		TotpEnabled:                 req.TotpEnabled,
+		SMTPHost:                    req.SMTPHost,
+		SMTPPort:                    req.SMTPPort,
+		SMTPUsername:                req.SMTPUsername,
+		SMTPPassword:                req.SMTPPassword,
+		SMTPFrom:                    req.SMTPFrom,
+		SMTPFromName:                req.SMTPFromName,
+		SMTPUseTLS:                  req.SMTPUseTLS,
+		TurnstileEnabled:            req.TurnstileEnabled,
+		TurnstileSiteKey:            req.TurnstileSiteKey,
+		TurnstileSecretKey:          req.TurnstileSecretKey,
+		LinuxDoConnectEnabled:       req.LinuxDoConnectEnabled,
+		LinuxDoConnectClientID:      req.LinuxDoConnectClientID,
+		LinuxDoConnectClientSecret:  req.LinuxDoConnectClientSecret,
+		LinuxDoConnectRedirectURL:   req.LinuxDoConnectRedirectURL,
+		WeChatAuthEnabled:           req.WeChatAuthEnabled,
+		WeChatServerAddress:         req.WeChatServerAddress,
+		WeChatServerToken:           req.WeChatServerToken,
+		WeChatAccountQRCodeURL:      req.WeChatAccountQRCodeURL,
+		WeChatAccountQRCodeData:     req.WeChatAccountQRCodeData,
+		WeChatAppID:                 req.WeChatAppID,
+		WeChatAppSecret:             req.WeChatAppSecret,
+		SiteName:                    req.SiteName,
+		SiteLogo:                    req.SiteLogo,
+		SiteLogoDark:                req.SiteLogoDark,
+		SiteSubtitle:                req.SiteSubtitle,
+		APIBaseURL:                  req.APIBaseURL,
+		ContactInfo:                 req.ContactInfo,
+		ContactQRCodeWechat:         req.ContactQRCodeWechat,
+		ContactQRCodeGroup:          req.ContactQRCodeGroup,
+		DocURL:                      req.DocURL,
+		HomeContent:                 req.HomeContent,
+		HideCcsImportButton:         req.HideCcsImportButton,
+		PurchaseSubscriptionEnabled: purchaseEnabled,
+		PurchaseSubscriptionURL:     purchaseURL,
+		DefaultConcurrency:          req.DefaultConcurrency,
+		DefaultBalance:              req.DefaultBalance,
+		EnableModelFallback:         req.EnableModelFallback,
+		FallbackModelAnthropic:      req.FallbackModelAnthropic,
+		FallbackModelOpenAI:         req.FallbackModelOpenAI,
+		FallbackModelGemini:         req.FallbackModelGemini,
+		FallbackModelAntigravity:    req.FallbackModelAntigravity,
+		EnableIdentityPatch:         req.EnableIdentityPatch,
+		IdentityPatchPrompt:         req.IdentityPatchPrompt,
 		OpsMonitoringEnabled: func() bool {
 			if req.OpsMonitoringEnabled != nil {
 				return *req.OpsMonitoringEnabled
@@ -356,6 +415,24 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 			}
 			return previousSettings.OpsMetricsIntervalSeconds
 		}(),
+		UsageReportGlobalEnabled: func() bool {
+			if req.UsageReportGlobalEnabled != nil {
+				return *req.UsageReportGlobalEnabled
+			}
+			return previousSettings.UsageReportGlobalEnabled
+		}(),
+		UsageReportTargetScope: func() string {
+			if req.UsageReportTargetScope != nil {
+				return *req.UsageReportTargetScope
+			}
+			return previousSettings.UsageReportTargetScope
+		}(),
+		UsageReportGlobalSchedule: func() string {
+			if req.UsageReportGlobalSchedule != nil {
+				return *req.UsageReportGlobalSchedule
+			}
+			return previousSettings.UsageReportGlobalSchedule
+		}(),
 	}
 
 	if err := h.settingService.UpdateSettings(c.Request.Context(), settings); err != nil {
@@ -376,6 +453,9 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		RegistrationEnabled:                  updatedSettings.RegistrationEnabled,
 		EmailVerifyEnabled:                   updatedSettings.EmailVerifyEnabled,
 		PromoCodeEnabled:                     updatedSettings.PromoCodeEnabled,
+		PasswordResetEnabled:                 updatedSettings.PasswordResetEnabled,
+		TotpEnabled:                          updatedSettings.TotpEnabled,
+		TotpEncryptionKeyConfigured:          h.settingService.IsTotpEncryptionKeyConfigured(),
 		SMTPHost:                             updatedSettings.SMTPHost,
 		SMTPPort:                             updatedSettings.SMTPPort,
 		SMTPUsername:                         updatedSettings.SMTPUsername,
@@ -408,6 +488,8 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		DocURL:                               updatedSettings.DocURL,
 		HomeContent:                          updatedSettings.HomeContent,
 		HideCcsImportButton:                  updatedSettings.HideCcsImportButton,
+		PurchaseSubscriptionEnabled:          updatedSettings.PurchaseSubscriptionEnabled,
+		PurchaseSubscriptionURL:              updatedSettings.PurchaseSubscriptionURL,
 		DefaultConcurrency:                   updatedSettings.DefaultConcurrency,
 		DefaultBalance:                       updatedSettings.DefaultBalance,
 		EnableModelFallback:                  updatedSettings.EnableModelFallback,
@@ -421,6 +503,9 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		OpsRealtimeMonitoringEnabled:         updatedSettings.OpsRealtimeMonitoringEnabled,
 		OpsQueryModeDefault:                  updatedSettings.OpsQueryModeDefault,
 		OpsMetricsIntervalSeconds:            updatedSettings.OpsMetricsIntervalSeconds,
+		UsageReportGlobalEnabled:             updatedSettings.UsageReportGlobalEnabled,
+		UsageReportTargetScope:               updatedSettings.UsageReportTargetScope,
+		UsageReportGlobalSchedule:            updatedSettings.UsageReportGlobalSchedule,
 	})
 }
 
@@ -451,6 +536,12 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.EmailVerifyEnabled != after.EmailVerifyEnabled {
 		changed = append(changed, "email_verify_enabled")
+	}
+	if before.PasswordResetEnabled != after.PasswordResetEnabled {
+		changed = append(changed, "password_reset_enabled")
+	}
+	if before.TotpEnabled != after.TotpEnabled {
+		changed = append(changed, "totp_enabled")
 	}
 	if before.SMTPHost != after.SMTPHost {
 		changed = append(changed, "smtp_host")
@@ -580,6 +671,15 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.OpsMetricsIntervalSeconds != after.OpsMetricsIntervalSeconds {
 		changed = append(changed, "ops_metrics_interval_seconds")
+	}
+	if before.UsageReportGlobalEnabled != after.UsageReportGlobalEnabled {
+		changed = append(changed, "usage_report_global_enabled")
+	}
+	if before.UsageReportTargetScope != after.UsageReportTargetScope {
+		changed = append(changed, "usage_report_target_scope")
+	}
+	if before.UsageReportGlobalSchedule != after.UsageReportGlobalSchedule {
+		changed = append(changed, "usage_report_global_schedule")
 	}
 	return changed
 }

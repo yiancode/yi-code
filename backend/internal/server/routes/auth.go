@@ -26,11 +26,20 @@ func RegisterAuthRoutes(
 	{
 		auth.POST("/register", h.Auth.Register)
 		auth.POST("/login", h.Auth.Login)
+		auth.POST("/login/2fa", h.Auth.Login2FA)
 		auth.POST("/send-verify-code", h.Auth.SendVerifyCode)
 		// 优惠码验证接口添加速率限制：每分钟最多 10 次（Redis 故障时 fail-close）
 		auth.POST("/validate-promo-code", rateLimiter.LimitWithOptions("validate-promo", 10, time.Minute, middleware.RateLimitOptions{
 			FailureMode: middleware.RateLimitFailClose,
 		}), h.Auth.ValidatePromoCode)
+		// 忘记密码接口添加速率限制：每分钟最多 5 次（Redis 故障时 fail-close）
+		auth.POST("/forgot-password", rateLimiter.LimitWithOptions("forgot-password", 5, time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.ForgotPassword)
+		// 重置密码接口添加速率限制：每分钟最多 10 次（Redis 故障时 fail-close）
+		auth.POST("/reset-password", rateLimiter.LimitWithOptions("reset-password", 10, time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.ResetPassword)
 		auth.GET("/oauth/linuxdo/start", h.Auth.LinuxDoOAuthStart)
 		auth.GET("/oauth/linuxdo/callback", h.Auth.LinuxDoOAuthCallback)
 		// 微信公众号验证码登录
@@ -54,5 +63,13 @@ func RegisterAuthRoutes(
 		authenticated.GET("/auth/oauth/wechat/bind", rateLimiter.LimitWithOptions("wechat-bind", 20, 20*time.Minute, middleware.RateLimitOptions{
 			FailureMode: middleware.RateLimitFailClose,
 		}), h.Auth.WeChatBind)
+		// 发送绑定邮箱验证码（需要登录，用于微信登录用户绑定真实邮箱）
+		authenticated.POST("/auth/send-bind-email-code", rateLimiter.LimitWithOptions("send-bind-email-code", 5, time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.SendBindEmailCode)
+		// 邮箱绑定（需要登录，用于微信登录用户绑定真实邮箱）
+		authenticated.POST("/auth/bind-email", rateLimiter.LimitWithOptions("bind-email", 10, time.Minute, middleware.RateLimitOptions{
+			FailureMode: middleware.RateLimitFailClose,
+		}), h.Auth.BindEmail)
 	}
 }

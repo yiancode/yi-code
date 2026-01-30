@@ -13,6 +13,13 @@ backend/bin/
 backend/server
 backend/sub2api
 backend/main
+backend/code80
+
+# 进程ID文件
+*.pid
+
+# 测试代码目录
+backend/cmd/test_email/
 
 # Go 测试二进制
 *.test

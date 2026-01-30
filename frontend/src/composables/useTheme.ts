@@ -149,6 +149,8 @@ export function useTheme() {
         return 'moon'
       case 'auto':
         return 'clock'
+      default:
+        return 'sun'
     }
   })
 
@@ -163,6 +165,8 @@ export function useTheme() {
         return 'nav.darkMode'
       case 'auto':
         return 'nav.autoMode'
+      default:
+        return 'nav.lightMode'
     }
   })
 

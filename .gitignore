@@ -136,3 +136,5 @@ docs/*
 .serena/
 /_bmad/
 /.codex/
+/scripts/deploy.local.conf
+/scripts/deploy-zero-downtime.sh

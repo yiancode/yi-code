@@ -1,27 +1,4 @@
 <template>
-  <!-- 资源加载指示器 - 品牌 Logo 脉动动画 -->
-  <div
-    v-if="showAnimation && !assetsLoaded"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50/30 to-gray-100 dark:from-dark-950 dark:via-dark-900 dark:to-dark-950"
-  >
-    <div class="text-center">
-      <div class="relative">
-        <!-- Logo with pulse animation -->
-        <div class="logo-pulse-wrapper">
-          <img
-            :src="currentLogo || '/logo.png'"
-            alt="Loading"
-            class="h-20 w-20 object-contain rounded-xl"
-          />
-        </div>
-        <!-- Subtle loading text (optional) -->
-        <p class="mt-4 text-xs font-medium text-gray-500/60 dark:text-dark-400/60 tracking-wide">
-          {{ siteName }}
-        </p>
-      </div>
-    </div>
-  </div>
-
   <!-- Opening Animation Overlay -->
   <div
     v-if="showAnimation"
@@ -575,11 +552,8 @@ const currentYear = computed(() => new Date().getFullYear())
 const showAnimation = ref(true)
 const showHeroContent = ref(false)
 const showSiteLogo = ref(false)
-const carRef = ref<HTMLImageElement | null>(null)
+const carRef = ref<HTMLImageElement | HTMLImageElement[] | null>(null)
 const siteLogoRef = ref<HTMLElement | null>(null)
-
-// 资源加载状态
-const assetsLoaded = ref(false)
 const animationStarted = ref(false)
 
 // Provider refs for target positions
@@ -644,10 +618,33 @@ const ANIMATION_CONFIG = {
   ANIMATION_END_DELAY: 400,     // Delay before hiding animation overlay (ms)
   HEADER_SCROLL_OFFSET: 96,     // Header height for car positioning (px)
   MIN_TOP_OFFSET: 8,            // Minimum distance from top (px)
+  MIN_EDGE_OFFSET: 12,          // Minimum distance from screen edge (px)
   CAR_STOP_POSITION: 0.55,      // Stop at 55% of screen width
   BOUNCING_CYCLES: 6,           // Number of bounce cycles during drive
   BOUNCE_AMPLITUDE: 2           // Bounce height in pixels
 } as const
+
+const DEFAULT_CAR_HEIGHT = 80 // Tailwind h-20 = 5rem
+const DEFAULT_CAR_WIDTH = 160
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function getCarMetrics() {
+  const carEl = Array.isArray(carRef.value)
+    ? carRef.value.find(el => el?.naturalWidth) ?? carRef.value[0]
+    : carRef.value
+
+  const height = DEFAULT_CAR_HEIGHT
+  const naturalWidth = carEl?.naturalWidth ?? 0
+  const naturalHeight = carEl?.naturalHeight ?? 0
+  const width = naturalWidth && naturalHeight
+    ? (naturalWidth / naturalHeight) * height
+    : carEl?.getBoundingClientRect().width || DEFAULT_CAR_WIDTH
+
+  return { width, height }
+}
 
 // Preload all animation assets
 function preloadAnimationAssets(): Promise<void> {
@@ -686,6 +683,12 @@ function startAnimation() {
   if (animationStarted.value) return
   animationStarted.value = true
   const screenWidth = window.innerWidth
+  const screenHeight = window.innerHeight
+
+  const { width: carWidth, height: carHeight } = getCarMetrics()
+  const minY = ANIMATION_CONFIG.MIN_TOP_OFFSET
+  const maxY = Math.max(minY, screenHeight - carHeight - ANIMATION_CONFIG.MIN_TOP_OFFSET)
+  const maxX = Math.max(0, screenWidth - carWidth - ANIMATION_CONFIG.MIN_EDGE_OFFSET)
 
   // Initialize and play driving sound
   initAudio()
@@ -707,10 +710,11 @@ function startAnimation() {
     logoTargetX = rect.left
     logoTargetY = rect.top
   }
+  headerY = clamp(headerY, minY, maxY)
 
   // Car path: Same horizontal level as site logo in header
-  const startX = -150
-  const midX = screenWidth * ANIMATION_CONFIG.CAR_STOP_POSITION // Stop point before going to logo
+  const startX = -(carWidth + ANIMATION_CONFIG.MIN_EDGE_OFFSET)
+  const midX = Math.min(screenWidth * ANIMATION_CONFIG.CAR_STOP_POSITION, maxX) // Stop point before going to logo
 
   carPosition.x = startX
   carPosition.y = headerY
@@ -729,7 +733,8 @@ function startAnimation() {
     const eased = 1 - Math.pow(1 - progress, 2)
 
     carPosition.x = startX + (midX - startX) * eased
-    carPosition.y = headerY + Math.sin(progress * Math.PI * ANIMATION_CONFIG.BOUNCING_CYCLES) * ANIMATION_CONFIG.BOUNCE_AMPLITUDE
+    const bounceY = headerY + Math.sin(progress * Math.PI * ANIMATION_CONFIG.BOUNCING_CYCLES) * ANIMATION_CONFIG.BOUNCE_AMPLITUDE
+    carPosition.y = clamp(bounceY, minY, maxY)
 
     // Drop logos at specific positions
     while (droppedCount < dropPositions.length && progress >= dropPositions[droppedCount]) {
@@ -748,6 +753,8 @@ function startAnimation() {
           logoTargetX = rect.left
           logoTargetY = rect.top
         }
+        logoTargetX = clamp(logoTargetX, 0, maxX)
+        logoTargetY = clamp(logoTargetY, minY, maxY)
         moveCarToLogo(logoTargetX, logoTargetY)
       }, ANIMATION_CONFIG.PHASE1_PAUSE)
     }
@@ -881,7 +888,6 @@ let animationSafetyTimer: number | null = null
 async function initAnimation() {
   if (shouldSkipAnimation()) {
     revealContentImmediately()
-    assetsLoaded.value = true
     showAnimation.value = false
     return
   }
@@ -894,7 +900,6 @@ async function initAnimation() {
 
   // 预加载动画资源（不阻塞首屏）
   const fallbackTimer = window.setTimeout(() => {
-    assetsLoaded.value = true
     startAnimation()
   }, ANIMATION_CONFIG.PRELOAD_MAX_WAIT)
 
@@ -904,7 +909,6 @@ async function initAnimation() {
     })
     .finally(() => {
       window.clearTimeout(fallbackTimer)
-      assetsLoaded.value = true
       // 资源加载完成后启动动画
       setTimeout(() => {
         startAnimation()
@@ -945,54 +949,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Logo Pulse Animation - Loading State */
-.logo-pulse-wrapper {
-  position: relative;
-  display: inline-block;
-  animation: logo-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.logo-pulse-wrapper::before,
-.logo-pulse-wrapper::after {
-  content: '';
-  position: absolute;
-  inset: -8px;
-  border-radius: 1rem;
-  border: 2px solid;
-  border-color: rgb(var(--color-primary-500) / 0.4);
-  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.logo-pulse-wrapper::after {
-  animation-delay: 1s;
-}
-
-@keyframes logo-pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.9;
-  }
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.95);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(1.25);
-    opacity: 0;
-  }
-}
-
 /* Car Animation */
 .car-animation {
   will-change: transform, opacity;

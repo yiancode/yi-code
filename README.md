@@ -1,4 +1,4 @@
-# Sub2API
+# Code80
 
 <div align="center">
 
@@ -16,19 +16,9 @@ English | [中文](README_CN.md)
 
 ---
 
-## Demo
-
-Try Sub2API online: **https://demo.sub2api.org/**
-
-Demo credentials (shared demo environment; **not** created automatically for self-hosted installs):
-
-| Email | Password |
-|-------|----------|
-| admin@sub2api.com | admin123 |
-
 ## Overview
 
-Sub2API is an AI API gateway platform designed to distribute and manage API quotas from AI product subscriptions (like Claude Code $200/month). Users can access upstream AI services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
+Code80 is an AI API gateway platform designed to distribute and manage API quotas from AI product subscriptions (like Claude Code $200/month). Users can access upstream AI services through platform-generated API Keys, while the platform handles authentication, billing, load balancing, and request forwarding.
 
 ## Features
 
@@ -87,10 +77,10 @@ The script will:
 
 ```bash
 # 1. Start the service
-sudo systemctl start sub2api
+sudo systemctl start code80
 
 # 2. Enable auto-start on boot
-sudo systemctl enable sub2api
+sudo systemctl enable code80
 
 # 3. Open Setup Wizard in browser
 # http://YOUR_SERVER_IP:8080
@@ -114,16 +104,14 @@ The web interface will:
 
 ```bash
 # Check status
-sudo systemctl status sub2api
+sudo systemctl status code80
 
 # View logs
-sudo journalctl -u sub2api -f
+sudo journalctl -u code80 -f
 
 # Restart service
-sudo systemctl restart sub2api
+sudo systemctl restart code80
 
-# Uninstall
-curl -sSL https://raw.githubusercontent.com/Wei-Shaw/sub2api/main/deploy/install.sh | sudo bash -s -- uninstall -y
 ```
 
 ---
@@ -137,22 +125,6 @@ Deploy with Docker Compose, including PostgreSQL and Redis containers.
 - Docker 20.10+
 - Docker Compose v2+
 
-#### Installation Steps
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/Wei-Shaw/sub2api.git
-cd sub2api
-
-# 2. Enter the deploy directory
-cd deploy
-
-# 3. Copy environment configuration
-cp .env.example .env
-
-# 4. Edit configuration (set your passwords)
-nano .env
-```
 
 **Required configuration in `.env`:**
 
@@ -172,11 +144,11 @@ SERVER_PORT=8080
 SECURITY_URL_ALLOWLIST_ENABLED=false
 
 # Allow insecure HTTP URLs when allowlist is disabled (default: false, requires https)
-# ⚠️ WARNING: Enabling this allows HTTP (plaintext) URLs which can expose API keys
-#             Only recommended for:
-#             - Development/testing environments
-#             - Internal networks with trusted endpoints
-#             - When using local test servers (http://localhost)
+# WARNING: Enabling this allows HTTP (plaintext) URLs which can expose API keys
+#          Only recommended for:
+#          - Development/testing environments
+#          - Internal networks with trusted endpoints
+#          - When using local test servers (http://localhost)
 # PRODUCTION: Keep this false or use HTTPS URLs only
 SECURITY_URL_ALLOWLIST_ALLOW_INSECURE_HTTP=false
 
@@ -251,7 +223,7 @@ pnpm run build
 
 # 4. Build backend with embedded frontend
 cd ../backend
-go build -tags embed -o sub2api ./cmd/server
+go build -tags embed -o code80 ./cmd/server
 
 # 5. Create configuration file
 cp ../deploy/config.example.yaml ./config.yaml
@@ -275,7 +247,7 @@ database:
   port: 5432
   user: "postgres"
   password: "your_password"
-  dbname: "sub2api"
+  dbname: "code80"
 
 redis:
   host: "localhost"
@@ -306,7 +278,7 @@ Additional security-related options are available in `config.yaml`:
 - `server.trusted_proxies` to enable X-Forwarded-For parsing
 - `turnstile.required` to require Turnstile in release mode
 
-**⚠️ Security Warning: HTTP URL Configuration**
+**Security Warning: HTTP URL Configuration**
 
 When `security.url_allowlist.enabled=false`, the system performs minimal URL validation by default, **rejecting HTTP URLs** and only allowing HTTPS. To allow HTTP URLs (e.g., for development or internal testing), you must explicitly set:
 
@@ -314,7 +286,7 @@ When `security.url_allowlist.enabled=false`, the system performs minimal URL val
 security:
   url_allowlist:
     enabled: false                # Disable allowlist checks
-    allow_insecure_http: true     # Allow HTTP URLs (⚠️ INSECURE)
+    allow_insecure_http: true     # Allow HTTP URLs (INSECURE)
 ```
 
 **Or via environment variable:**
@@ -330,10 +302,9 @@ SECURITY_URL_ALLOWLIST_ALLOW_INSECURE_HTTP=true
 - **NOT suitable for production** environments
 
 **When to use HTTP:**
-- ✅ Development/testing with local servers (http://localhost)
-- ✅ Internal networks with trusted endpoints
-- ✅ Testing account connectivity before obtaining HTTPS
-- ❌ Production environments (use HTTPS only)
+- Development/testing with local servers (http://localhost)
+- Internal networks with trusted endpoints
+- Testing account connectivity before obtaining HTTPS
 
 **Example error without this setting:**
 ```
@@ -348,7 +319,7 @@ If you disable URL validation or response header filtering, harden your network 
 
 ```bash
 # 6. Run the application
-./sub2api
+./code80
 ```
 
 #### Development Mode
@@ -387,7 +358,7 @@ Simple Mode is designed for individual developers or internal teams who want qui
 
 ## Antigravity Support
 
-Sub2API supports [Antigravity](https://antigravity.so/) accounts. After authorization, dedicated endpoints are available for Claude and Gemini models.
+Code80 supports [Antigravity](https://antigravity.so/) accounts. After authorization, dedicated endpoints are available for Claude and Gemini models.
 
 ### Dedicated Endpoints
 
@@ -407,7 +378,7 @@ export ANTHROPIC_AUTH_TOKEN="sk-xxx"
 
 Antigravity accounts support optional **hybrid scheduling**. When enabled, the general endpoints `/v1/messages` and `/v1beta/` will also route requests to Antigravity accounts.
 
-> **⚠️ Warning**: Anthropic Claude and Antigravity Claude **cannot be mixed within the same conversation context**. Use groups to isolate them properly.
+> **Warning**: Anthropic Claude and Antigravity Claude **cannot be mixed within the same conversation context**. Use groups to isolate them properly.
 
 ### Known Issues
 
@@ -420,7 +391,7 @@ In Claude Code, Plan Mode cannot exit automatically. (Normally when using the na
 ## Project Structure
 
 ```
-sub2api/
+code80/
 ├── backend/                  # Go backend service
 │   ├── cmd/server/           # Application entry
 │   ├── internal/             # Internal modules

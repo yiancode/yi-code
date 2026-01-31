@@ -1,4 +1,4 @@
-# Sub2API
+# Code80
 
 <div align="center">
 
@@ -16,19 +16,9 @@
 
 ---
 
-## 在线体验
-
-体验地址：**https://v2.pincc.ai/**
-
-演示账号（共享演示环境；自建部署不会自动创建该账号）：
-
-| 邮箱 | 密码 |
-|------|------|
-| admin@sub2api.com | admin123 |
-
 ## 项目概述
 
-Sub2API 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅（如 Claude Code $200/月）的 API 配额。用户通过平台生成的 API Key 调用上游 AI 服务，平台负责鉴权、计费、负载均衡和请求转发。
+Code80 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅（如 Claude Code $200/月）的 API 配额。用户通过平台生成的 API Key 调用上游 AI 服务，平台负责鉴权、计费、负载均衡和请求转发。
 
 ## 核心功能
 
@@ -60,7 +50,7 @@ Sub2API 是一个 AI API 网关平台，用于分发和管理 AI 产品订阅（
 ## OpenAI Responses 兼容注意事项
 
 - 当请求包含 `function_call_output` 时，需要携带 `previous_response_id`，或在 `input` 中包含带 `call_id` 的 `tool_call`/`function_call`，或带非空 `id` 且与 `function_call_output.call_id` 匹配的 `item_reference`。
-- 若依赖上游历史记录，网关会强制 `store=true` 并需要复用 `previous_response_id`，以避免出现 “No tool call found for function call output” 错误。
+- 若依赖上游历史记录，网关会强制 `store=true` 并需要复用 `previous_response_id`，以避免出现 "No tool call found for function call output" 错误。
 
 ---
 
@@ -258,7 +248,7 @@ pnpm run build
 
 # 4. 编译后端（嵌入前端）
 cd ../backend
-go build -tags embed -o sub2api ./cmd/server
+go build -tags embed -o code80 ./cmd/server
 
 # 5. 创建配置文件
 cp ../deploy/config.example.yaml ./config.yaml
@@ -282,7 +272,7 @@ database:
   port: 5432
   user: "postgres"
   password: "your_password"
-  dbname: "sub2api"
+  dbname: "code80"
 
 redis:
   host: "localhost"
@@ -337,10 +327,9 @@ SECURITY_URL_ALLOWLIST_ALLOW_INSECURE_HTTP=true
 - **不适合生产环境**
 
 **适用场景：**
-- ✅ 开发/测试环境的本地服务器（http://localhost）
-- ✅ 内网可信端点
-- ✅ 获取 HTTPS 前测试账号连通性
-- ❌ 生产环境（仅使用 HTTPS）
+- 开发/测试环境的本地服务器（http://localhost）
+- 内网可信端点
+- 获取 HTTPS 前测试账号连通性
 
 **未设置此项时的错误示例：**
 ```
@@ -355,7 +344,7 @@ Invalid base URL: invalid url scheme: http
 
 ```bash
 # 6. 运行应用
-./sub2api
+./code80
 ```
 
 #### 开发模式
@@ -394,7 +383,7 @@ go generate ./cmd/server
 
 ## Antigravity 使用说明
 
-Sub2API 支持 [Antigravity](https://antigravity.so/) 账户，授权后可通过专用端点访问 Claude 和 Gemini 模型。
+Code80 支持 [Antigravity](https://antigravity.so/) 账户，授权后可通过专用端点访问 Claude 和 Gemini 模型。
 
 ### 专用端点
 
@@ -416,16 +405,18 @@ Antigravity 账户支持可选的**混合调度**功能。开启后，通用端�
 
 > **⚠️ 注意**：Anthropic Claude 和 Antigravity Claude **不能在同一上下文中混合使用**，请通过分组功能做好隔离。
 
-
 ### 已知问题
-在 Claude Code 中，无法自动退出Plan Mode。（正常使用原生Claude Api时，Plan 完成后，Claude Code会弹出弹出选项让用户同意或拒绝Plan。） 
-解决办法：shift + Tab，手动退出Plan mode，然后输入内容 告诉 Claude Code 同意或拒绝 Plan
+
+在 Claude Code 中，无法自动退出 Plan Mode。（正常使用原生 Claude API 时，Plan 完成后，Claude Code 会弹出选项让用户同意或拒绝 Plan。）
+
+**解决办法**：按 `Shift + Tab` 手动退出 Plan Mode，然后输入内容告诉 Claude Code 同意或拒绝 Plan。
+
 ---
 
 ## 项目结构
 
 ```
-sub2api/
+code80/
 ├── backend/                  # Go 后端服务
 │   ├── cmd/server/           # 应用入口
 │   ├── internal/             # 内部模块
